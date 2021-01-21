@@ -72,9 +72,8 @@
             type="submit"
             :disabled="invalid"
             block
-            id="verificationButton"
           >
-            {{ verificationButton }}
+            이메일 인증
           </v-btn>
         </form>
       </validation-observer>
@@ -144,80 +143,59 @@ export default {
       
       isTerm: false,
       isLoading: false,
-      verificationButton :'이메일 인증',
     };
   },
   methods: {
     submit() {
       const self = this
-      if (self.verificationButton === '이메일 재인증'){
-        // disable 시키고
-        // setTimeout(()=> {
-        // able
-        //   console.log('Works!')
-        //   this.$router.push({name: 'Login'})
-        // }, 3000);
-        console.log(firebase.auth().currentUser)
-        firebase.auth().currentUser.sendEmailVerification()
-        .then(() => {
-          alert('인증메일 재발송')
-        })
-      }else{
-        self.verificationButton = '이메일 재인증'
-        // disable 시키고
-        // setTimeout(()=> {
-        // able
-        //   console.log('Works!')
-        //   this.$router.push({name: 'Login'})
-        // }, 3000);
-        self.verificationDisable ='Disabled'
-        firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-        .then((res) => {
-          console.log(res.user)
-          res.user.updateProfile({
-            displayName: self.nickName,
-            })
-            .then(()=>{
-              const user = firebase.auth().currentUser
-                self.userInfo={
-                "id":  user.uid,
-                "password": self.password,
-                "email": user.email,
-                "nickname": user.displayName,
-                }
-              
+      self.verificationDisable ='Disabled'
+      firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+      .then((res) => {
+        console.log(res.user)
+        res.user.updateProfile({
+          displayName: self.nickName,
+          })
+          .then(()=>{
+            const user = firebase.auth().currentUser
+              self.userInfo={
+              "id":  user.uid,
+              "password": self.password,
+              "email": user.email,
+              "nickname": user.displayName,
+              }
+            
 
-              axios.post('http://localhost:8080/api/v1/accounts', self.userInfo)
+            axios.post('http://localhost:8080/api/v1/accounts', self.userInfo)
+            .then(() => {
+              console.log('back에 데이터 넘겨주기 성공')
+
+              res.user.sendEmailVerification()
               .then(() => {
-                console.log('back에 데이터 넘겨주기 성공')
-
-                res.user.sendEmailVerification()
-                .then(() => {
-                  alert('인증메일 발송')
-                  })
-                .catch((err) => {
-                  alert('error :' + err.message)
-                  })
-
+                alert('인증메일 발송 이메일을 확인해주세요')
+                this.$router.push({name:'Login'})
                 })
               .catch((err) => {
-                res.user.delete().then(function() {
-                  
-                  })
-                  .catch(function(err) {
-                    
-                  })
-
                 alert('error :' + err.message)
                 })
+
               })
-            })      
-        .catch((err) => {
-          alert('error :' + err.message)
-          })
-        }
-      },  
-    },
+            .catch((err) => {
+              res.user.delete().then(function() {
+                
+                })
+                .catch(function(err) {
+                  
+                })
+
+              alert('error :' + err.message)
+              })
+            })
+          })      
+      .catch((err) => {
+        alert('error :' + err.message)
+        })
+    }
+  },  
 }
 </script>
 

@@ -112,18 +112,31 @@ export default {
 
       firebase.auth().signInWithEmailAndPassword(self.email, self.password)
       .then(res => {
+        
         var user = res.user
+        const verifiedState = user.emailVerified
+        if (verifiedState){
+        
+          user.getIdToken()
+          .then(token => {
+            sessionStorage.setItem('jwt', token)
+            self.$emit('login')
+            self.$router.push({ name: 'FeedMain' })
+          })
+          .catch(err => {
+            alert("오류"); // TODO: 오류페이지로 변경
+            console.log('Error', err.message);
+          })}
+        else{
+          user.sendEmailVerification()
+          .then(() => {
+            alert('이메일 인증이 안되어있습니다. 이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요')
+          })
+          .catch((err) => {
+            alert('인증메일이 발송된지 얼마지나지 않았습니다. 이메일에서 인증메일을 확인해주세요')
+          })
+        } 
 
-        user.getIdToken()
-        .then(token => {
-          sessionStorage.setItem('jwt', token)
-          self.$emit('login')
-          self.$router.push({ name: 'FeedMain' })
-        })
-        .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
-        })  
       })
       .catch(err => {
         alert("오류"); // TODO: 오류페이지로 변경
