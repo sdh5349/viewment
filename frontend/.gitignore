@@ -1,0 +1,61 @@
+.DS_Store
+node_modules
+/dist
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Lock files
+package-lock.json
+yarn.lock
+
+
+# Created by https://www.toptal.com/developers/gitignore/api/vscode,vue,firebase
+# Edit at https://www.toptal.com/developers/gitignore?templates=vscode,vue,firebase
+
+### Firebase ###
+.idea
+**/node_modules/*
+**/.firebaserc
+firebaseConfig.js
+
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/
+
+### vscode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+### Vue ###
+# gitignore template for Vue.js projects
+#
+# Recommended template: Node.gitignore
+
+# TODO: where does this rule come from?
+docs/_book
+
+# TODO: where does this rule come from?
+test/
+
+# End of https://www.toptal.com/developers/gitignore/api/vscode,vue,firebase
