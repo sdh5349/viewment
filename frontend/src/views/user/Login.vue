@@ -1,0 +1,149 @@
+<template>
+  <v-row
+    justify="center"
+  >
+    <v-col
+      lg="4"
+      md="4"
+      sm="6"
+    >
+      <h1>로그인</h1>
+      <validation-observer
+        ref="observer"
+        v-slot="{ invalid }"
+      >
+        <form @submit.prevent="submit">
+          <validation-provider
+            v-slot="{ errors }"
+            rules="required|email"
+          >
+            <v-text-field
+              v-model="email"
+              :error-messages="errors"
+              label="이메일"
+            ></v-text-field>
+          </validation-provider>
+          
+          <validation-provider
+            v-slot="{ errors }"
+            rules="required|min:8"
+          >
+            <v-text-field
+              v-model="password"
+              :error-messages="errors"
+              label="비밀번호"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append="showPassword = !showPassword"
+            ></v-text-field>
+          </validation-provider>
+
+          <v-btn
+            class="mr-4"
+            type="submit"
+            :disabled="invalid"
+            block
+          >
+            login
+          </v-btn>
+        </form>
+      </validation-observer>
+      
+      <br>
+      <div class="d-flex">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="primary"
+          elevation="2"
+          @click="onResetPassword"
+          class="mr-3"
+          small
+        > 비밀번호 재설정 </v-btn>
+        <v-btn
+          color="primary"
+          elevation="2"
+          @click="onJoin"
+          small
+        > 회원가입 </v-btn>
+        </div>
+    </v-col>
+  </v-row>
+</template>
+
+<script>
+import firebase from 'firebase/app';
+import { required, email, min } from 'vee-validate/dist/rules'
+import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+
+// https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
+setInteractionMode('eager') // 유효성 검사의 시기
+
+// 유효성 검사 규칙 커스터마이징
+extend('email', {
+  ...email,
+  message: '이메일을 다시 확인해 주세요.',
+})
+
+extend('required', {
+  ...required,
+  message: '필수 입력 항목입니다.'
+})
+
+extend('min', {
+  ...min,
+  message: '비밀번호는 8글자 이상이어야 합니다.'
+})
+
+export default {
+  data: () => {
+    return {
+      email: "",
+      password: "",
+      showPassword: false,
+    }
+  },
+  components: {
+    ValidationProvider,
+    ValidationObserver,
+  },
+  methods: {
+    submit () {
+      const self = this
+
+      firebase.auth().signInWithEmailAndPassword(self.email, self.password)
+      .then(res => {
+        var user = res.user
+
+        user.getIdToken()
+        .then(token => {
+          sessionStorage.setItem('jwt', token)
+          self.$emit('login')
+          self.$router.push({ name: 'FeedMain' })
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+        })  
+      })
+      .catch(err => {
+        alert("오류"); // TODO: 오류페이지로 변경
+        this.status = 400
+        console.log('Error', err.message);
+      })  
+    },
+    onResetPassword() {
+      this.$router.push({ name: 'FindEmailConfirm' })
+    },
+    onJoin() {
+      this.$router.push({ name: 'Join' })
+    }
+  },
+  created() {
+    const token = sessionStorage.getItem('jwt')
+
+    if (token) {
+      this.$router.push({name: 'FeedMain'})
+    }
+  },
+}
+</script>
