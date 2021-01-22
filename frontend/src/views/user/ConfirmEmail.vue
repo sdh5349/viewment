@@ -58,7 +58,7 @@
   // 유효성 검사 규칙 커스터마이징 끝
 
   export default {
-    name: 'FindEmailConfirm',
+    name: 'ConfirmEmail',
     components: {
       ValidationProvider,
       ValidationObserver,
