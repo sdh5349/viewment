@@ -16,9 +16,9 @@
               mdi-arrow-left
             </v-icon>
           </v-btn>
-    
-          <v-toolbar-title>Title</v-toolbar-title>
-    
+
+          <v-toolbar-title>{{pageName}}</v-toolbar-title>
+        
           <v-spacer></v-spacer>
     
           <v-btn icon>
@@ -43,7 +43,10 @@
           max-height="600"
         > -->
           <v-container fluid style="height: 1500px;" class="mt-5">
-            <router-view @login="login=true"/>
+            <router-view
+             class="mt-5"
+             @login="login=true"
+            />
           </v-container>
         <!-- </v-sheet> -->
       <!-- </v-card> -->
@@ -93,9 +96,10 @@ export default {
   },
   data: () => ({
     login: false,
-    // pageName: "",
-    // tempPageName: "",
-    // strPageName: "",
+    pageName: "",
+    tempPageName: "",
+    strPageName: "",
+    str: window.location.href
   }),
   methods: {
     // onLogout() {
@@ -103,9 +107,9 @@ export default {
     //   this.login = false
     //   this.$router.push({ name: 'Login' })
     // },
-    // onChangePassword() {
-    //   this.$router.push({ name: 'ChangePassword' })
-    // },
+    onChangePassword() {
+      this.$router.push({ name: 'ChangePassword' })
+    },
     goPrevious() {
       this.$router.go(-1)
     },
@@ -115,12 +119,12 @@ export default {
     goSearch () {
       this.$router.push({ name: '' })
     },
-    // getPageName(pageName,tempPageName,strPageName) {
-    //   this.tempPageName = window.location.href
-    //   this.strPageName = tempPageName.split("/")
-    //   this.pageName = strPageName[strPageName.length-1].split("?")[0]
-    //   // return pageName;
-    // }
+    getPageName() {
+      this.tempPageName = window.location.href
+      this.strPageName = this.tempPageName.split("/")
+      this.pageName = this.strPageName[this.strPageName.length-1].split("?")[0]
+      console.log(this.pageName)
+    },
     goFeed() {
       this.$router.push({ name: '' })
     },
@@ -135,11 +139,12 @@ export default {
     },
   },
   created() {
+    this.getPageName()
     const token = sessionStorage.getItem('jwt')
     if (token) {
       this.login = true
     }
-  }
+  },
 };
 </script>
 
