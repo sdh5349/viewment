@@ -87,6 +87,8 @@ import firebase from 'firebase/app'
 import { required, email, min, max } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
 
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+
 // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
 setInteractionMode('eager') // 유효성 검사의 시기
 
@@ -165,7 +167,7 @@ export default {
               }
             
 
-            axios.post('http://localhost:8080/api/v1/accounts', self.userInfo)
+            axios.post(`${SERVER_URL}/api/v1/accounts`, self.userInfo)
             .then(() => {
               console.log('back에 데이터 넘겨주기 성공')
 
