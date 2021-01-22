@@ -10,8 +10,8 @@
 </template>
 <script>
 import firebase from 'firebase/app'
-import ResetPassword from '@/components/user/find/ResetPassword'
-import JoinComplete from '@/components/user/join/JoinComplete'
+import ResetPassword from '@/components/user/ResetPassword'
+import JoinComplete from '@/components/user/JoinComplete'
 
 export default {
   name: 'ActionUrlHandler',
