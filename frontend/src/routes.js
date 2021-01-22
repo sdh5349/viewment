@@ -48,7 +48,7 @@ export default [
         component : ChangePassword
     },
     {
-        path : '/user/actionUrlHandler',
+        path : '/user/action-url-handler',
         name : 'ActionUrlHandler',
         component : ActionUrlHandler,
     },
