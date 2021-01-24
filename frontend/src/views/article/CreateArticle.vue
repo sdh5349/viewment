@@ -14,18 +14,20 @@
           <validation-provider rules="required" v-slot="{ errors }">
             <v-file-input
               accept="image/*"
+              multiple
               placeholder="추억을 올려주세요!"   
               prepend-icon="mdi-camera"
               :error-messages="errors"
               @change="previewImg"
               >
             </v-file-input>
-            <v-img 
-              v-if='imagePreviewURL' 
-              :src=imagePreviewURL
-              max-height="150"
-              max-width="250">
-            </v-img>
+
+      <v-card>
+        <v-img 
+          v-for="(file, index) in preview" :key="index"
+          :src="file.url">
+        </v-img>
+      </v-card>
 
           </validation-provider>
 
@@ -39,7 +41,6 @@
               type="text"
               label="게시글"
               :error-messages="errors"
-              v-model="content"
               >
               
             </v-textarea>
@@ -84,21 +85,31 @@ export default {
   },
   data: () => {
     return {
-      imagePreviewURL: 'null',
+      imgFiles: undefined,
+      fileInfos: [
+      ],
+      preview: '',
       articleInfo: {
-        content: ''
-      }
+      },
+
+      
     }
   },
   methods: {
     previewImg(res) {
-      const file = res.name
-      this.imagePreviewURL = URL.createObjectURL(res)
+      this.imgFiles = res
+      for (var i=0; i<this.imgFiles.length; i++) {
+        this.fileInfos[i] = {
+          name: this.imgFiles[i].name,
+          url: URL.createObjectURL(this.imgFiles[i])
+          }
+        }  
+      this.preview = this.fileInfos
     },
     submit() {
-
-    }
-  }
+      
+      },
+    },
 }
 </script>
 
