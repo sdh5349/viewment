@@ -8,6 +8,7 @@ import NotFound from './views/error/NotFound.vue'
 import ChangePassword from './views/user/ChangePassword.vue'
 import FeedMain from './views/feed/IndexFeed.vue'
 import ActionUrlHandler from './views/user/ActionUrlHandler.vue'
+import Profile from './views/user/Profile.vue'
 
 
 
@@ -43,14 +44,19 @@ export default [
         component : NotFound
     },
     {
-        path : '/user/resetPassword',
+        path : '/user/reset-password',
         name : 'ChangePassword',
         component : ChangePassword
     },
     {
-        path : '/user/actionUrlHandler',
+        path : '/user/action-url-handler',
         name : 'ActionUrlHandler',
         component : ActionUrlHandler,
+    },
+    {
+        path : '/user/profile/',
+        name : 'Profile',
+        component : Profile,
     },
     {
         path: '*',

@@ -39,6 +39,7 @@ export default {
   methods: {
     onLogout() {
       sessionStorage.removeItem('jwt')
+      sessionStorage.removeItem('uid')
       this.login = false
       this.$router.push({ name: 'Login' })
     },

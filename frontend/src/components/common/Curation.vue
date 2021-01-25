@@ -5,11 +5,11 @@
         </h4>
 
         <div class="btns" v-if="!isSelect">
-            <button @click="selectTriggle">선택</button>
-            <button>보기</button>
+          <button @click="selectTriggle">선택</button>
+          <button>보기</button>
         </div>
         <span v-if="isSelect" class="select-text" @click="cancelSelect">
-            선택됨
+          선택됨
         </span>
 
 
@@ -18,21 +18,21 @@
 </template>
 
 <script>
-    export default {
-        name: "curation",
-        props : ['curationTitle'],
-        data: () => {
-            return {
-                isSelect:false,
-            }
+  export default {
+    name: "curation",
+    props : ['curationTitle'],
+    data: () => {
+        return {
+            isSelect:false,
+        }
+    },
+    methods: {
+        selectTriggle(){
+            this.isSelect = true
         },
-        methods: {
-            selectTriggle(){
-                this.isSelect = true
-            },
-            cancelSelect() {
-                this.isSelect = false;
-            }
-        },
-    }
+        cancelSelect() {
+            this.isSelect = false;
+        }
+    },
+  }
 </script>

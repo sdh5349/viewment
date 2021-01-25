@@ -18,7 +18,8 @@ export default {
       }, 3000);
     },
   },
-  created() {    
+  created() {
+    
     this.helloJoin()
   }
 }
