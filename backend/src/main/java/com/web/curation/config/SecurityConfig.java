@@ -3,7 +3,6 @@ package com.web.curation.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.web.curation.commons.ErrorResponse;
 import com.web.curation.security.FirebaseFilter;
-import com.web.curation.security.JwtRequestFilter;
 import com.web.curation.security.auth.FirebaseAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

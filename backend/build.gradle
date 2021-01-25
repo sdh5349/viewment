@@ -24,7 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.google.firebase:firebase-admin:7.0.1'
 
-	compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 

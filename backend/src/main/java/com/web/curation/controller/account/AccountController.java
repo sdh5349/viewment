@@ -1,13 +1,9 @@
 package com.web.curation.controller.account;
 
 import com.web.curation.commons.ErrorResponse;
-import com.web.curation.domain.User;
-import com.web.curation.dto.AuthenticationRequestDto;
-import com.web.curation.dto.AuthenticationResponseDto;
 import com.web.curation.dto.UserDto;
 import com.web.curation.exceptions.UserDuplicateException;
 import com.web.curation.exceptions.UserNotFoundException;
-import com.web.curation.security.JwtUtil;
 import com.web.curation.service.user.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,14 +11,7 @@ import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 
 /*@ApiResponses(value = { @ApiResponse(code = 401, message = "Unauthorized", response = BasicResponse.class),
