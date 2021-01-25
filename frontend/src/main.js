@@ -15,6 +15,13 @@ const router = new VueRouter({
     routes,
     mode: 'history',
 });
+router.beforeEach((to, from, next) => {
+    /* It will change the title when the router is change*/
+    if (to.meta.title) {
+      document.title = to.meta.title;
+    }
+    next();
+});
 
 new Vue({
     router,

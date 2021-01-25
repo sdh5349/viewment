@@ -6,7 +6,6 @@
           fixed
           color="white"
           elevate-on-scroll
-          scroll-target="#scrolling-techniques-7"
         >
           <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
           <v-btn icon>
@@ -17,7 +16,7 @@
             </v-icon>
           </v-btn>
 
-          <v-toolbar-title>{{pageName}}</v-toolbar-title>
+          <v-toolbar-title>{{$route.meta.title}}</v-toolbar-title>
         
           <v-spacer></v-spacer>
     
@@ -96,10 +95,6 @@ export default {
   },
   data: () => ({
     login: false,
-    pageName: "",
-    tempPageName: "",
-    strPageName: "",
-    str: window.location.href
   }),
   methods: {
     // onLogout() {
@@ -116,17 +111,19 @@ export default {
     createArticle() {
       this.$router.push({ name: '' })
     },
-    goSearch () {
-      this.$router.push({ name: '' })
-    },
-    getPageName() {
-      this.tempPageName = window.location.href
-      this.strPageName = this.tempPageName.split("/")
-      this.pageName = this.strPageName[this.strPageName.length-1].split("?")[0]
-      console.log(this.pageName)
+    goSearch() {
+      console.log('search')
+      this.$router.push({ name: 'Search' })
     },
     goFeed() {
-      this.$router.push({ name: '' })
+      const token = sessionStorage.getItem('jwt')
+      if (token) {
+        // this.pageName = this.$router.meta.title
+        this.$router.push({ name: 'FeedMain' })
+      }
+      else{
+        alert("login required")
+      }
     },
     goAlarm() {
       this.$router.push({ name: '' })
@@ -139,7 +136,6 @@ export default {
     },
   },
   created() {
-    this.getPageName()
     const token = sessionStorage.getItem('jwt')
     if (token) {
       this.login = true
