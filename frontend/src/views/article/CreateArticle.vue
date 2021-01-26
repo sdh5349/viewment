@@ -14,6 +14,7 @@
           <validation-provider rules="" v-slot="{ errors }">
             <v-file-input
               accept="image/*"
+              v-model="files"
               multiple
               placeholder="추억을 올려주세요!"   
               prepend-icon="mdi-camera"
@@ -132,9 +133,12 @@ export default {
       ],
       preview: '',
       articleInfo: {
-        content: '',
-        img: '',
+        userId: '',
+        lat: '',
+        lng: '',
+        contents: '',
         hashtag: '',
+        imgFormData: '',
       },
       hash: '',
       items: ['가나다', '가나', '가나마바사', '가아낭남'],
@@ -142,12 +146,14 @@ export default {
       position: {
         latitude: '',
         longitude: '',
-      }
+      },
+      files: [],
     }
   },
   methods: {
     previewImg(res) {
       this.imgFiles = res
+      
       for (var i=0; i<this.imgFiles.length; i++) {
         this.fileInfos[i] = {
           name: this.imgFiles[i].name,
@@ -161,14 +167,21 @@ export default {
       this.hash = res
       },
     onInput(res) {
-      this.position.latitude = res.Ma
-      this.position.longitude = res.La
+      this.position.lat = res.Ma
+      this.position.lng = res.La
+      
       },
     submit() {
-      this.articleInfo.content = this.content
-      this.articleInfo.img = this.fileInfos
-      this.articleInfo.hashtag = this.hash
+      var formData = new FormData()
+      formData.append("articleImages", this.imgFiles)
 
+      this.articleInfo.userId = 'dsadsads'
+      this.articleInfo.lat = this.position.lat
+      this.articleInfo.lng = this.position.lng
+      this.articleInfo.contents = this.content
+      this.articleInfo.hashtag = this.hash
+      this.articleInfo.imageFormData = formData
+      
       // axios.post("주소", this.articleInfo)
       // .then(() => {
       //   console.log('성공')
