@@ -5,12 +5,9 @@
     justify="center"
   >
     <v-text-field
-    text-center
-    hide-details
     prepend-icon="mdi-magnify"
     single-line
-    append-icon="mdi-close"
-    @clear:append="myValue = 1"
+    clearable
     label="search"
     >
     </v-text-field>
@@ -59,8 +56,8 @@
     </v-col>
   </v-row>
   <v-row>
-    <div>
-
+    <div v-if="showSearchlog">
+      asdfasd    
     </div>
     <div v-if="showMap">
       <SearchLocation />
@@ -88,30 +85,43 @@ export default {
     SearchUser,   
   },
   data: () => ({
+    showSearchlog: false,
     showMap: false,
     showHashtag: false,
     showAccount: false
   }),
   methods: {
+    showLog() {
+      this.showSearchlog = true
+      this.showMap = false
+      this.showHashtag = false
+      this.showAccount = false
+    },
     goMap() {
-      console.log('Map')
+      this.showSearchlog = false
       this.showMap = true
       this.showHashtag = false
       this.showAccount = false
     },
     goHashtag() {
-      console.log('Hashtag')
+      this.showSearchlog = false
       this.showMap = false
       this.showHashtag = true
       this.showAccount = false
     },
     goUser() {
-      console.log('User')
+      this.showSearchlog = false
       this.showMap = false
       this.showHashtag = false
       this.showAccount = true
     },
-  }
+  },
+  created() {
+    const token = sessionStorage.getItem('jwt')
+    if (token) {
+      this.showLog()
+    }
+  },
 }
 </script>
 
