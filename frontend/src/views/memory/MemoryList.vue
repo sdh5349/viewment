@@ -1,6 +1,6 @@
 <template>
   <div>
-      <h1>프로필 편집</h1>
+      <h1>메모리 리스트</h1>
   </div>
 </template>
 

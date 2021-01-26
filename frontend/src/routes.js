@@ -9,14 +9,18 @@ import ChangePassword from './views/user/ChangePassword.vue'
 import FeedMain from './views/feed/IndexFeed.vue'
 import ActionUrlHandler from './views/user/ActionUrlHandler.vue'
 import Profile from './views/user/Profile.vue'
-
+import FollowList from './views/user/FollowList.vue'
+import MemoryList from './views/memory/MemoryList.vue'
+import EditProfile from './views/user/EditProfile.vue'
+import EditAccount from './views/user/EditAccount.vue'
 
 
 export default [
     {
         path : '/',
         name : 'Login',
-        component : Login
+        component : Login,
+        props : true,
     },
     {
         path : '/user/join/',
@@ -54,9 +58,30 @@ export default [
         component : ActionUrlHandler,
     },
     {
-        path : '/user/profile/',
+        path : '/user/profile/:profileUserId',
         name : 'Profile',
         component : Profile,
+    },
+    {
+        path : '/user/profile/:profileUserId/follow-list',
+        name : 'FollowList',
+        component : FollowList,
+        props : true,
+    },
+    {
+        path : '/memory/:profileUserId/memory-list',
+        name : 'MemoryList',
+        component : MemoryList,
+    },
+    {
+        path : '/user/profile/edit',
+        name : 'EditProfile',
+        component : EditProfile,
+    },
+    {
+        path : '/user/account/edit',
+        name : 'EditAccount',
+        component : EditAccount,
     },
     {
         path: '*',

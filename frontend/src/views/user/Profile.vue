@@ -17,23 +17,46 @@
       class="py-3"
     >
       <v-list-item three-line>
+        <v-card
+          elevation="0"
+        >
         <!-- <v-list-item-avatar
           v-if="userinfo.user.profileImage"
           size="80"
         > -->
-        <v-list-item-avatar
-          v-if="profileUserInfo.user.profileImage"
-          size="80"
-        >
-          <img
-            src=""
+          <v-list-item-avatar
+            v-if="profileUserInfo.user.profileImage"
+            size="80"
           >
-        </v-list-item-avatar>
-        <v-icon
-          v-else
-          color="primary"
-          size="85"
-        >mdi-account-circle</v-icon>
+            <img
+              src=""
+            >
+          </v-list-item-avatar>
+          <v-icon
+            v-else
+            color="primary"
+            size="85"
+          >mdi-account-circle</v-icon>
+          
+          <!-- 계정설정 버튼 시작 -->
+          <v-btn
+            v-if="loginUserId === profileUserId"
+            class="no-background-color top-right-position"
+            x-small
+            fab 
+            elevation="0"
+            @click="onEditAccountButton"
+          >
+            <v-icon
+            large
+            color="grey"
+            >
+            mdi-cog
+            </v-icon>
+          </v-btn>
+          <!-- 계정설정 버튼 끝 -->
+        </v-card>
+
         <v-list-item-content
           class="ml-2"
         >
@@ -54,25 +77,37 @@
 
     <!-- 게시글, 팔로잉, 팔로워, 기억장소 시작 -->
     <v-row class="my-4 px-4">
-      <v-btn 
-        class="col-3"
+      <v-btn
+        class="col-3 disable-events"
         text
       >
         {{ profileUserInfo.articleCount }}
         <br/>
         게시글
       </v-btn>
-      <v-btn text class="col-3">
+      <v-btn 
+        text 
+        class="col-3"
+        @click="onFollowingListButton"
+      >
         {{ profileUserInfo.followingCount }}
         <br/>
         팔로잉
       </v-btn>
-      <v-btn text class="col-3">
+      <v-btn 
+        text 
+        class="col-3"
+        @click="onFollowerListButton"  
+      >
         {{ profileUserInfo.followerCount }}
         <br/>
         팔로워
       </v-btn>
-      <v-btn text class="col-3">
+      <v-btn 
+        text 
+        class="col-3"
+        @click="onMemoryListButton"
+      >
         {{ profileUserInfo.memoryCount }}
         <br/>
         기억장소
@@ -83,13 +118,13 @@
 
     <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 시작 -->
     <v-btn
-      v-if="loginUserId !== profileUserInfo.user.userId"
+      v-if="loginUserId !== profileUserId"
       class="my-4"
-      :color="profileUserfollowInfo.isFollow ? 'error' : 'primary'"
+      :color="this.profileUserInfo.isFollowed ? 'error' : 'primary'"
       block
       @click="onFollowButton"
     >
-      <span v-if="profileUserfollowInfo.isFollow">언팔로우</span>
+      <span v-if="this.profileUserInfo.isFollowed">언팔로우</span>
       <span v-else>팔로우</span>
     </v-btn>
     <v-btn
@@ -97,6 +132,7 @@
       class="my-4"
       color="success"
       block
+      @click="onEditProfileButton"
     >프로필 편집
     </v-btn>
     <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 끝 -->
@@ -150,11 +186,11 @@ export default {
     UserArticleMap,
   },
   props: {
-    userid: Number
+    profileUserId: String
   },
   data() {
     return {
-      loginUserId : '',
+      loginUserId : '1',
       profileUserInfo : {
         "user": {
           "userId": "string",
@@ -172,32 +208,8 @@ export default {
             "imageId": "string", 
             "path": "string"
           }
-        ]
-      },
-      profileUserfollowInfo : {
-        "followers": [{
-          "userId": "string",
-          "nickname": "string",
-          "email": "string",
-          "message": "string",
-          "isFollow": false,
-          "profileImage": {
-            "imageId": "string",
-            "path": "string" 
-          }
-          }],
-        "followings": [{
-          "userId": "string",
-          "nickname": "string",
-          "email": "string",
-          "message": "string",
-          "isFollow": false,
-          "profileImage": {
-            "imageId": "string",
-            "path": "string" 
-          }
-        }],
-        "isFollow": false,
+        ],
+        "isFollowed": false
       },
       tab : null,
       tabItems: [
@@ -208,28 +220,17 @@ export default {
   },
   created() {
     // 데이터 초기화
-    // this.getUserProfile()
+    // this.dataFetch()
   },
   methods: {
     dataFetch() {
       // 필요한 데이터 가져오기
-      axios.get(`${SERVER_URL}/users/${this.userid}/page`)
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
         this.profileUserInfo = res.data
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
-
-        axios.get(`${SERVER_URL}/users/${this.loginUserId}/follows/${this.profileUserInfo.user.userId}`)
-        .then(res => {
-          // 현재 보고있는 프로필 페이지 유저의 팔로우 관련 정보 초기화
-          this.profileUserfollowInfo = res.data
-        })
-        .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
-          // self.$router.push({ name: 'Error' })
-        })
       })
       .catch(err => {
         alert("오류"); // TODO: 오류페이지로 변경
@@ -238,11 +239,19 @@ export default {
       })
     },
     onFollowButton() {
-      this.profileUserfollowInfo.isFollow = !this.profileUserfollowInfo.isFollow
-      // if (this.profileUserfollowInfo.isFollow) {
+      if (this.profileUserInfo.isFollowed) {
+        this.profileUserInfo.followingCount -= 1
+      } else {
+        this.profileUserInfo.followingCount += 1
+      }
+      this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
+      
+      // 실제 데이터 연결 시 받아 올 것임
+      // if (this.profileUserInfo.isFollowed) {
       //   axios.delete(`${SERVER_URL}/users/:userId/follows/:followUid`)
       //   .then(() => {
-      //     this.profileUserfollowInfo.isFollow = !this.profileUserfollowInfo.isFollow
+      //     this.profileUserInfo.followingCount -= 1
+      //     this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
       //   })
       //   .catch(err => {
       //     alert("오류"); // TODO: 오류페이지로 변경
@@ -253,7 +262,8 @@ export default {
       //   var params = {'followUid' : this.profileUserInfo.user.userId }
       //   axios.post(`${SERVER_URL}/users/:userId/follows`, params)
       //   .then(() => {
-      //     this.profileUserfollowInfo.isFollow = !this.profileUserfollowInfo.isFollow
+      //     this.profileUserInfo.followingCount += 1
+      //     this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
       //   })
       //   .catch(err => {
       //     alert("오류"); // TODO: 오류페이지로 변경
@@ -261,11 +271,68 @@ export default {
       //     // self.$router.push({ name: 'Error' })
       //   })
       // }
-    }
+    },
+    onFollowingListButton() {
+      this.$router.push({ 
+        name: 'FollowList', 
+        params: {
+          profileUserId : this.profileUserId,
+          mode : "following"
+        } 
+      })
+    },
+    onFollowerListButton() {
+      this.$router.push({ 
+        name: 'FollowList', 
+        params: {
+          profileUserId : this.profileUserId,
+          mode : "follower"
+        }
+      })
+    },
+    onMemoryListButton() {
+      this.$router.push({ 
+        name: 'MemoryList', 
+        params: {
+          profileUserId : this.profileUserId,
+        }
+      })
+    },
+    onEditProfileButton() {
+      this.$router.push({ 
+        name: 'EditProfile', 
+        params: {
+          profileUserId : this.profileUserId,
+        }
+      })
+    },
+    onEditAccountButton() {
+      this.$router.push({ 
+        name: 'EditAccount', 
+        params: {
+          profileUserId : this.profileUserId,
+        }
+      })
+    },
   }
 }
 </script>
 
-<style>
+<style scoped>
+/* 마우스를 버튼에 올려도 마우스 커서가 활성화 되지 않는다 */
+  .disable-events {
+    pointer-events: none
+  }
 
+/* 배경을 사용하지 않는다 */
+  .no-background-color {
+    background-color: transparent !important;
+  }
+
+/* 계정설정 버튼의 위치를 설정한다 */
+  .top-right-position {
+    position: absolute; 
+    bottom: 0px; 
+    right: 0px;
+  }
 </style>

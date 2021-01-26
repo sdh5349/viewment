@@ -20,17 +20,18 @@
         </span>
       </v-app-bar>
       <v-container fluid>
-        <router-view @login="login=true"/>
+        <router-view 
+          @login="login=true"
+          @logout="login=false"
+        />
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import firebase from 'firebase/app';
 export default {
   name: 'App',
-
   components: {
   },
   data: () => ({
