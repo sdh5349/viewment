@@ -1,4 +1,4 @@
-package com.web.curation.dto;
+package com.web.curation.dto.user;
 
 import com.web.curation.domain.Image;
 import com.web.curation.domain.User;
@@ -14,26 +14,30 @@ import lombok.Setter;
  * @author  김종성
  *
  * @변경이력
+ * 기존 FollowDto의 이름을 SimpleUserInfoDto로 변경함.
+ * 이유는  팔로우/팔로워 리스트에서 뿐만 아니라
+ * 유저 검색 결과로도 이 Dto와 동일한 구성를 보여줘야 하기 때문에
+ * 다양하게 사용할 수 있는 Dto 클래스로 변경  2021-01-26
  **/
 
 @Getter
 @Setter
-public class FollowDto {
+public class SimpleUserInfoDto {
     private String uid;
     private String nickname;
     private Image profileImage;
     private boolean isFollowed;
 
-    public FollowDto(User user){
+    public SimpleUserInfoDto(User user){
         this.uid = user.getId();
         this.nickname = user.getNickname();
-        //this.profileImage = user.getProfileImage();
+        this.profileImage = user.getProfileImage();
     }
 
-    public FollowDto(User user, boolean isFollowed){
+    public SimpleUserInfoDto(User user, boolean isFollowed){
         this.uid = user.getId();
         this.nickname = user.getNickname();
-        //this.profileImage = user.getProfileImage();
+        this.profileImage = user.getProfileImage();
         this.isFollowed = isFollowed;
     }
 }

@@ -1,4 +1,4 @@
-package com.web.curation.dto;
+package com.web.curation.dto.user;
 
 import com.web.curation.domain.Image;
 import com.web.curation.domain.User;
@@ -12,19 +12,17 @@ import javax.persistence.Id;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class UserDto {
-    private String uid;
+    private String id;
     private String email;
     private String nickname;
     private UserRole role;
     private Image profileImage;
-    private int sizeofFollowings;
-    private int sizeofFollowers;
-    private boolean isFollowed;
+
+    public UserDto(){}
 
     public UserDto(User user){
-        this.uid = user.getId();
+        this.id = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.role = user.getRole();
@@ -35,7 +33,7 @@ public class UserDto {
 
     public User convert(){
         User user = new User();
-        user.setId(uid);
+        user.setId(id);
         user.setEmail(email);
         user.setNickname(nickname);
         if(role == null) role = UserRole.USER;

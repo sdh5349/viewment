@@ -1,8 +1,7 @@
 package com.web.curation.service.user;
 
-import com.web.curation.dto.FollowDto;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import com.web.curation.dto.user.SimpleUserInfoDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -18,8 +17,8 @@ public interface FollowService{
 
     public Long follow(String uid, String targetUid);
     public void unfollow(String uid, String targetUid);
-    public List<FollowDto> findFollowingsByUserId(String currentUserUid, String uid);
-    public List<FollowDto> findFollowersByUserId(String currentUserUid, String uid);
+    public List<SimpleUserInfoDto> findFollowingsByUserId(String currentUserUid, String uid, Pageable pageable);
+    public List<SimpleUserInfoDto> findFollowersByUserId(String currentUserUid, String uid, Pageable pageable);
     public int getSizeofFollowers(String uid);
     public int getSizeofFollowings(String uid);
 }

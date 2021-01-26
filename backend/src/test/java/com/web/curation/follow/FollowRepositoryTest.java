@@ -92,4 +92,26 @@ public class FollowRepositoryTest {
         Assertions.assertThat(followings.size()).isSameAs(1);
     }
 
+    @Test
+    void A가B를_팔로우() throws Exception{
+        //given
+        Long fid = followRepository.follow("aaa", "bbb");
+        Long fid2 = followRepository.follow("aaa", "ccc");
+        //when
+        boolean result = followRepository.isFollowed("aaa", "bbb");
+        //then
+        Assertions.assertThat(result).isTrue();
+    }
+
+    @Test
+    void C가B를_팔로우_실패() throws Exception{
+        //given
+        Long fid = followRepository.follow("aaa", "bbb");
+        Long fid2 = followRepository.follow("aaa", "ccc");
+        //when
+        boolean result = followRepository.isFollowed("ccc", "bbb");
+        //then
+        Assertions.assertThat(result).isFalse();
+    }
+
 }

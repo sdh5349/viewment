@@ -9,4 +9,7 @@ public interface FollowRepository {
 
     public List<User> findFollowers(String uid);
     public List<User> findFollowings(String uid);
+
+    public boolean isFollowed(String fromUserId, String toUserId);
+
 }

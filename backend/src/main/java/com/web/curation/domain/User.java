@@ -3,12 +3,10 @@ package com.web.curation.domain;
 import com.web.curation.domain.connection.Follow;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.ManyToAny;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ public class User {
     private String message;
 
     @Column(name="JOIN_DATE")
-    @ColumnDefault("now()")
+    @CreationTimestamp
     private Timestamp joinDate;
 
     public User(){}
@@ -74,9 +72,9 @@ public class User {
 //    @OneToMany
 //    @JoinColumn(name="USER_ID")
 //    private List<Object> replies = new ArrayList<>();
-
-
-    //private Image profileImage;
+    @OneToOne
+    @JoinColumn(name="IMAGE_ID")
+    private Image profileImage;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;

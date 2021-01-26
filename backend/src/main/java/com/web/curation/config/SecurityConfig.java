@@ -41,7 +41,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ObjectMapper mapper;
     private final UserDetailsService userDetailsService;
-    //private final JwtRequestFilter jwtRequestFilter;
     private final FirebaseFilter authFilter;
     private final AuthenticationProvider authenticationProvider;
 
@@ -53,8 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/api/v1/accounts").permitAll()
-                    .antMatchers("/all").permitAll()
-                    .antMatchers("/test").hasRole("USER")
+                    .antMatchers("/api/v1/users/**").hasRole("USER")
                     .antMatchers("/api/v1/admin**").hasRole("ADMIN")
                     .anyRequest().authenticated()
                 .and()

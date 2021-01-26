@@ -1,8 +1,9 @@
-package com.web.curation.follow;
+package com.web.curation.user;
 
 import com.web.curation.domain.User;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.service.user.FollowService;
+import com.web.curation.service.user.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,17 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 @Transactional
-public class FollowServiceTest {
-
+public class UserRepositoryTest {
     @PersistenceContext
     EntityManager em;
 
     @Autowired
     FollowService followService;
+
+    @Autowired
+    UserService userService;
 
     @BeforeEach
     void setUp(){
@@ -32,34 +34,43 @@ public class FollowServiceTest {
         User u2 = new User("bbb", "B", "B");
         User u3 = new User("ccc", "C", "C");
         User u4 = new User("ddd", "D", "D");
+        User u5 = new User("eee", "E", "AD");
+        User u6 = new User("fff", "F", "AA");
 
         em.persist(u1);
         em.persist(u2);
         em.persist(u3);
         em.persist(u4);
+        em.persist(u5);
+        em.persist(u6);
 
         followService.follow("aaa", "bbb");
         followService.follow("aaa", "ccc");
         followService.follow("bbb", "aaa");
         followService.follow("ccc", "aaa");
         followService.follow("ddd", "aaa");
-        /**
-         *  A -> B, C
-         *  B, C, D -> A
-         */
     }
 
     @Test
-    void 내가_팔로우하지_않는_사용자가_포함된_목록() throws Exception{
+    void 닉네임_검색_성공() throws Exception{
         //given
 
         //when
-        List<SimpleUserInfoDto> followers = followService.findFollowersByUserId("aaa", "aaa", PageRequest.of(0, 10));
+        List<SimpleUserInfoDto> list = userService.findUsersByNickname("bbb", "A", PageRequest.of(0, 10));
         //then
-        int size = followers.stream()
-                .filter(f -> !f.isFollowed())
-                .collect(Collectors.toList()).size();
 
-        Assertions.assertThat(size).isSameAs(1);
+        Assertions.assertThat(list.size()).isEqualTo(3);
     }
+
+    @Test
+    void 닉네임_검색_페이징_성공() throws Exception{
+        //given
+
+        //when
+        List<SimpleUserInfoDto> list = userService.findUsersByNickname("bbb", "A", PageRequest.of(1, 2));
+        //then
+
+        Assertions.assertThat(list.size()).isEqualTo(1);
+    }
+
 }

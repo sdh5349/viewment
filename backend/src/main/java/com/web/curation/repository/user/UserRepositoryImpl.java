@@ -1,15 +1,12 @@
-package com.web.curation.repository;
+package com.web.curation.repository.user;
 
 import com.web.curation.domain.User;
-import com.web.curation.domain.connection.Follow;
 import com.web.curation.exceptions.UserNotFoundException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,9 +46,12 @@ public class UserRepositoryImpl implements UserRepository{
     }
 
     @Override
-    public List<User> findByNickName(String nickname) {
-        return em.createQuery("select u from User u where u.nickname = :nickname", User.class)
-                .setParameter("nickname", nickname).getResultList();
+    public List<User> findByNickName(String nickname, Pageable pageable) {
+        return em.createQuery("select u from User u where u.nickname like '%'||:nickname||'%'", User.class)
+                .setParameter("nickname", nickname)
+                .setFirstResult(pageable.getPageNumber()* pageable.getPageSize())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
     }
 
     @Override

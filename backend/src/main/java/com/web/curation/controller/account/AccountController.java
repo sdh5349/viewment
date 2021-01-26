@@ -1,7 +1,7 @@
 package com.web.curation.controller.account;
 
 import com.web.curation.commons.ErrorResponse;
-import com.web.curation.dto.UserDto;
+import com.web.curation.dto.user.UserDto;
 import com.web.curation.exceptions.UserDuplicateException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.service.user.AccountService;
@@ -38,17 +38,29 @@ public class AccountController {
         return new ResponseEntity<String>("Created", HttpStatus.CREATED);
     }
 
+
+    @ApiOperation(value = "회원 계정 수정")
     @PatchMapping("")
     public ResponseEntity<?> modify(@RequestBody UserDto userDto){
         String modifyId = accountService.modify(userDto);
         return new ResponseEntity<String>("Modified: " + modifyId, HttpStatus.OK);
     }
 
+
+    @ApiOperation(value = "회원 탈퇴")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable(value = "id") String id){
         String deleteId = accountService.delete(id);
         return new ResponseEntity<String>("Deleted: " + deleteId, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "중복 이메일 확인")
+    @GetMapping("/{email}/check")
+    public ResponseEntity<?> checkDuplicatedEmail(@PathVariable(value = "email") String email){
+        accountService.validateDuplicateUser(email);
+        return ResponseEntity.ok().build();
+    }
+
 //    @PostMapping("/authenticate")
 //    @ApiOperation(value="인증 토큰 획득")
 //    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequestDto authenticationRequest) {
