@@ -4,6 +4,7 @@ import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,10 +13,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "article")
-@Getter @Setter
+@Getter
 public class Article {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long articleId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,7 +40,7 @@ public class Article {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contents;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @ColumnDefault("now()")
     private LocalDateTime wdate;
 
 
@@ -50,6 +52,10 @@ public class Article {
     public void setPin(Pin pin) {
         this.pin = pin;
         pin.getArticles().add(this);
+    }
+
+    public void setContents(String contents){
+        this.contents = contents;
     }
 
     public void addArticleImage(ArticleImage articleImage){

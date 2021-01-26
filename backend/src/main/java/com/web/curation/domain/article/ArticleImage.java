@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter @Setter
 public class ArticleImage {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "article_image_id")
     private Long id;
 
@@ -25,4 +26,11 @@ public class ArticleImage {
 
     @Column(nullable = false)
     private byte no;
+
+    public static ArticleImage createArticleImage(Image image, int no) {
+        ArticleImage articleImage = new ArticleImage();
+        articleImage.setImage(image);
+        articleImage.setNo((byte) no);
+        return articleImage;
+    }
 }
