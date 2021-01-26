@@ -6,10 +6,12 @@
   >
     <v-text-field
     prepend-icon="mdi-magnify"
-    single-line
     clearable
-    label="search"
+    :rules="rules"
     >
+      <template v-slot:label>
+       {{search}}
+      </template>
     </v-text-field>
   </v-row>
   <v-row
@@ -76,6 +78,7 @@
 import SearchLocation from '@/components/search/SearchLocation'
 import SearchHashtag from '@/components/search/SearchHashtag'
 import SearchUser from '@/components/search/SearchUser'
+import axios from 'axios'
 
 export default {
   name: 'Search',
@@ -88,32 +91,60 @@ export default {
     showSearchlog: false,
     showMap: false,
     showHashtag: false,
-    showAccount: false
+    showAccount: false,
+    search : "Search",
+    rules: [
+      value => !!value || 'Required.',
+      value => (value && value.length >= 3) || 'Min 3 characters',
+    ],
   }),
   methods: {
     showLog() {
+      this.search = "Search"
       this.showSearchlog = true
       this.showMap = false
       this.showHashtag = false
       this.showAccount = false
     },
     goMap() {
+      this.search = "Map Search"
       this.showSearchlog = false
       this.showMap = true
       this.showHashtag = false
       this.showAccount = false
     },
     goHashtag() {
+      this.search = "Hashtag Search"
       this.showSearchlog = false
       this.showMap = false
       this.showHashtag = true
       this.showAccount = false
     },
     goUser() {
+      this.search = "User Search"
       this.showSearchlog = false
       this.showMap = false
       this.showHashtag = false
       this.showAccount = true
+    },
+    setToken() {
+      const token = localStorage.getItem('jwt')
+      const config = {
+        headers: {
+          Authoriztion: `JWT ${token}`
+        }
+      }
+      return config
+    },
+    getSearchlog() {
+      const config = this.setToken()
+      axios.get('', config)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
     },
   },
   created() {
