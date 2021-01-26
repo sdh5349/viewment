@@ -8,7 +8,7 @@ import NotFound from './views/error/NotFound.vue'
 import ChangePassword from './views/user/ChangePassword.vue'
 import FeedMain from './views/feed/IndexFeed.vue'
 import ActionUrlHandler from './views/user/ActionUrlHandler.vue'
-
+import CreateArticle from './views/article/CreateArticle.vue'
 
 
 export default [
@@ -48,12 +48,17 @@ export default [
         component : ChangePassword
     },
     {
-        path : '/user/actionUrlHandler',
+        path : '/user/action-url-handler',
         name : 'ActionUrlHandler',
         component : ActionUrlHandler,
     },
     {
         path: '*',
         redirect: '/user/error/404'
-    }
+    },
+    {
+        path : '/article/create',
+        name : 'CreateArticle',
+        component : CreateArticle,
+    }, 
 ]
