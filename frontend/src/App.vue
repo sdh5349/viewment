@@ -20,10 +20,11 @@
         
           <v-spacer></v-spacer>
     
-          <v-btn icon>
-            <v-icon
-              @click="goSearch"
-            >
+          <v-btn 
+            icon
+            @click="goSearch"
+          >
+            <v-icon>
               fas fa-search
             </v-icon>
           </v-btn>
@@ -112,7 +113,6 @@ export default {
       this.$router.push({ name: '' })
     },
     goSearch() {
-      console.log('search')
       this.$router.push({ name: 'Search' })
     },
     goFeed() {
