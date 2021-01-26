@@ -11,7 +11,7 @@
 
       <validation-observer ref="observer" v-slot="{ invalid }">
         <form @submit.prevent="submit">
-          <validation-provider rules="required" v-slot="{ errors }">
+          <validation-provider rules="" v-slot="{ errors }">
             <v-file-input
               accept="image/*"
               multiple
@@ -22,32 +22,70 @@
               >
             </v-file-input>
 
-      <v-card>
-        <v-img 
-          v-for="(file, index) in preview" :key="index"
-          :src="file.url">
-        </v-img>
-      </v-card>
+      <v-carousel 
+        v-if="preview"
+        :show-arrows="false">
+        <v-carousel-item
+          v-for="(file, index) in preview" 
+          :key="index"
+          :src="file.url"
+          reverse-transition="fade-transition"
+          transition="fade-transition"          
+        ></v-carousel-item>
+      </v-carousel>
 
           </validation-provider>
 
-          <p>위치설정</p>
-          <div id="map" style="width:500px;height:400px;"></div>
+          <SetLocation
+            @onClick="onInput"
+          />
+          
 
-
-          <validation-provider rules="ruquired" v-slot="{ errors }">
+          <validation-provider rules="required" v-slot="{ errors }">
             <v-textarea
               placeholder="추억을 적어주세요!"
               type="text"
               label="게시글"
+              v-model="content"
               :error-messages="errors"
               >
               
             </v-textarea>
           </validation-provider>
-          <p>해시태그 자리</p>
+
+         <v-combobox
+          v-model="hash"
+          :items="items"
+          label="해시태그"
+          multiple
+          chips
+          @change="writeHash"
+        >
+        
+          <template v-slot:selection="data">
+            <v-chip
+              :key="JSON.stringify(data.item)"
+              v-bind="data.attrs"
+              :input-value="data.selected"
+              :disabled="data.disabled"
+              @click:close="data.parent.selectItem(data.item)"
+            >
+              <v-avatar
+                class="accent white--text"
+                left
+                v-text="'#'"
+              ></v-avatar>
+              {{ data.item }}
+            </v-chip>
+          </template>
+        
+        
+        </v-combobox>
+          
 
         
+
+
           <v-btn
             class="mr-4"
             type="submit"
@@ -67,8 +105,11 @@ import axios from 'axios'
 import firebase from 'firebase/app'
 import { required } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
-
+import SetLocation from '@/components/article/SetLocation.vue'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
+
+
+
 
 // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
 setInteractionMode('eager') // 유효성 검사의 시기
@@ -81,7 +122,8 @@ extend('required', {
 export default {
   components: {
     ValidationProvider,
-    ValidationObserver
+    ValidationObserver,
+    SetLocation
   },
   data: () => {
     return {
@@ -90,9 +132,17 @@ export default {
       ],
       preview: '',
       articleInfo: {
+        content: '',
+        img: '',
+        hashtag: '',
       },
-
-      
+      hash: '',
+      items: ['가나다', '가나', '가나마바사', '가아낭남'],
+      content: '',
+      position: {
+        latitude: '',
+        longitude: '',
+      }
     }
   },
   methods: {
@@ -106,8 +156,23 @@ export default {
         }  
       this.preview = this.fileInfos
     },
+    writeHash(res) {
+      // this.hash.append(res)
+      this.hash = res
+      },
+    onInput(res) {
+      this.position.latitude = res.Ma
+      this.position.longitude = res.La
+      },
     submit() {
-      
+      this.articleInfo.content = this.content
+      this.articleInfo.img = this.fileInfos
+      this.articleInfo.hashtag = this.hash
+
+      // axios.post("주소", this.articleInfo)
+      // .then(() => {
+      //   console.log('성공')
+      //   })
       },
     },
 }

@@ -5,11 +5,13 @@ import routes from './routes'
 import store from './vuex/store'
 import vuetify from './plugins/vuetify'
 import './plugins/firebase'
+import VueGeolocation from 'vue-browser-geolocation';
 
 
 Vue.config.productionTip = false
 
 Vue.use(VueRouter)
+Vue.use(VueGeolocation);
 
 const router = new VueRouter({
     routes,
