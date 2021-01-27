@@ -20,10 +20,6 @@
         <v-card
           elevation="0"
         >
-        <!-- <v-list-item-avatar
-          v-if="userinfo.user.profileImage"
-          size="80"
-        > -->
           <v-list-item-avatar
             v-if="profileUserInfo.user.profileImage"
             size="80"
@@ -75,7 +71,7 @@
     <!-- 프로필 카드 끝 -->
     
 
-    <!-- 게시글, 팔로잉, 팔로워, 기억장소 시작 -->
+    <!-- 게시글, 팔로워 리스트, 팔로잉 리스트, 기억장소 리스트 시작 -->
     <v-row class="my-4 px-4">
       <v-btn
         class="col-3 disable-events"
@@ -84,15 +80,6 @@
         {{ profileUserInfo.articleCount }}
         <br/>
         게시글
-      </v-btn>
-      <v-btn 
-        text 
-        class="col-3"
-        @click="onFollowingListButton"
-      >
-        {{ profileUserInfo.followingCount }}
-        <br/>
-        팔로잉
       </v-btn>
       <v-btn 
         text 
@@ -106,6 +93,15 @@
       <v-btn 
         text 
         class="col-3"
+        @click="onFollowingListButton"
+      >
+        {{ profileUserInfo.followingCount }}
+        <br/>
+        팔로잉
+      </v-btn>
+      <v-btn 
+        text 
+        class="col-3"
         @click="onMemoryListButton"
       >
         {{ profileUserInfo.memoryCount }}
@@ -113,7 +109,7 @@
         기억장소
       </v-btn>
     </v-row>
-    <!-- 게시글, 팔로잉, 팔로워, 기억장소 끝 -->
+    <!-- 게시글, 팔로워 리스트, 팔로잉 리스트, 기억장소 리스트 끝 -->
 
 
     <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 시작 -->
@@ -186,7 +182,10 @@ export default {
     UserArticleMap,
   },
   props: {
-    profileUserId: String
+    profileUserId: {
+      type: String,
+      default: 'uykgnod'
+    },
   },
   data() {
     return {
@@ -272,22 +271,22 @@ export default {
       //   })
       // }
     },
-    onFollowingListButton() {
-      this.$router.push({ 
-        name: 'FollowList', 
-        params: {
-          profileUserId : this.profileUserId,
-          mode : "following"
-        } 
-      })
-    },
     onFollowerListButton() {
       this.$router.push({ 
         name: 'FollowList', 
         params: {
           profileUserId : this.profileUserId,
-          mode : "follower"
+          activeTabId : 0
         }
+      })
+    },
+    onFollowingListButton() {
+      this.$router.push({ 
+        name: 'FollowList', 
+        params: {
+          profileUserId : this.profileUserId,
+          activeTabId : 1
+        } 
       })
     },
     onMemoryListButton() {

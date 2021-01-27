@@ -11,6 +11,8 @@ Vue.config.productionTip = false
 
 Vue.use(VueRouter)
 
+// TODO: beforeEnter로 토큰이 없으면 들어 갈 수 없는 페이지 구성
+
 const router = new VueRouter({
     routes,
     mode: 'history',

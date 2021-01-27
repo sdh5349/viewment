@@ -7,6 +7,8 @@
       md="4"
       sm="6"
     >
+
+    <!-- 계정 설정 버튼 시작 -->
     <v-btn 
       class="my-1 justify-start v-btn-text" 
       text 
@@ -44,6 +46,7 @@
       text 
       x-large 
       block
+      @click="onAccountDelete"
     >
       <v-icon
         class="mr-4"
@@ -54,12 +57,16 @@
       </v-icon>
       회원탈퇴
     </v-btn>
+    <!-- 계정 설정 버튼 끝 -->
 
     </v-col>
   </v-row>
 </template>
 
 <script>
+import axios from 'axios'
+
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'EditAccount',
@@ -84,7 +91,18 @@ export default {
       this.$router.push({ name: 'Login' })
     },
     onAccountDelete() {
-      
+      // back과 연동 시
+
+      // axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`)
+      // .then(() => {
+      //   alert("그동안 이용해주셔서 감사합니다.");
+      //   this.$router.push({ name: 'Login' })
+      // })
+      // .catch(err => {
+      //   alert("오류"); // TODO: 오류페이지로 변경
+      //   console.log('Error', err.message);
+      //   // self.$router.push({ name: 'Error' })
+      // })
     }
   }
 }
