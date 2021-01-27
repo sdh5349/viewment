@@ -113,8 +113,10 @@ export default {
       firebase.auth().signInWithEmailAndPassword(self.email, self.password)
       .then(res => {
         
-        var user = res.user
+        const user = res.user
         const verifiedState = user.emailVerified
+
+        console.log(verifiedState)
         if (verifiedState){
         
           user.getIdToken()
