@@ -23,6 +23,15 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * com.web.curation.service.article
+ * ArticleServiceTest.java
+ * @date    2021-01-26 오후 5:34
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 @SpringBootTest
 @Transactional
 @Rollback(false)
@@ -75,25 +84,8 @@ public class ArticleServiceTest {
 
 
     @Test
-    public void 게시글_작성() {
-        ArticleDto articleDto = new ArticleDto();
-
-        articleDto.setUserId("aaa");
-
-        articleDto.setPinId(1L);
-
-        List<Long> imageIds = new ArrayList<>();
-        imageIds.add(2L);
-        imageIds.add(3L);
-        articleDto.setImageIds(imageIds);
-
-        List<String> hashtags = new ArrayList<>();
-        hashtags.add("tag1");
-        hashtags.add("tag2");
-        hashtags.add("tag3");
-        articleDto.setHashtags(hashtags);
-
-        articleDto.setContents("내용이다");
+    public void 게시글_작성_pinId_있음() {
+        ArticleDto articleDto = setArticleData("aaa", 1L, 1L, "내용", "tag1", "tag2");
 
 
         Article savedArticle = articleService.write(articleDto);
@@ -103,5 +95,121 @@ public class ArticleServiceTest {
         // TODO optional 체크
         Assertions.assertEquals(articleRepository.findByArticleId(savedArticle.getArticleId()).get(),savedArticle);
 
+    }
+
+    @Test
+    public void 게시글_작성_pinId_없음() {
+        ArticleDto articleDto = setArticleData("aaa", 0L, 1L, "내용", "tag1", "tag2");
+        articleDto.setLat(36.471285);
+        articleDto.setLng( 127.082347);
+
+        Article savedArticle = articleService.write(articleDto);
+
+        em.flush();
+
+        // TODO optional 체크
+        Assertions.assertEquals(articleRepository.findByArticleId(savedArticle.getArticleId()).get(),savedArticle);
+
+    }
+
+    @Test
+    public void 게시글_번호로_조회() {
+        ArticleDto articleDto = setArticleData("aaa", 1L, 1L, "내용", "tag1", "tag2");
+
+        Article savedArticle = articleService.write(articleDto);
+
+        Article findArticle =  articleRepository.findByArticleId(savedArticle.getArticleId()).get();
+
+        Assertions.assertEquals(savedArticle, findArticle);
+        Assertions.assertEquals(articleDto.getContents(), findArticle.getContents());
+
+    }
+
+    @Test
+    public void 해시태그로_조회() {
+        ArticleDto articleDto1 = setArticleData("aaa", 1L, 1L, "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", 1L, 2L, "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", 1L, 3L, "내용3", "tag2", "tag3");
+
+        articleService.write(articleDto1);
+        articleService.write(articleDto2);
+        articleService.write(articleDto3);
+
+        List<Article> findArticles = articleRepository.findByHashtag("tag1");
+
+        for (Article article:findArticles) {
+            System.out.println(article.getContents());
+        }
+        Assertions.assertEquals(findArticles.size(), 2);
+
+    }
+
+    @Test
+    public void 게시글_수정() {
+        ArticleDto articleDto1 = setArticleData("aaa", 1L, 1L, "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", 1L, 2L, "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", 1L, 3L, "내용3", "tag2", "tag3");
+
+        articleService.write(articleDto1);
+        articleService.write(articleDto2);
+        articleService.write(articleDto3);
+
+        ArticleDto articleDto = setArticleData("aaa", 1L, 0L, "내용 수정", "tag5", "tag6", "tag4");
+        articleDto.setArticleId(1L);
+
+        articleService.modify(articleDto);
+
+        Article findArticle =  articleRepository.findByArticleId(1L).get();
+
+        for (Hashtag hash:findArticle.getHashtags())
+            System.out.println(hash.getContents());
+
+        Assertions.assertEquals(findArticle.getContents(), "내용 수정");
+        Assertions.assertEquals(findArticle.getHashtags().size(), 3);
+
+    }
+
+    @Test
+    public void 게시글_삭제() {
+        ArticleDto articleDto1 = setArticleData("aaa", 1L, 1L, "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", 1L, 2L, "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", 1L, 3L, "내용3", "tag2", "tag3");
+
+        articleService.write(articleDto1);
+        articleService.write(articleDto2);
+        articleService.write(articleDto3);
+
+        int sizeBefore = articleRepository.findByUserId("aaa").size();
+        Assertions.assertEquals(sizeBefore, 3);
+
+        articleService.delete(2L);
+
+        List<Article> findArticles = articleRepository.findByUserId("aaa");
+        for(Article article:findArticles)
+            System.out.println(article.getContents());
+
+        Assertions.assertEquals(findArticles.size(), 2);
+    }
+
+    public ArticleDto setArticleData(String userId, Long pinId, Long imageId, String contents, String... hashtag) {
+        ArticleDto articleDto = new ArticleDto();
+
+        articleDto.setUserId(userId);
+
+        articleDto.setPinId(pinId);
+
+        List<Long> imageIds = new ArrayList<>();
+        imageIds.add(imageId);
+        articleDto.setImageIds(imageIds);
+
+        List<String> hashtags = new ArrayList<>();
+        for (String h:hashtag) {
+            hashtags.add(h);
+        }
+        articleDto.setHashtags(hashtags);
+
+        articleDto.setContents(contents);
+
+        return articleDto;
     }
 }
