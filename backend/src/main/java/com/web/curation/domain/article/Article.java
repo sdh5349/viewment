@@ -5,15 +5,29 @@ import com.web.curation.domain.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * com.web.curation.domain.article
+ * Article.java
+ * @date    2021-01-25 오전 9:28
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 @Entity
 @Table(name = "article")
 @Getter
+@DynamicUpdate
 public class Article {
 
     @Id
@@ -40,8 +54,8 @@ public class Article {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contents;
 
-    @ColumnDefault("now()")
-    private LocalDateTime wdate;
+    @CreationTimestamp
+    private Timestamp wdate;
 
 
     public void setUser(User user) {
@@ -68,4 +82,11 @@ public class Article {
         hashtag.getArticles().add(this);
     }
 
+    public void resetPin() {
+        pin = null;
+    }
+
+    public void resetHashtag() {
+        hashtags.clear();
+    }
 }

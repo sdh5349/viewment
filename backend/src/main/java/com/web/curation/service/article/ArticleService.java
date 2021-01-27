@@ -19,6 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * com.web.curation.service.article
+ * ArticleService.java
+ * @date    2021-01-26 오전 11:02
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -41,7 +50,7 @@ public class ArticleService {
 
 
         Pin pin = null;
-        if (articleDto.getPinId() != null)
+        if (articleDto.getPinId() != null && articleDto.getPinId() != 0)
             pin = pinRepository.findById(articleDto.getPinId());
         else {
             Pin newPin = new Pin();
@@ -87,8 +96,46 @@ public class ArticleService {
         return articleRepository.findByHashtag(hashtag);
     }
 
+    @Transactional
     public Long modify(ArticleDto articleDto) {
-        return 0L;
+
+        Article article = articleRepository.findByArticleId(articleDto.getArticleId()).get();
+
+        article.resetPin();
+        Pin pin = null;
+        if (articleDto.getPinId() != null)
+            pin = pinRepository.findById(articleDto.getPinId());
+        else {
+            Pin newPin = new Pin();
+            newPin.setLocation(articleDto.getLat(), articleDto.getLng());
+            // TODO kakao api에서 위치의 주소 받아오기
+            newPin.setAddress("추후에 수정");
+            Long savedPinId = pinRepository.save(newPin);
+            pin = pinRepository.findById(savedPinId);
+        }
+        article.setPin(pin);
+
+        article.resetHashtag();
+        for (String contents : articleDto.getHashtags()) {
+            List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
+            if (hashtags.size() != 0) {
+                article.addHashtag(hashtags.get(0));
+            } else {
+                Hashtag hashtag = new Hashtag();
+                hashtag.setContents(contents);
+                Hashtag savedHashtag = hashtagRepository.save(hashtag);
+                article.addHashtag(savedHashtag);
+            }
+        }
+
+        article.setContents(articleDto.getContents());
+
+        return article.getArticleId();
+    }
+
+    @Transactional
+    public void delete(Long articleId) {
+        articleRepository.delete(articleId);
     }
 
 }

@@ -7,6 +7,15 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * com.web.curation.domain.article
+ * ArticleImage.java
+ * @date    2021-01-25 오전 9:28
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 @Entity
 @Getter @Setter
 public class ArticleImage {

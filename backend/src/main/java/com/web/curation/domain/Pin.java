@@ -11,13 +11,22 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * com.web.curation.domain
+ * Pin.java
+ * @date    2021-01-26 오전 9:31
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 @Entity
 @Getter @Setter
 public class Pin {
 
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pin_id")
-    private Long id;
+    private Long pinId;
 
     private Point location;
 
