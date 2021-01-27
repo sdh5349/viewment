@@ -1,5 +1,6 @@
-package com.web.curation.dto;
+package com.web.curation.dto.user;
 
+import com.web.curation.domain.Image;
 import com.web.curation.domain.User;
 import com.web.curation.domain.UserRole;
 import lombok.*;
@@ -11,13 +12,24 @@ import javax.persistence.Id;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class UserDto {
     private String id;
     private String email;
     private String nickname;
     private UserRole role;
+    private Image profileImage;
 
+    public UserDto(){}
+
+    public UserDto(User user){
+        this.id = user.getId();
+        this.email = user.getEmail();
+        this.nickname = user.getNickname();
+        this.role = user.getRole();
+        //this.profileImage = user.getProfileImage();
+//        this.sizeofFollowings = user.getFollowings().size();
+//        this.sizeofFollowers = user.getFollowers().size();
+    }
 
     public User convert(){
         User user = new User();

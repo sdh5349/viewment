@@ -3,7 +3,6 @@ package com.web.curation.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.web.curation.commons.ErrorResponse;
 import com.web.curation.security.FirebaseFilter;
-import com.web.curation.security.JwtRequestFilter;
 import com.web.curation.security.auth.FirebaseAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ObjectMapper mapper;
     private final UserDetailsService userDetailsService;
-    //private final JwtRequestFilter jwtRequestFilter;
     private final FirebaseFilter authFilter;
     private final AuthenticationProvider authenticationProvider;
 
@@ -54,8 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/api/v1/accounts").permitAll()
-                    .antMatchers("/all").permitAll()
-                    .antMatchers("/test").hasRole("USER")
+                    .antMatchers("/api/v1/users/**").hasRole("USER")
                     .antMatchers("/api/v1/admin**").hasRole("ADMIN")
                     .anyRequest().authenticated()
                 .and()
