@@ -6,6 +6,7 @@ import NotFound from './views/error/NotFound.vue'
 import ChangePassword from './views/user/ChangePassword.vue'
 import Feed from './views/feed/Feed.vue'
 import ActionUrlHandler from './views/user/ActionUrlHandler.vue'
+import Search from './views/search/Search.vue'
 import Profile from './views/user/Profile.vue'
 import FollowList from './views/user/FollowList.vue'
 import MemoryList from './views/memory/MemoryList.vue'
@@ -19,17 +20,20 @@ export default [
     {
         path : '/',
         name : 'Login',
+        meta : {title: '로그인'},
         component : Login,
         props : true,
     },
     {
         path : '/user/join/',
         name : 'Join',
+        meta : {title: '회원가입'},
         component : Join,
     },
     {
         path : '/feed/main',
         name : 'Feed',
+        meta : {title: '피드'},
         component : Feed
     },
     {
@@ -87,6 +91,12 @@ export default [
     {
         path: '*',
         redirect: '/user/error/404'
+    },
+    {
+        path : '/search/search',
+        name : 'Search',
+        meta : { title: '검색'},
+        component : Search,
     },
     {
         path : '/article/create',
