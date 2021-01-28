@@ -16,10 +16,11 @@ import java.util.List;
 /**
  * com.web.curation.controller.image
  * ImageController.java
- * @date    2021-01-27
- * @author  이주희
  *
+ * @author 이주희
+ * @date 2021-01-27
  * @변경이력
+ * 2021-01-28 프로필 사진 업로드 기능 추가
  **/
 
 @RestController
@@ -27,22 +28,40 @@ import java.util.List;
 @RequestMapping("/api/v1/images")
 public class ImageController {
     private final ImageService imageService;
-    private final String DIR = "C:/viewment/image/article/";
+    private final String DIR = "C:/viewment/image/";
 
-    @PostMapping("/{articleId}")
-    public ResponseEntity<?> uploadImage(@PathVariable("articleId") Long articleId, @RequestParam List<MultipartFile> articleImages) throws Exception{
+    @PostMapping("/article/{articleId}")
+    public ResponseEntity<?> uploadArticleImages(@PathVariable("articleId") Long articleId, @RequestParam List<MultipartFile> articleImages) throws Exception {
         for (int i = 0; i < articleImages.size(); i++) {
             imageService.saveArtcleImage(articleImages.get(i), articleId, i);
         }
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{path}")
-    public ResponseEntity<?> getImage(@PathVariable("path") String path) throws Exception {
-        File image = new File(DIR + path);
+    @PostMapping("/profile/{userId}")
+    public ResponseEntity<?> uploadProfileImage(@PathVariable("userId") String userId, @RequestParam MultipartFile profileImage) throws Exception {
+        imageService.saveProfileImage(profileImage, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{dir}/{name}")
+    public ResponseEntity<?> getImage(@PathVariable("dir") String dir, @PathVariable("name") String name) throws Exception {
+        File image = new File(DIR + dir + "/" + name);
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", Files.probeContentType(image.toPath()));
         byte[] imagearr = FileCopyUtils.copyToByteArray(image);
         return new ResponseEntity<>(imagearr, header, HttpStatus.OK);
+    }
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<?> updateProfileImage(@PathVariable("userId") String userId, @RequestParam MultipartFile profileImage) throws Exception {
+        imageService.updateProfileImage(profileImage, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/profile/{userId}")
+    public ResponseEntity<?> DeleteProfileImage(@PathVariable("userId") String userId) {
+        imageService.deleteProfileImage( userId);
+        return ResponseEntity.ok().build();
     }
 }

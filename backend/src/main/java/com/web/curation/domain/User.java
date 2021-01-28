@@ -79,4 +79,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public void setProfileImage(Image image) {
+        this.profileImage = image;
+    }
 }
