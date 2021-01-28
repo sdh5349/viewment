@@ -1,9 +1,8 @@
 package com.web.curation.service.firebase;
 
-import com.web.curation.domain.User;
-import com.web.curation.dto.UserDto;
-
-import java.util.Optional;
+import com.google.firebase.auth.FirebaseToken;
 
 public interface FirebaseAccountService {
+    public String getUid(String token);
+    public FirebaseToken verifyToken(String token);
 }

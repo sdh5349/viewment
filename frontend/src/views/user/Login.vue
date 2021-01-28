@@ -113,13 +113,16 @@ export default {
       firebase.auth().signInWithEmailAndPassword(self.email, self.password)
       .then(res => {
         
-        var user = res.user
+        const user = res.user
         const verifiedState = user.emailVerified
+
+        console.log(verifiedState)
         if (verifiedState){
         
           user.getIdToken()
           .then(token => {
             sessionStorage.setItem('jwt', token)
+            sessionStorage.setItem('uid', user.uid)
             self.$emit('login')
             self.$router.push({ name: 'FeedMain' })
           })
