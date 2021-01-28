@@ -28,13 +28,16 @@
     </v-row>
 
     <v-row 
+      class="d-flex justify-center"
       v-for="(name, i) in distances" 
       :key=i>
         <v-img
         :src='name.src'
-        max-height="100"
-        max-width="100">
+        max-height="200px"
+        max-width="200px">
         </v-img>
+        {{name.dist}} Km 거리
+        <v-system-bar lights-out></v-system-bar>
     </v-row>
     
 
@@ -46,7 +49,10 @@
 export default {
   data() {
     return {
-      myLocation: '',
+      myLocation: {
+        lat: '',
+        lng: '',
+      },
       address: '',
       distances: [],
       positions : [
@@ -99,25 +105,30 @@ export default {
     },
     initMap() {
       const self = this 
-      this.$getLocation()
-      .then(coordinates => {
-        this.myLocation = coordinates
-      })
-      .then(() => {  
-        console.log('처음(현재)위치', self.myLocation.lat, self.myLocation.lng)
-        self.checkfeed()
-      })
+      // this.$getLocation()
+      // .then(coordinates => {
+      //   this.myLocation = coordinates
+      // })
+      // .then(() => {  
+      //   console.log('처음(현재)위치', self.myLocation.lat, self.myLocation.lng)
+      // })
+      const temp = new kakao.maps.LatLng(36.3586873, 127.30278400)
+      console.log(temp)
+      this.myLocation.lat= temp.Ma
+      this.myLocation.lng= temp.La
+
+      self.checkfeed()
     },
     moveLocation() {
       const self = this
-      this.$getLocation()
-      .then(coordinates => {
-        this.myLocation = coordinates
-      })
-      .then(() => {
-          console.log('현재위치', self.myLocation.lat, self.myLocation.lng)
-          this.checkfeed()
-        })  
+      // this.$getLocation()
+      // .then(coordinates => {
+      //   this.myLocation = coordinates
+      // })
+      // .then(() => {
+      //     console.log('현재위치', self.myLocation.lat, self.myLocation.lng)
+      //     this.checkfeed()
+      //   })  
       },
       searchAddress() {
       const self = this
