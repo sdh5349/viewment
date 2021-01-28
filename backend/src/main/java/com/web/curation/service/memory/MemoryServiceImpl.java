@@ -4,6 +4,7 @@ import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.dto.memory.MemoryDto;
+import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.pin.PinRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +28,7 @@ public class MemoryServiceImpl implements MemoryService{
 
     public Memory getMemory(Long memoryId){
         return memoryRepository.findById(memoryId).orElseThrow(
-                ()->{throw new IllegalArgumentException();}
+                ()->{ throw new ElementNotFoundException("Memory", memoryId.toString());}
         );
     }
 
@@ -37,7 +39,7 @@ public class MemoryServiceImpl implements MemoryService{
         );
 
         Pin pin = pinRepository.findById(pinId).orElseThrow(
-                () -> { throw new IllegalArgumentException();}
+                () -> { throw new ElementNotFoundException("Pin", pinId.toString());}
         );
 
         Memory memory = new Memory();

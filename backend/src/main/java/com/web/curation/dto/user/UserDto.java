@@ -13,7 +13,7 @@ import javax.persistence.Id;
 @Getter
 @Setter
 public class UserDto {
-    private String id;
+    private String userId;
     private String email;
     private String nickname;
     private UserRole role;
@@ -22,7 +22,7 @@ public class UserDto {
     public UserDto(){}
 
     public UserDto(User user){
-        this.id = user.getId();
+        this.userId = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.role = user.getRole();
@@ -33,7 +33,7 @@ public class UserDto {
 
     public User convert(){
         User user = new User();
-        user.setId(id);
+        user.setId(userId);
         user.setEmail(email);
         user.setNickname(nickname);
         if(role == null) role = UserRole.USER;

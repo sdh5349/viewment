@@ -2,6 +2,7 @@ package com.web.curation.controller.image;
 
 import com.web.curation.service.image.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,9 @@ import java.util.List;
 @RequestMapping("/api/v1/images")
 public class ImageController {
     private final ImageService imageService;
-    private final String DIR = "C:/viewment/image/";
+
+    @Value("${image.path}")
+    private String DIR;
 
     @PostMapping("/article/{articleId}")
     public ResponseEntity<?> uploadArticleImages(@PathVariable("articleId") Long articleId, @RequestParam List<MultipartFile> articleImages) throws Exception {
