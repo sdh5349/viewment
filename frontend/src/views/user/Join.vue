@@ -136,13 +136,11 @@ export default {
       nickName: "",
       confirmation: '',
       showPassword: false,
-
       userInfo:{
-      "id":  "",
-      "email": "",
-      "nickname": "",
+        "userId":  "",
+        "email": "",
+        "nickname": "",
       },
-      
       isTerm: false,
       isLoading: false,
     };
@@ -162,14 +160,14 @@ export default {
           .then(()=>{
             const user = firebase.auth().currentUser
             self.userInfo={
-              "id":  user.uid,
+              "userId":  user.uid,
               "password": self.password,
               "email": user.email,
               "nickname": user.displayName,
             }
             
 
-            axios.post(`${SERVER_URL}/accounts`, self.userInfo)
+            axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/accounts`, self.userInfo)
             .then(() => {
               console.log('back에 데이터 넘겨주기 성공')
 

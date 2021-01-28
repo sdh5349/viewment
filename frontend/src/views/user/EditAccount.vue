@@ -100,7 +100,7 @@ export default {
       // TODO: firebase 재인증 후 회원탈퇴
       if (confirm("정말 회원탈퇴 하시겠습니까?")) {
         // 서버 DB에서 삭제
-        axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`, this.getToken)
+        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/accounts/${this.profileUserId}`, this.getToken)
         .then(() => {
           var user = firebase.auth().currentUser;
           console.log(user)
