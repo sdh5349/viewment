@@ -1,6 +1,6 @@
 <template>
   <div>
-      <h1>그리드 형 피드 표시</h1>
+      <h1>메모리 리스트</h1>
   </div>
 </template>
 

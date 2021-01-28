@@ -18,7 +18,8 @@ export default {
       window.location.href = verificationURI
     },
   },
-  created() {    
+  created() {
+    
     this.helloJoin()
   }
 }

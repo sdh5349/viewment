@@ -122,6 +122,7 @@ export default {
           user.getIdToken()
           .then(token => {
             sessionStorage.setItem('jwt', token)
+            sessionStorage.setItem('uid', user.uid)
             self.$emit('login')
             self.$router.push({ name: 'FeedMain' })
           })
