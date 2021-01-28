@@ -137,7 +137,11 @@ export default {
       .catch (err=>{})
     },
     goProfile() {
-      this.$router.push({ name: '' })
+      const loginUserId = sessionStorage.getItem('uid')
+      this.$router.push({ 
+        name: 'Profile', 
+        params: { profileUserId : loginUserId }
+      })
       .catch (err=>{})
     },
   },

@@ -20,9 +20,9 @@ export default [
     {
         path : '/',
         name : 'Login',
-        meta : {title: '로그인'},
         component : Login,
         props : true,
+        meta : {title: '로그인'},
     },
     {
         path : '/user/join/',
@@ -84,9 +84,10 @@ export default [
         component : EditProfile,
     },
     {
-        path : '/user/account/edit',
+        path : '/user/account/:profileUserId/edit',
         name : 'EditAccount',
         component : EditAccount,
+        props : true,
     },
     {
         path: '*',
