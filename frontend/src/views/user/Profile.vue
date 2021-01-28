@@ -1,5 +1,8 @@
 <template>
+  <v-row v-if="loading">
+  </v-row>
   <v-row
+    v-else
     justify="center"
   >
     <v-col
@@ -21,7 +24,7 @@
           elevation="0"
         >
           <v-list-item-avatar
-            v-if="profileUserInfo.user.profileImage"
+            v-if="profileUserInfo.profileImage"
             size="80"
           >
             <img
@@ -60,10 +63,10 @@
             align="right"
             class="headline mb-2"
           >
-            {{ profileUserInfo.user.nickname}}
+            {{ profileUserInfo.nickname}}
           </v-list-item-title>
           <v-list-item-subtitle>
-            {{ profileUserInfo.user.message}}
+            {{ profileUserInfo.message}}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -77,7 +80,7 @@
         class="col-3 disable-events"
         text
       >
-        {{ profileUserInfo.articleCount }}
+        <!-- {{ profileUserInfo.articleCount }} -->
         <br/>
         게시글
       </v-btn>
@@ -86,7 +89,7 @@
         class="col-3"
         @click="onFollowerListButton"  
       >
-        {{ profileUserInfo.followerCount }}
+        {{ profileUserInfo.countFollowers }}
         <br/>
         팔로워
       </v-btn>
@@ -95,7 +98,7 @@
         class="col-3"
         @click="onFollowingListButton"
       >
-        {{ profileUserInfo.followingCount }}
+        {{ profileUserInfo.countFollowings }}
         <br/>
         팔로잉
       </v-btn>
@@ -104,7 +107,7 @@
         class="col-3"
         @click="onMemoryListButton"
       >
-        {{ profileUserInfo.memoryCount }}
+        {{ profileUserInfo.countMemories }}
         <br/>
         기억장소
       </v-btn>
@@ -116,11 +119,11 @@
     <v-btn
       v-if="loginUserId !== profileUserId"
       class="my-4"
-      :color="this.profileUserInfo.isFollowed ? 'error' : 'primary'"
+      :color="profileUserInfo.followed ? 'error' : 'primary'"
       block
       @click="onFollowButton"
     >
-      <span v-if="this.profileUserInfo.isFollowed">언팔로우</span>
+      <span v-if="profileUserInfo.followed">언팔로우</span>
       <span v-else>팔로우</span>
     </v-btn>
     <v-btn
@@ -186,26 +189,46 @@ export default {
   },
   data() {
     return {
-      loginUserId : '',
-      profileUserInfo : null,
-      tab : null,
+      loading: true,
+      loginUserId: '',
+      profileUserInfo: null,
+      tab: null,
       tabItems: [
         { tabIcon: 'mdi-view-module', content: 'UserArticleGrid' },
         { tabIcon: 'mdi-map-marker', content: 'UserArticleMap' }
       ]
     }
   },
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
+  watch: {
+    profileUserId: function() {
+      this.dataFetch()
+    }
+  },
   created() {
     this.dataFetch()
+    console.log("프로필 크리에이티드 라이프 사이클")
   },
   methods: {
     dataFetch() {
-      axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`)
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
         this.profileUserInfo = res.data
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
+        this.loading = false
       })
       .catch(err => {
         alert("오류"); // TODO: 오류페이지로 변경
@@ -214,11 +237,11 @@ export default {
       })
     },
     onFollowButton() {
-      if (this.profileUserInfo.isFollowed) {
-        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/follows/${this.profileUserId}`)
+      if (this.profileUserInfo.followed) {
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${this.profileUserId}`, this.getToken)
         .then(() => {
-          this.profileUserInfo.followingCount -= 1
-          this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
+          this.profileUserInfo.countFollowers -= 1
+          this.profileUserInfo.followed = !this.profileUserInfo.followed
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -227,10 +250,11 @@ export default {
         })
       } else {
         var params = {'targetUserId' : this.profileUserId }
-        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follows`, params)
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
-          this.profileUserInfo.followingCount += 1
-          this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
+          console.log("??")
+          this.profileUserInfo.countFollowers += 1
+          this.profileUserInfo.followed = !this.profileUserInfo.followed
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -274,12 +298,7 @@ export default {
       })
     },
     onEditAccountButton() {
-      this.$router.push({ 
-        name: 'EditAccount', 
-        params: {
-          profileUserId : this.profileUserId,
-        }
-      })
+      this.$router.push({ name: 'EditAccount' })
     },
   }
 }

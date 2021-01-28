@@ -92,17 +92,17 @@ extend('required', {
   message: '필수 입력 항목입니다.'
 })
 
-extend('max', {
-  ...max,
-  params: ['length'],
-  message: (fieldName, placeholders) => {
-    if (placeholders.length === 8) {
-     return '닉네임은 8자이하 입니다.'
-    } else {
-      return '자기소개는 50자이하 입니다.'
-    }
-  }
-})
+// extend('max', {
+//   ...max,
+//   params: ['length'],
+//   message: (fieldName, placeholders) => {
+//     if (placeholders.length === 8) {
+//      return '닉네임은 8자이하 입니다.'
+//     } else {
+//       return '자기소개는 50자이하 입니다.'
+//     }
+//   }
+// })
 
 export default {
   name: 'EditProfile',
@@ -119,6 +119,18 @@ export default {
       message: '',
       imgFile: null,
       previewUrl: null,
+    }
+  },
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
     }
   },
   created() {
