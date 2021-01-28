@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.web.curation.security.auth.FirebaseAuthenticationToken;
+import com.web.curation.service.firebase.FirebaseAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,8 +23,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Component
 public class FirebaseFilter extends OncePerRequestFilter {
-
-    //private final FirebaseAccountService accountService;
+    private final FirebaseAccountService firebaseAccountService;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -36,12 +36,7 @@ public class FirebaseFilter extends OncePerRequestFilter {
     
         //ToDo 토큰저장소를 캐시
         //전달받은 토큰이 유효한 토큰인지 Firebase에서 인증
-        FirebaseToken decodedToken = null;
-        try{
-            decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-        }catch (FirebaseAuthException e){
-            decodedToken = null;
-        }
+        FirebaseToken decodedToken = firebaseAccountService.verifyToken(token);
 
         if(decodedToken != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDetailsService.loadUserByUsername(decodedToken.getUid());

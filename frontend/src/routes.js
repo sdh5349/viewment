@@ -1,18 +1,18 @@
-
-
 import Login from './views/user/Login.vue'
 import Join from './views/user/Join.vue'
 import ConfirmEmail from './views/user/ConfirmEmail.vue'
 import Error from './views/error/Error.vue'
 import NotFound from './views/error/NotFound.vue'
 import ChangePassword from './views/user/ChangePassword.vue'
-import FeedMain from './views/feed/IndexFeed.vue'
+import Feed from './views/feed/Feed.vue'
 import ActionUrlHandler from './views/user/ActionUrlHandler.vue'
 import Profile from './views/user/Profile.vue'
 import FollowList from './views/user/FollowList.vue'
 import MemoryList from './views/memory/MemoryList.vue'
 import EditProfile from './views/user/EditProfile.vue'
 import EditAccount from './views/user/EditAccount.vue'
+import CreateArticle from './views/article/CreateArticle.vue'
+import DetailArticle from './views/article/DetailArticle.vue'
 
 
 export default [
@@ -29,8 +29,8 @@ export default [
     },
     {
         path : '/feed/main',
-        name : 'FeedMain',
-        component : FeedMain
+        name : 'Feed',
+        component : Feed
     },
     {
         path : '/user/find',
@@ -87,5 +87,15 @@ export default [
     {
         path: '*',
         redirect: '/user/error/404'
-    }
+    },
+    {
+        path : '/article/create',
+        name : 'CreateArticle',
+        component : CreateArticle,
+    }, 
+    {
+        path : '/article/detail',
+        name : 'DetailArticle',
+        component : DetailArticle,
+    }, 
 ]
