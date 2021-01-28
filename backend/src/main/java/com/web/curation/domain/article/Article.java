@@ -2,16 +2,13 @@ package com.web.curation.domain.article;
 
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
+import com.web.curation.domain.hashtag.Hashtag;
 import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,13 +1,12 @@
 package com.web.curation.service.article;
 
-import com.web.curation.domain.Image;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.article.ArticleImage;
-import com.web.curation.domain.article.Hashtag;
-import com.web.curation.dto.ArticleDto;
-import com.web.curation.repository.UserRepository;
+import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleInfoDto;
+import com.web.curation.repository.user.UserRepository;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
 import com.web.curation.repository.image.ImageRepository;
@@ -16,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,13 +62,6 @@ public class ArticleService {
         }
         article.setPin(pin);
 
-        for (int i = 0; i < articleDto.getImageIds().size(); i++) {
-            Long imageId = articleDto.getImageIds().get(i);
-            //TODO optional 확인
-            Image image = imageRepository.findById(imageId).get();
-            article.addArticleImage(ArticleImage.createArticleImage(image, i));
-        }
-
         for (String contents : articleDto.getHashtags()) {
             List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
             if (hashtags.size() != 0) {
@@ -88,12 +81,27 @@ public class ArticleService {
         return article;
     }
 
-    public Optional<Article> findByArticleId(Long articleId) {
-        return articleRepository.findByArticleId(articleId);
+    public ArticleInfoDto findByArticleId(Long articleId) {
+        Optional<Article> article= articleRepository.findByArticleId(articleId);
+        return new ArticleInfoDto(articleRepository.findByArticleId(articleId).get());
     }
 
-    public List<Article> findByHashtag(String hashtag) {
-        return articleRepository.findByHashtag(hashtag);
+    public List<ArticleInfoDto> findByHashtag(String hashtag) {
+        List<Article> articles = articleRepository.findByHashtag(hashtag);
+        List<ArticleInfoDto> result = new ArrayList<>();
+        for (int i = 0; i < articles.size(); i++) {
+            result.add(new ArticleInfoDto(articles.get(i)));
+        }
+        return result;
+    }
+
+    public List<ArticleInfoDto> findByUserId(String userId) {
+        List<Article> articles = articleRepository.findByUserId(userId);
+        List<ArticleInfoDto> result = new ArrayList<>();
+        for (int i = 0; i < articles.size(); i++) {
+            result.add(new ArticleInfoDto(articles.get(i)));
+        }
+        return result;
     }
 
     @Transactional

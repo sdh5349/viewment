@@ -1,5 +1,6 @@
-package com.web.curation.domain.article;
+package com.web.curation.domain.hashtag;
 
+import com.web.curation.domain.article.Article;
 import lombok.Getter;
 import lombok.Setter;
 
