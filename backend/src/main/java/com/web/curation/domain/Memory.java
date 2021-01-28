@@ -16,13 +16,14 @@ import javax.persistence.*;
  * @변경이력
  **/
 
-//@Entity
+@Entity
 @Getter
 @Setter
 public class Memory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="MEMORY_ID")
     private Long id;
 
     @Column(nullable = false, name="MEMORY_NAME")
@@ -32,6 +33,11 @@ public class Memory {
     @JoinColumn(name="USER_ID")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name="PIN_ID")
+    private Pin pin;
+
     @ColumnDefault("50")
-    private Integer radius;
+    private int radius;
+
 }

@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface UserService {
 
+
     public UserPageDto findUserPageById(String currentUserId, String userId);
 
     public SimpleUserInfoDto findUserByEmail(String currentUserId, String email);

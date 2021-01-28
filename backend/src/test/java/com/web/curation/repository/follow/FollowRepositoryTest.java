@@ -1,9 +1,8 @@
-package com.web.curation.follow;
+package com.web.curation.repository.follow;
 
 
 import com.web.curation.domain.User;
 import com.web.curation.domain.connection.Follow;
-import com.web.curation.repository.follow.FollowRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

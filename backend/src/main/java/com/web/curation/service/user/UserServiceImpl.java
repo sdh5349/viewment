@@ -5,6 +5,7 @@ import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.dto.user.UserPageDto;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.follow.FollowRepository;
+import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final MemoryRepository memoryRepository;
 
     @Override
     public UserPageDto findUserPageById(String currentUserId, String userId) {
@@ -30,10 +32,13 @@ public class UserServiceImpl implements UserService{
 
         boolean isFollowed = followRepository.isFollowed(currentUserId, userId);
 
+
+        //ToDo 카운트 쿼리로 수정
         int countFollowings = followRepository.findFollowings(userId).size();
         int countFollowers = followRepository.findFollowers(userId).size();
+        int countMemories = memoryRepository.findByUser(user).size();
 
-        return new UserPageDto(user, countFollowers, countFollowings,0, isFollowed);
+        return new UserPageDto(user, countFollowers, countFollowings, countMemories, isFollowed);
     }
 
     @Override

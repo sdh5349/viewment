@@ -34,7 +34,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nickname;
 
     @Column(name="MESSAGE")
@@ -52,14 +52,12 @@ public class User {
     }
 
     /**
-     *
+     * Memory
      */
+    @OneToMany(mappedBy = "user")
+    private List<Memory> memories = new ArrayList<>();
 
-//    @OneToMany
-//    @JoinColumn(name="USER_ID")
-//    private List<Memory> memories = new ArrayList<>();
-//
-//
+
     /**
      * Article
      */
@@ -80,6 +78,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    public void addMemory(Memory memory){
+        this.memories.add(memory);
+        memory.setUser(this);
+    }
+    
     public void setProfileImage(Image image) {
         this.profileImage = image;
     }
