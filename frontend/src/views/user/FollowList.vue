@@ -73,8 +73,6 @@ export default {
   created() {
     this.activeTab = this.activeTabId
   },
-  methods: {
-  },
 }
 </script>
 

@@ -61,6 +61,7 @@ export default [
         path : '/user/profile/:profileUserId',
         name : 'Profile',
         component : Profile,
+        props : true,
     },
     {
         path : '/user/profile/:profileUserId/follow-list',

@@ -182,34 +182,12 @@ export default {
     UserArticleMap,
   },
   props: {
-    profileUserId: {
-      type: String,
-      default: 'uykgnod'
-    },
+    profileUserId: String,
   },
   data() {
     return {
-      loginUserId : '1',
-      profileUserInfo : {
-        "user": {
-          "userId": "string",
-          "nickname": "string",
-          "email": "string",
-          "message": "string",
-          "profileImage": null
-        },
-        "followingCount": 0,
-        "followerCount": 0,
-        "articleCount": 0,
-        "memoryCount": 0,
-        "articleImages": [
-          {
-            "imageId": "string", 
-            "path": "string"
-          }
-        ],
-        "isFollowed": false
-      },
+      loginUserId : '',
+      profileUserInfo : null,
       tab : null,
       tabItems: [
         { tabIcon: 'mdi-view-module', content: 'UserArticleGrid' },
@@ -218,12 +196,10 @@ export default {
     }
   },
   created() {
-    // 데이터 초기화
-    // this.dataFetch()
+    this.dataFetch()
   },
   methods: {
     dataFetch() {
-      // 필요한 데이터 가져오기
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
@@ -239,37 +215,29 @@ export default {
     },
     onFollowButton() {
       if (this.profileUserInfo.isFollowed) {
-        this.profileUserInfo.followingCount -= 1
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/follows/${this.profileUserId}`)
+        .then(() => {
+          this.profileUserInfo.followingCount -= 1
+          this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
       } else {
-        this.profileUserInfo.followingCount += 1
+        var params = {'targetUserId' : this.profileUserId }
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follows`, params)
+        .then(() => {
+          this.profileUserInfo.followingCount += 1
+          this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
       }
-      this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
-      
-      // 실제 데이터 연결 시 받아 올 것임
-      // if (this.profileUserInfo.isFollowed) {
-      //   axios.delete(`${SERVER_URL}/users/:userId/follows/:followUid`)
-      //   .then(() => {
-      //     this.profileUserInfo.followingCount -= 1
-      //     this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
-      //   })
-      //   .catch(err => {
-      //     alert("오류"); // TODO: 오류페이지로 변경
-      //     console.log('Error', err.message);
-      //     // self.$router.push({ name: 'Error' })
-      //   })
-      // } else {
-      //   var params = {'followUid' : this.profileUserInfo.user.userId }
-      //   axios.post(`${SERVER_URL}/users/:userId/follows`, params)
-      //   .then(() => {
-      //     this.profileUserInfo.followingCount += 1
-      //     this.profileUserInfo.isFollowed = !this.profileUserInfo.isFollowed
-      //   })
-      //   .catch(err => {
-      //     alert("오류"); // TODO: 오류페이지로 변경
-      //     console.log('Error', err.message);
-      //     // self.$router.push({ name: 'Error' })
-      //   })
-      // }
     },
     onFollowerListButton() {
       this.$router.push({ 
@@ -301,7 +269,7 @@ export default {
       this.$router.push({ 
         name: 'EditProfile', 
         params: {
-          profileUserId : this.profileUserId,
+          profileUserInfo : this.profileUserInfo,
         }
       })
     },

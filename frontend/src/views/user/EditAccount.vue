@@ -74,7 +74,7 @@ export default {
 
   },
   props: {
-    profileUserId: String
+    profileUserInfo: Object
   },
   data() {
     return {
@@ -91,18 +91,20 @@ export default {
       this.$router.push({ name: 'Login' })
     },
     onAccountDelete() {
-      // back과 연동 시
+      // TODO: firebase 재인증 후 회원탈퇴 진행해야하고 firebase에서도 삭제해야 함
 
-      // axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`)
-      // .then(() => {
-      //   alert("그동안 이용해주셔서 감사합니다.");
-      //   this.$router.push({ name: 'Login' })
-      // })
-      // .catch(err => {
-      //   alert("오류"); // TODO: 오류페이지로 변경
-      //   console.log('Error', err.message);
-      //   // self.$router.push({ name: 'Error' })
-      // })
+      axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`)
+      .then(() => {
+        if (confirm("정말 회원탈퇴 하시겠습니까?")) {
+          alert("그동안 이용해주셔서 감사합니다.");
+          this.$router.push({ name: 'Login' })
+        }
+      })
+      .catch(err => {
+        alert("오류"); // TODO: 오류페이지로 변경
+        console.log('Error', err.message);
+        // self.$router.push({ name: 'Error' })
+      })
     }
   }
 }
