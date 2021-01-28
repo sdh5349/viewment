@@ -1,12 +1,19 @@
-package com.web.curation.dto;
+package com.web.curation.dto.article;
 
-import com.web.curation.domain.Image;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+/**
+ * com.web.curation.dto.article
+ * ArticleDto.java
+ * @date    2021-01-27
+ * @author  이주희
+ *
+ * @변경이력
+ **/
 
 @Getter
 @Setter
@@ -20,7 +27,5 @@ public class ArticleDto {
     private Long pinId;
     private String contents;
     private List<String> hashtags;
-    private List<MultipartFile> images;
-    private List<Long> imageIds;
 
 }

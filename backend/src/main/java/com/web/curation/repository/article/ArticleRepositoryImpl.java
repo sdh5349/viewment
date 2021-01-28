@@ -1,7 +1,6 @@
 package com.web.curation.repository.article;
 
 import com.web.curation.domain.article.Article;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -47,8 +46,8 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     @Override
     public List<Article> findByHashtag(String hashtag) {
         return em.createQuery("select a " +
-                                "from Article a join a.hashtags h " +
-                                "where upper(h.contents) = upper(:contents)", Article.class)
+                "from Article a join a.hashtags h " +
+                "where upper(h.contents) = upper(:contents)", Article.class)
                 .setParameter("contents", hashtag)
                 .getResultList();
 //        return em.createQuery("SELECT a" +

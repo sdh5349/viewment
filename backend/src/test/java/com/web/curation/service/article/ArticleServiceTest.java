@@ -4,19 +4,17 @@ import com.web.curation.domain.Image;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.article.Hashtag;
-import com.web.curation.dto.ArticleDto;
+import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.repository.article.ArticleRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import org.locationtech.jts.geom.Point;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -34,7 +32,6 @@ import java.util.List;
 
 @SpringBootTest
 @Transactional
-@Rollback(false)
 public class ArticleServiceTest {
 
     @Autowired
@@ -85,7 +82,7 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_작성_pinId_있음() {
-        ArticleDto articleDto = setArticleData("aaa", 1L, 1L, "내용", "tag1", "tag2");
+        ArticleDto articleDto = setArticleData("aaa", 1L,"내용", "tag1", "tag2");
 
 
         Article savedArticle = articleService.write(articleDto);
@@ -99,7 +96,7 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_작성_pinId_없음() {
-        ArticleDto articleDto = setArticleData("aaa", 0L, 1L, "내용", "tag1", "tag2");
+        ArticleDto articleDto = setArticleData("aaa", 0L, "내용", "tag1", "tag2");
         articleDto.setLat(36.471285);
         articleDto.setLng( 127.082347);
 
@@ -114,7 +111,7 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_번호로_조회() {
-        ArticleDto articleDto = setArticleData("aaa", 1L, 1L, "내용", "tag1", "tag2");
+        ArticleDto articleDto = setArticleData("aaa", 1L, "내용", "tag1", "tag2");
 
         Article savedArticle = articleService.write(articleDto);
 
@@ -127,9 +124,9 @@ public class ArticleServiceTest {
 
     @Test
     public void 해시태그로_조회() {
-        ArticleDto articleDto1 = setArticleData("aaa", 1L, 1L, "내용1", "tag1", "tag2");
-        ArticleDto articleDto2 = setArticleData("aaa", 1L, 2L, "내용2", "tag1", "tag3");
-        ArticleDto articleDto3 = setArticleData("aaa", 1L, 3L, "내용3", "tag2", "tag3");
+        ArticleDto articleDto1 = setArticleData("aaa", 1L, "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", 1L, "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", 1L, "내용3", "tag2", "tag3");
 
         articleService.write(articleDto1);
         articleService.write(articleDto2);
@@ -146,20 +143,20 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_수정() {
-        ArticleDto articleDto1 = setArticleData("aaa", 1L, 1L, "내용1", "tag1", "tag2");
-        ArticleDto articleDto2 = setArticleData("aaa", 1L, 2L, "내용2", "tag1", "tag3");
-        ArticleDto articleDto3 = setArticleData("aaa", 1L, 3L, "내용3", "tag2", "tag3");
+        ArticleDto articleDto1 = setArticleData("aaa", 1L,  "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", 1L,  "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", 1L,  "내용3", "tag2", "tag3");
 
-        articleService.write(articleDto1);
+        Article savedArticle = articleService.write(articleDto1);
         articleService.write(articleDto2);
         articleService.write(articleDto3);
 
-        ArticleDto articleDto = setArticleData("aaa", 1L, 0L, "내용 수정", "tag5", "tag6", "tag4");
-        articleDto.setArticleId(1L);
+        ArticleDto articleDto = setArticleData("aaa", 1L,  "내용 수정", "tag5", "tag6", "tag4");
+        articleDto.setArticleId(savedArticle.getArticleId());
 
         articleService.modify(articleDto);
 
-        Article findArticle =  articleRepository.findByArticleId(1L).get();
+        Article findArticle =  articleRepository.findByArticleId(savedArticle.getArticleId()).get();
 
         for (Hashtag hash:findArticle.getHashtags())
             System.out.println(hash.getContents());
@@ -171,18 +168,18 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_삭제() {
-        ArticleDto articleDto1 = setArticleData("aaa", 1L, 1L, "내용1", "tag1", "tag2");
-        ArticleDto articleDto2 = setArticleData("aaa", 1L, 2L, "내용2", "tag1", "tag3");
-        ArticleDto articleDto3 = setArticleData("aaa", 1L, 3L, "내용3", "tag2", "tag3");
+        ArticleDto articleDto1 = setArticleData("aaa", 1L,  "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", 1L,  "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", 1L, "내용3", "tag2", "tag3");
 
         articleService.write(articleDto1);
-        articleService.write(articleDto2);
+        Article savedArticle = articleService.write(articleDto2);
         articleService.write(articleDto3);
 
         int sizeBefore = articleRepository.findByUserId("aaa").size();
         Assertions.assertEquals(sizeBefore, 3);
 
-        articleService.delete(2L);
+        articleService.delete(savedArticle.getArticleId());
 
         List<Article> findArticles = articleRepository.findByUserId("aaa");
         for(Article article:findArticles)
@@ -191,16 +188,12 @@ public class ArticleServiceTest {
         Assertions.assertEquals(findArticles.size(), 2);
     }
 
-    public ArticleDto setArticleData(String userId, Long pinId, Long imageId, String contents, String... hashtag) {
+    public ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
         ArticleDto articleDto = new ArticleDto();
 
         articleDto.setUserId(userId);
 
         articleDto.setPinId(pinId);
-
-        List<Long> imageIds = new ArrayList<>();
-        imageIds.add(imageId);
-        articleDto.setImageIds(imageIds);
 
         List<String> hashtags = new ArrayList<>();
         for (String h:hashtag) {

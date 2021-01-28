@@ -1,6 +1,7 @@
 package com.web.curation.repository.hashtag;
 
-import com.web.curation.domain.article.Hashtag;
+import com.web.curation.domain.hashtag.Hashtag;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -16,22 +17,26 @@ import java.util.List;
  * @변경이력
  **/
 
-@Repository
-public class HashtagRepository {
+//@Repository
+public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
-    @PersistenceContext
-    private EntityManager em;
+    List<Hashtag> findByContents(String contents);
 
-    public Hashtag save(Hashtag hashtag){
-        em.persist(hashtag);
-        return hashtag;
-    }
+    List<Hashtag> findByContentsStartingWithIgnoreCase(String contents);
 
-    //TODO unique column이라서 어차피 하나인데... 리스트로만 받아올 수 있으려나?
-    public List<Hashtag> findByContents(String contents) {
-        return em.createQuery("select h from Hashtag h where h.contents = :contents", Hashtag.class)
-                .setParameter("contents", contents)
-                .getResultList();
-    }
+//    @PersistenceContext
+//    private EntityManager em;
+//
+//    public Hashtag save(Hashtag hashtag){
+//        em.persist(hashtag);
+//        return hashtag;
+//    }
+//
+//    //TODO unique column이라서 어차피 하나인데... 리스트로만 받아올 수 있으려나?
+//    public List<Hashtag> findByContents(String contents) {
+//        return em.createQuery("select h from Hashtag h where h.contents = :contents", Hashtag.class)
+//                .setParameter("contents", contents)
+//                .getResultList();
+//    }
 
 }
