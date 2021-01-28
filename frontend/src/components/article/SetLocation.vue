@@ -71,9 +71,9 @@ export default {
       const self = this
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
-          if (status === kakao.maps.services.Status.OK) {
-              console.log(result);
-          }
+          // if (status === kakao.maps.services.Status.OK) {
+          //     console.log(result);
+          // }
       }
       
       geocoder.addressSearch(self.address, function(result, status) {
@@ -92,8 +92,7 @@ export default {
         } 
       })    
     },
-    markerCheck(res) {
-
+    markerCheck() {
       this.$emit('onClick', this.position)
     },
     mapClick() {

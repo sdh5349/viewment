@@ -155,7 +155,7 @@ export default {
       self.verificationDisable ='Disabled'
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
       .then((res) => {
-        console.log(res.user)
+        
         res.user.updateProfile({
           displayName: self.nickName,
           })

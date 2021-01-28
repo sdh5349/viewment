@@ -124,7 +124,7 @@ export default {
             sessionStorage.setItem('jwt', token)
             sessionStorage.setItem('uid', user.uid)
             self.$emit('login')
-            self.$router.push({ name: 'FeedMain' })
+            self.$router.push({ name: 'Feed' })
           })
           .catch(err => {
             alert("오류"); // TODO: 오류페이지로 변경
@@ -158,7 +158,7 @@ export default {
     const token = sessionStorage.getItem('jwt')
 
     if (token) {
-      this.$router.push({name: 'FeedMain'})
+      this.$router.push({name: 'Feed'})
     }
   },
 }

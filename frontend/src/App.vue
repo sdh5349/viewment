@@ -29,7 +29,9 @@
             </v-icon>
           </v-btn>
     
-          <v-btn icon>
+          <v-btn 
+            icon
+            @click="goCreateArticle">
             <v-icon>fas fa-edit</v-icon>
           </v-btn>
     
@@ -121,7 +123,7 @@ export default {
       const token = sessionStorage.getItem('jwt')
       if (token) {
         // this.pageName = this.$router.meta.title
-        this.$router.push({ name: 'FeedMain' })
+        this.$router.push({ name: 'Feed' })
         .catch (err=>{})
       }
       else{
@@ -144,6 +146,12 @@ export default {
       })
       .catch (err=>{})
     },
+    goCreateArticle() {
+      this.$router.push({ name: 'CreateArticle'})
+      .catch((err) => {
+        alert(err)
+      })
+    }
   },
   created() {
     const token = sessionStorage.getItem('jwt')

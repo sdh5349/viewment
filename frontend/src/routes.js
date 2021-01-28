@@ -14,6 +14,7 @@ import EditProfile from './views/user/EditProfile.vue'
 import EditAccount from './views/user/EditAccount.vue'
 import CreateArticle from './views/article/CreateArticle.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
+import UpdateArticle from './views/article/UpdateArticle.vue'
 
 
 export default [
@@ -105,8 +106,13 @@ export default [
         component : CreateArticle,
     }, 
     {
-        path : '/article/detail',
+        path : '/article/:articleId',
         name : 'DetailArticle',
         component : DetailArticle,
+    }, 
+    {
+        path : '/article/update/:articleId',
+        name : 'UpdateArticle',
+        component : UpdateArticle,
     }, 
 ]
