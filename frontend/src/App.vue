@@ -29,7 +29,10 @@
             </v-icon>
           </v-btn>
     
-          <v-btn icon>
+          <v-btn
+            icon
+            @click="createArticle"
+          >
             <v-icon>fas fa-edit</v-icon>
           </v-btn>
     
@@ -102,15 +105,15 @@ export default {
     //   this.login = false
     //   this.$router.push({ name: 'Login' })
     // },
-    onChangePassword() {
-      this.$router.push({ name: 'ChangePassword' })
-      .catch (err=>{})
-    },
+    // onChangePassword() {
+    //   this.$router.push({ name: 'ChangePassword' })
+    //   .catch (err=>{})
+    // },
     goPrevious() {
       this.$router.go(-1)
     },
     createArticle() {
-      this.$router.push({ name: '' })
+      this.$router.push({ name: 'CreateArticle' })
       .catch (err=>{})
     },
     goSearch() {
@@ -121,7 +124,7 @@ export default {
       const token = sessionStorage.getItem('jwt')
       if (token) {
         // this.pageName = this.$router.meta.title
-        this.$router.push({ name: 'FeedMain' })
+        this.$router.push({ name: 'Feed' })
         .catch (err=>{})
       }
       else{
@@ -137,7 +140,7 @@ export default {
       .catch (err=>{})
     },
     goProfile() {
-      this.$router.push({ name: '' })
+      this.$router.push({ name: 'Profile' })
       .catch (err=>{})
     },
   },

@@ -10,13 +10,13 @@ export default {
     }
   },
   props: {
-    select : {
-      type: Object
+    search : {
+      type: String,
     }
   },
   methods: {
     goSelect() {
-      this.aa = this.select
+      this.aa = this.search
     }
   },
   created() {
