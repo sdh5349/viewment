@@ -7,12 +7,19 @@
         md="4"
         sm="6"
     >
-      <h1>게시글 작성</h1>
+      <h1>추억 기록하기</h1>
 
       <validation-observer ref="observer" v-slot="{ invalid }">
         <form @submit.prevent="submit">
+      
+      
+      <v-row justify="space-around">
+        <v-col cols="10" class="text-center">게시물에 추억추가</v-col>
+
+        <v-col cols="2">
           <validation-provider rules="" v-slot="{ errors }">
             <v-file-input
+              v-if="preview.length === 0"
               accept="image/*"
               v-model="files"
               multiple
@@ -20,48 +27,74 @@
               prepend-icon="mdi-camera"
               :error-messages="errors"
               @change="previewImg"
+              hide-input     
               >
             </v-file-input>
+            
+            <v-file-input
+              v-else
+              accept="image/*"
+              multiple
+              placeholder="추억 추가하기" 
+              prepend-icon="+"
+              @change="previewImg"
+              hide-input 
+              >             
+            </v-file-input>
+          </validation-provider>
+        </v-col>
+      </v-row>
+  
 
-      <v-carousel 
-        v-if="preview"
-        :show-arrows="false">
+      <v-carousel
+        :show-arrows="false"
+        hide-delimiter-background
+        delimiter-icon="mdi-minus"
+        height="300"
+      >
+
         <v-carousel-item
           v-for="(file, index) in preview" 
           :key="index"
           :src="file.url"
-          reverse-transition="fade-transition"
-          transition="fade-transition"          
-        ></v-carousel-item>
+        >   
+        </v-carousel-item>
       </v-carousel>
 
-          </validation-provider>
 
-          <SetLocation
-            @onClick="onInput"
-          />
-          
 
-          <validation-provider rules="required" v-slot="{ errors }">
-            <v-textarea
-              placeholder="추억을 적어주세요!"
-              type="text"
-              label="게시글"
-              v-model="content"
-              :error-messages="errors"
-              >
-              
-            </v-textarea>
-          </validation-provider>
+    <div>
+      <v-btn @click="handleClickButton">지도 열기</v-btn>
+      <hr>
+      <div v-if="visible">
+        <SetLocation/>
+      </div>
+    </div>
+    
 
-         <v-combobox
+
+
+        <validation-provider rules="required" v-slot="{ errors }" >
+          <v-textarea
+            placeholder="추억을 적어주세요!"
+            type="text"
+            label="게시글"
+            v-model="content"
+            :error-messages="errors"
+            outlined
+            >  
+          </v-textarea>
+        </validation-provider>
+
+
+        <v-combobox
           v-model="hash"
           :items="items"
           label="해시태그"
           multiple
           chips
           @change="writeHash"
-        >
+          >
         
           <template v-slot:selection="data">
             <v-chip
@@ -79,22 +112,19 @@
               {{ data.item }}
             </v-chip>
           </template>
-        
-        
         </v-combobox>
-          
-
-        
 
 
-          <v-btn
-            class="mr-4"
-            type="submit"
-            :disabled="invalid"
-            block
-          >
-            게시물 작성
-          </v-btn>
+        <v-btn
+          class="mr-4"
+          type="submit"
+          :disabled="invalid"
+          block
+        >
+          게시물 작성
+        </v-btn>
+
+
         </form>
       </validation-observer>
     </v-col>
@@ -128,10 +158,10 @@ export default {
   },
   data: () => {
     return {
-      imgFiles: undefined,
+      imgFiles: [],
       fileInfos: [
       ],
-      preview: '',
+      preview: [],
       articleInfo: {
         userId: '',
         lat: '',
@@ -140,6 +170,7 @@ export default {
         hashtag: '',
         imgFormData: '',
       },
+      articleImages: null,
       hash: '',
       items: ['가나다', '가나', '가나마바사', '가아낭남'],
       content: '',
@@ -148,22 +179,27 @@ export default {
         longitude: '',
       },
       files: [],
+      visible: false
+
     }
   },
   methods: {
     previewImg(res) {
-      this.imgFiles = res
+      if (res){    
       
-      for (var i=0; i<this.imgFiles.length; i++) {
-        this.fileInfos[i] = {
-          name: this.imgFiles[i].name,
-          url: URL.createObjectURL(this.imgFiles[i])
-          }
-        }  
-      this.preview = this.fileInfos
+        const temp = res.map(imgObt => {
+          return {name: imgObt.name, url: URL.createObjectURL(imgObt)}
+        })
+
+        this.preview.push(...temp)
+      }
+
+    },
+    handleClickButton() {
+      this.visible = !this.visible
     },
     writeHash(res) {
-      // this.hash.append(res)
+      
       this.hash = res
       },
     onInput(res) {
@@ -172,22 +208,53 @@ export default {
       
       },
     submit() {
-      var formData = new FormData()
-      formData.append("articleImages", this.imgFiles)
+      // const uid = sessionStorage.getItem('uid')
+      // console.log(uid)
+      
 
       this.articleInfo.userId = 'dsadsads'
       this.articleInfo.lat = this.position.lat
       this.articleInfo.lng = this.position.lng
       this.articleInfo.contents = this.content
       this.articleInfo.hashtag = this.hash
-      this.articleInfo.imageFormData = formData
+
+      console.log(sessionStorage.getItem('jwt'))
+      var headers = {
+        headers: {
+          'Content-type': 'multipart/form-data',
+          'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
+        },
+      };
+
+      this.articleImages = new FormData()
+      for (var i = 0; i < this.files.length; i++) {
+        this.articleImages.append('articleImages', this.files[i]);
+      }
       
-      // axios.post("주소", this.articleInfo)
-      // .then(() => {
-      //   console.log('성공')
-      //   })
-      },
+      console.log(this.articleInfo)
+      console.log(SERVER_URL)
+
+      axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
+        headers: {
+          'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
+        },        
+      })
+      .then((res) => {
+        console.log(res)
+        console.log(this.articleImages)
+        axios.post('${SERVER_URL}/api/v1/images/' + res.data, this.articleImages, headers)
+        .then(() => {
+          console.log('성공')
+        })
+        .catch((err) => {
+        console.log(err)
+        })
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     },
+  },
 }
 </script>
 
