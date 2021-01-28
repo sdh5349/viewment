@@ -9,6 +9,7 @@ import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,8 +30,8 @@ import java.io.File;
 @Transactional
 @RequiredArgsConstructor
 public class ImageService {
-
-    private final String DIR = "C:/viewment/image/";
+    @Value("${image.path}")
+    private String DIR;
     private final ImageRepository imageRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;

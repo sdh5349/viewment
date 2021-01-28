@@ -2,7 +2,7 @@ package com.web.curation.domain;
 
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.connection.Follow;
-import com.web.curation.domain.reply.Reply;
+//import com.web.curation.domain.reply.Reply;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
@@ -68,8 +68,8 @@ public class User {
     /**
      * Reply
      */
-    @OneToMany(mappedBy = "user")
-    private List<Reply> replies = new ArrayList<>();
+//    @OneToMany(mappedBy = "user")
+//    private List<Reply> replies = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name="IMAGE_ID")

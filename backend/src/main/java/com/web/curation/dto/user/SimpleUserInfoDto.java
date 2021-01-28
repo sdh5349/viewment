@@ -23,19 +23,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SimpleUserInfoDto {
-    private String uid;
+    private String userId;
     private String nickname;
     private Image profileImage;
     private boolean isFollowed;
 
     public SimpleUserInfoDto(User user){
-        this.uid = user.getId();
+        this.userId = user.getId();
         this.nickname = user.getNickname();
         this.profileImage = user.getProfileImage();
     }
 
     public SimpleUserInfoDto(User user, boolean isFollowed){
-        this.uid = user.getId();
+        this.userId = user.getId();
         this.nickname = user.getNickname();
         this.profileImage = user.getProfileImage();
         this.isFollowed = isFollowed;

@@ -4,6 +4,7 @@ import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.article.ArticleImage;
+import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.domain.hashtag.Hashtag;
 import com.web.curation.dto.article.ArticleDto;
@@ -148,6 +149,10 @@ public class ArticleService {
 
     @Transactional
     public void delete(Long articleId) {
+        Article findArticle = articleRepository.findByArticleId(articleId).orElseThrow(
+                ()->{ throw new ElementNotFoundException("article", articleId.toString()); }
+        );
+        findArticle.resetHashtag();
         articleRepository.delete(articleId);
     }
 
