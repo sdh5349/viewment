@@ -1,79 +1,80 @@
 <template>
-<v-container>
-  
-  <v-row
-  justify="center"
+  <v-card
+    class="mx-auto mt-5"
+    flat
   >
-    <v-col 
-      class="ml-5"
-    >
-      <v-list 
-        lg="4"
-        md="4"
-        sm="6"
-        subheader
+    <v-list>
+      <v-list-item
+        v-for="user in users.slice(0,9)"
+        :key="user.nickname"
       >
-        <v-subheader>Recent chat</v-subheader>
-        <v-list-item
-          v-for="chat in recent"
-          :key="chat.title"
-        >
-          <v-list-item-avatar>
-            <v-img
-              :alt="`${chat.title} avatar`"
-              :src="chat.avatar"
-            ></v-img>
-          </v-list-item-avatar>
-  
-          <v-list-item-content>
-            <v-list-item-title v-text="chat.title"></v-list-item-title>
-          </v-list-item-content>
-  
-          <v-list-item-icon
-            justifty=""
-          >
-            <v-icon :color="chat.active ? 'deep-purple accent-4' : 'grey'">
-              mdi-close
-            </v-icon>
-          </v-list-item-icon>
-        </v-list-item>
-      </v-list>
-    </v-col>
-  </v-row>
-  </v-container>
+        <v-list-item-avatar>
+          <v-img
+            :alt="`${user.nickname} avatar`"
+            :src="user.profileimg"
+          ></v-img>
+        </v-list-item-avatar>
+
+        <v-list-item-content>
+          <v-list-item-title v-text="user.nickname"></v-list-item-title>
+        </v-list-item-content>
+
+        <v-list-item-icon>
+          <v-icon :color="user.active ? 'deep-red accent-4' : 'grey'">
+            mdi-heart
+          </v-icon>
+        </v-list-item-icon>
+      </v-list-item>
+    </v-list>
+  </v-card>
 </template>
 
 <script>
+import axios from 'axios'
+
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+
 export default {
-  data: () => ({
-    recent: [
-      {
-        active: true,
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-        title: 'Jason Oner',
-      },
-      {
-        active: true,
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg',
-        title: 'Mike Carlson',
-      },
-      {
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg',
-        title: 'Cindy Baker',
-      },
-      {
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
-        title: 'Ali Connors',
-      },
-    ],
-  }),
+  data() {
+    return {
+      users: [],
+    }
+  },
   props: {
-    select : {
-      type: Object
+    search : {
+      type: String,
+    }
+  },
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
+  methods: {
+    getUsers(users) {
+      console.log(this.getToken)
+      axios.get(`${SERVER_URL}`, this.getToken)
+        .then((res) => {
+        console.log(res)        
+        })
+        .catch((err)=> {
+          alert('error'+err.message)
+        })
+    },
+  },
+  watch: {
+    search: function(res) {
+      this.getUsers(res)
     }
   },
 }
-
 </script>
 
 <style>
