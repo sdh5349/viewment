@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@mdi/js": "^5.9.55",
     "axios": "^0.21.1",
     "babel-eslint": "^10.0.3",
     "babel-preset-env": "^1.7.0",
@@ -46,6 +47,8 @@
     "jest-transform-stub": "^2.0.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
+    "stylus": "^0.54.8",
+    "stylus-loader": "^4.3.3",
     "vee-validate": "^3.4.5",
     "vue-cli-plugin-vuetify": "~2.0.9",
     "vue-jest": "^3.0.5",
