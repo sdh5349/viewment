@@ -99,23 +99,29 @@ export default {
       var control = new kakao.maps.ZoomControl()
       this.container = document.getElementById("map")
       
-      this.$getLocation()
-      .then(coordinates => {
-        this.myLocation = coordinates
-      })
-      .then(() => {
-        this.options = {
-          //지도를 생성할 때 필요한 기본 옵션
-          center: new kakao.maps.LatLng(this.myLocation.lat, this.myLocation.lng), //지도의 중심좌표.
-          level: 3 //지도의 레벨(확대, 축소 정도)
-        }
+      // this.$getLocation()
+      // .then(coordinates => {
+      //   this.myLocation = coordinates
+      // })
+      // .then(() => {
+      //   this.options = {
+      //     //지도를 생성할 때 필요한 기본 옵션
+      //     center: new kakao.maps.LatLng(this.myLocation.lat, this.myLocation.lng), //지도의 중심좌표.
+      //     level: 3 //지도의 레벨(확대, 축소 정도)
+      //   }
         
         
-        var map = new kakao.maps.Map(this.container, this.options) //지도 생성 및 객체 리턴
-        self.alreadyMarker(map)
+      //   var map = new kakao.maps.Map(this.container, this.options) //지도 생성 및 객체 리턴
+      //   self.alreadyMarker(map)
         
-        // this.mapClick()
-      })
+      //   // this.mapClick()
+      // })
+      this.options = {
+        //지도를 생성할 때 필요한 기본 옵션
+        center: new kakao.maps.LatLng(36.3586873, 127.30278400), //지도의 중심좌표.
+        level: 3 //지도의 레벨(확대, 축소 정도)
+      }
+      var map = new kakao.maps.Map(this.container, this.options) //지도 생성 및 객체 리턴
     },
     searchAddress() {
       
