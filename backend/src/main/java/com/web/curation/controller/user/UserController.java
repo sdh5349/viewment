@@ -15,9 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class UserController {
 
     @GetMapping("/{userId}/page")
     public ResponseEntity<?> getUserPage(@PathVariable("userId") String userId, Authentication authentication){
-        final String currentUserId = ((CustomUserDetails)authentication.getPrincipal()).getUsername();
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
         UserPageDto userPage = userService.findUserPageById(currentUserId, userId);
         return ResponseEntity.ok().body(userPage);
     }
@@ -41,7 +44,7 @@ public class UserController {
 
     @GetMapping("/{userId}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable("userId") String userId, PageRequest pageable, Authentication authentication){
-        final String currentUserId = ((CustomUserDetails)authentication.getPrincipal()).getUsername();
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
         List<SimpleUserInfoDto> result = followService.findFollowingsByUserId(currentUserId, userId, pageable.of());
 
         return ResponseEntity.ok().body(new PageImpl<SimpleUserInfoDto>(result));
@@ -49,29 +52,27 @@ public class UserController {
 
     @GetMapping("/{userId}/followers")
     public ResponseEntity<?> getFollowers(@PathVariable("userId") String userId, PageRequest pageable, Authentication authentication){
-        final String currentUserId = ((CustomUserDetails)authentication.getPrincipal()).getUsername();
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
         List<SimpleUserInfoDto> result = followService.findFollowersByUserId(currentUserId, userId, pageable.of());
         return ResponseEntity.ok().body(new PageImpl<SimpleUserInfoDto>(result));
     }
 
     @PostMapping("/{userId}/follow")
-    public ResponseEntity<?> follow(@PathVariable("userId") String userId, @RequestBody String targetUserId){
-        followService.follow(userId, targetUserId);
+    public ResponseEntity<?> follow(@PathVariable("userId") String userId, @RequestBody Map<String, String> map){
+        followService.follow(userId, map.get("targetUserId"));
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{userId}/followings/{targetUserId}")
+    public ResponseEntity<?> unfollow(@PathVariable("userId") String userId, @PathVariable("targetUserId") String targetUserId){
+        followService.unfollow(userId, targetUserId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{userId}/followers/{targetUserId}")
-    public ResponseEntity<?> unfollow(@PathVariable("userId") String userId, @PathVariable("targetUserId") String targetUserId){
-        followService.follow(userId, targetUserId);
+    public ResponseEntity<?> removeFollowers(@PathVariable("userId") String userId, @PathVariable("targetUserId") String targetUserId){
+        followService.unfollow(targetUserId, userId);
         return ResponseEntity.ok().build();
     }
 
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?>  handleUserNotFoundException(UserNotFoundException e){
-        final String msg  = e.getValue();
-        final String code = "nonexistence.user.exception";
-        ErrorResponse errorResponse = new ErrorResponse(msg, code);
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
 }

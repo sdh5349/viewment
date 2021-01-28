@@ -1,5 +1,6 @@
 package com.web.curation.domain;
 
+import com.web.curation.domain.article.Article;
 import com.web.curation.domain.connection.Follow;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +33,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nickname;
 
     @Column(name="MESSAGE")
@@ -53,29 +54,22 @@ public class User {
      *
      */
 
-//    @OneToMany
-//    @JoinColumn(name="USER_ID")
-//    private List<Memory> memories = new ArrayList<>();
-//
-//
-//    /**
-//     * Article
-//     */
-//    @OneToMany
-//    @JoinColumn(name="USER_ID")
-//    private List<Object> articles = new ArrayList<>();
-//
-//
-//    /**
-//     * Reply
-//     */
-//    @OneToMany
-//    @JoinColumn(name="USER_ID")
-//    private List<Object> replies = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<Memory> memories = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name="USER_ID")
+    private List<Article> articles = new ArrayList<>();
+
     @OneToOne
     @JoinColumn(name="IMAGE_ID")
     private Image profileImage;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public void addMemory(Memory memory){
+        this.memories.add(memory);
+        memory.setUser(this);
+    }
 }

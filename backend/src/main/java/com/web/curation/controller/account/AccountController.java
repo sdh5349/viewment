@@ -60,38 +60,4 @@ public class AccountController {
         accountService.validateDuplicateUser(email);
         return ResponseEntity.ok().build();
     }
-
-//    @PostMapping("/authenticate")
-//    @ApiOperation(value="인증 토큰 획득")
-//    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequestDto authenticationRequest) {
-//        authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-//        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-//        final String jwt = "Bearer " + jwtUtil.generateToken(userDetails);
-//
-//        return ResponseEntity.ok(new AuthenticationResponseDto(jwt));
-//    }
-//
-//    @ExceptionHandler(BadCredentialsException.class)
-//    public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException e) {
-//        return new ResponseEntity<>(new ErrorResponse(
-//                "인증되지 않은 사용자입니다", "bad.credential.exception"), HttpStatus.UNAUTHORIZED);
-//    }
-
-    @ExceptionHandler(UserDuplicateException.class)
-    public ResponseEntity<?>  handleUserDuplicateException(UserDuplicateException e){
-        final String msg  = "[ " + e.getEmail() + "] 은 중복된 이메일입니다";
-        final String code = "duplicated.email.exception";
-        ErrorResponse errorResponse = new ErrorResponse(msg, code);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?>  handleUserNotFoundException(UserNotFoundException e){
-        final String msg  = e.getValue();
-        final String code = "nonexistence.user.exception";
-        ErrorResponse errorResponse = new ErrorResponse(msg, code);
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
 }

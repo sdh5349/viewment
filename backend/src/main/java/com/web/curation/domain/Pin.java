@@ -35,6 +35,9 @@ public class Pin {
     @OneToMany(mappedBy = "pin", fetch = FetchType.LAZY)
     private List<Article> articles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "pin", fetch = FetchType.LAZY)
+    private List<Memory> memories = new ArrayList<>();
+
     public void setLocation(double lat, double lng) {
         String wktPoint = String.format("POINT(%s %s)", lat, lng);
         Point point = null;

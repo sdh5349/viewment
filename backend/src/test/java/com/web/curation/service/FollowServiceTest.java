@@ -1,4 +1,4 @@
-package com.web.curation.follow;
+package com.web.curation.service;
 
 import com.web.curation.domain.User;
 import com.web.curation.dto.user.SimpleUserInfoDto;

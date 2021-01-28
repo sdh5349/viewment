@@ -7,7 +7,8 @@ import com.web.curation.domain.article.Article;
 import com.web.curation.domain.article.ArticleImage;
 import com.web.curation.domain.article.Hashtag;
 import com.web.curation.dto.ArticleDto;
-import com.web.curation.repository.UserRepository;
+import com.web.curation.exceptions.UserNotFoundException;
+import com.web.curation.repository.user.UserRepository;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
 import com.web.curation.repository.image.ImageRepository;
@@ -26,6 +27,7 @@ import java.util.Optional;
  * @author  이주희
  *
  * @변경이력
+ * 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
  **/
 
 @Service
@@ -45,20 +47,22 @@ public class ArticleService {
         Article article = new Article();
 
         //TODO optional 확인
-        User user = userRepository.findById(articleDto.getUserId()).get();
+        User user = userRepository.findById(articleDto.getUserId()).orElseThrow(
+                ()->{ throw new UserNotFoundException(articleDto.getUserId()); }
+        );
         article.setUser(user);
 
 
         Pin pin = null;
         if (articleDto.getPinId() != null && articleDto.getPinId() != 0)
-            pin = pinRepository.findById(articleDto.getPinId());
+            pin = pinRepository.findById(articleDto.getPinId()).get();
         else {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             // TODO kakao api에서 위치의 주소 받아오기
             newPin.setAddress("추후에 수정");
-            Long savedPinId = pinRepository.save(newPin);
-            pin = pinRepository.findById(savedPinId);
+            Long savedPinId = pinRepository.save(newPin).getPinId();
+            pin = pinRepository.findById(savedPinId).get();
         }
         article.setPin(pin);
 
@@ -104,14 +108,14 @@ public class ArticleService {
         article.resetPin();
         Pin pin = null;
         if (articleDto.getPinId() != null)
-            pin = pinRepository.findById(articleDto.getPinId());
+            pin = pinRepository.findById(articleDto.getPinId()).get();
         else {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             // TODO kakao api에서 위치의 주소 받아오기
             newPin.setAddress("추후에 수정");
-            Long savedPinId = pinRepository.save(newPin);
-            pin = pinRepository.findById(savedPinId);
+            Long savedPinId = pinRepository.save(newPin).getPinId();
+            pin = pinRepository.findById(savedPinId).get();
         }
         article.setPin(pin);
 
