@@ -230,14 +230,14 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
+      axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/articles`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
           }
       } )
       .then((res) => {
         this.articleId = res.data
-        axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
+        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/images/article/` + this.articleId, this.articleImages, headers)
         .then((res) => {
           console.log(res)
           this.$router.push({name: 'DetailArticle', params: {

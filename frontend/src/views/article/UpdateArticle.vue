@@ -189,7 +189,7 @@ export default {
       }
       
 
-      axios.put(`${SERVER_URL}/articles/` + this.articleId, this.articleInfo, {
+      axios.put(`http://i4b105.p.ssafy.io:8080/api/v1/articles/` + this.articleId, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
           }

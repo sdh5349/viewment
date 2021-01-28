@@ -116,7 +116,7 @@ export default {
       // 필요한 데이터 가져오기
       this.loading = true
 
-      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followings?page=${this.page}&size=${this.size}`, this.getToken)
+      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.profileUserId}/followings?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
         this.followings.push(...res.data.content)
         this.page += 1
@@ -150,7 +150,7 @@ export default {
       const targetUserIdx = this.followings.indexOf(targetUser)
       
       if (targetUser.followed) {
-        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
+        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
           this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed
         })
@@ -161,7 +161,7 @@ export default {
         })
       } else {
         var params = {'targetUserId' : targetUser.userId }
-        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
+        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
           this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed 
         })

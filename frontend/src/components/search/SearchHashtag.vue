@@ -64,7 +64,7 @@ export default {
   methods: {
     getHashtags(keyword) {
       console.log(this.getToken)
-      axios.get(`${SERVER_URL}/hashtags/${keyword}`, this.getToken)
+      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/hashtags/${keyword}`, this.getToken)
         .then((res) => {
         console.log(res)        
         })
