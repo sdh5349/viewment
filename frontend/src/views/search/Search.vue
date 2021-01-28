@@ -16,6 +16,8 @@
       hide-no-data
       hide-details
       clearable
+      auto-select-first
+      @change="onSearch(select)"
     >
       <template v-slot:label>
        {{searchLabel}}
@@ -25,47 +27,42 @@
   <v-row
     justify="center"
     row wrap
-  > 
+  >
+  <!-- 탭 -->
     <v-tabs
-      fixed-tabs
-      color="cyan"
+      v-model="onTab"
+      grow
     >
       <v-tab
-        @click="goMap"
+        v-for="tabItem in tabItems"
+        :key="tabItem.tabId"
+        :disabled="!onTab"
       >
-        <v-icon>
-          mdi-map
-        </v-icon>
-      </v-tab>
-      <v-tab
-         @click="goHashtag"
-      >
-        <v-icon>
-          mdi-post
-        </v-icon>
-      </v-tab>
-      <v-tab
-        @click="goUser"
-      >
-        <v-icon>
-          mdi-account
-        </v-icon> 
+        <v-icon>{{ tabItem.icon }}</v-icon>
       </v-tab>
     </v-tabs>
-  </v-row>
-  <v-row>
-    <div v-if="showSearchlog">
-      <SearchRecord />
-    </div>
-    <div v-if="showMap">
-      <SearchLocation />
-    </div>
-    <div v-if="showHashtag">
-      <SearchHashtag />
-    </div>
-    <div v-if="showAccount">
-      <SearchUser />
-    </div>
+  <!-- 탭 -->
+
+  <!-- 탭-컴포넌트 -->
+    <v-tabs-items
+      v-model="onTab"
+      continuous
+      default
+    >
+      <v-tab-item
+        v-for="tabItem in tabItems"
+        :key="tabItem.tabId"
+        disabled
+      >
+        <v-card flat>
+          <component 
+            v-bind:is="tabItem.content"
+
+          ></component>
+        </v-card>
+      </v-tab-item>
+    </v-tabs-items>
+    <!-- 탭-컴포넌트 -->
   </v-row>
 </v-container>
 </template>
@@ -87,16 +84,24 @@ export default {
   },
   data () {
     return {
+      onTab: null,
+      tabItems: [
+        { tabId: 0, tabName: 'Map', icon: 'mdi-map', content: 'SearchLocation' },
+        { tabId: 1, tabName: 'Feed', icon: 'mdi-post', content: 'SearchHashtag' },
+        { tabId: 2, tabName: 'User', icon: 'mdi-account', content: 'SearchUser' }
+      ],
       loading: false,
       items: [],
       search: null,
       select: null,
-      states: [
+      users: [
         '재혁',
         '동현',
         '동규',
         '종성',
-        '주희',
+        '주희'
+      ],
+      locations: [
         'Alabama',
         'Alaska',
         'American Samoa',
@@ -107,41 +112,19 @@ export default {
         'Connecticut',
         'Delaware',
       ],
-      showSearchlog: false,
-      showMap: false,
-      showHashtag: false,
-      showAccount: false,
+      hashtags: [
+        '에버랜드',
+        '롯데월드',
+        '오월드',
+        '이월드',
+      ],
       searchLabel : "Search",
     }
   },
   methods: {
-    showLog() {
-      this.searchLabel = "Search"
-      this.showSearchlog = true
-      this.showMap = false
-      this.showHashtag = false
-      this.showAccount = false
-    },
-    goMap() {
-      this.searchLabel = "Map Search"
-      this.showSearchlog = false
-      this.showMap = true
-      this.showHashtag = false
-      this.showAccount = false
-    },
-    goHashtag() {
-      this.searchLabel = "Hashtag Search"
-      this.showSearchlog = false
-      this.showMap = false
-      this.showHashtag = true
-      this.showAccount = false
-    },
-    goUser() {
-      this.searchLabel = "User Search"
-      this.showSearchlog = false
-      this.showMap = false
-      this.showHashtag = false
-      this.showAccount = true
+    onSearch(select) {
+      console.log(select)
+      
     },
     setToken() {
       const token = localStorage.getItem('jwt')
@@ -152,23 +135,38 @@ export default {
       }
       return config
     },
-    getSearchlog() {
+    async getSearches() {
       const config = this.setToken()
-      axios.get('', config)
-      .then(res => {
-        console.log(res)
-      })
-      .catch(err => {
-        console.log(err)
-      })
+      // map api 받아오기
+      const response1 = await axios.get('', config)
+      console.log(response1)
+      // hashtag api 받아오기
+      const response2 = await axios.get('', config)
+      console.log(response2)
+      // user api 받아오기
+      const response3 = await axios.get('', config)
+      console.log(response3)
+
     },
     querySelections (v) {
       this.loading = true
       // Simulated ajax query
       setTimeout(() => {
-        this.items = this.states.filter(e => {
-          return (e || '').toLowerCase().indexOf((v || '').toLowerCase()) > -1
-        })
+        if (this.onTab === 2){
+          this.items = this.users.filter(e => {
+            return (e || '').toLowerCase().indexOf((v || '').toLowerCase()) > -1
+          })
+        }
+        else if (this.onTab === 0){
+          this.items = this.locations.filter(e => {
+            return (e || '').toLowerCase().indexOf((v || '').toLowerCase()) > -1
+          })
+        }
+        else if (this.onTab === 1){
+          this.items = this.hashtags.filter(e => {
+            return (e || '').toLowerCase().indexOf((v || '').toLowerCase()) > -1
+          })
+        }
         this.loading = false
       }, 500)
     },
@@ -176,7 +174,7 @@ export default {
   created() {
     // const token = sessionStorage.getItem('jwt')
     // if (token) {
-      this.showLog()
+      // this.getSearches()
     // }
   },
   watch: {

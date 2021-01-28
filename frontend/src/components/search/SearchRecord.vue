@@ -1,5 +1,5 @@
 <template>
-  <div>00</div>
+  <div>record</div>
 </template>
 
 <script>
