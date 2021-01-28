@@ -39,11 +39,11 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public String modify(UserDto userDto) {
-        User user = userRepository.findById(userDto.getId())
+        User user = userRepository.findById(userDto.getUserId())
                 .orElseThrow(
                         ()->{throw new UsernameNotFoundException(userDto.getEmail() + "은 등록되지 않은 사용자입니다.");});
         userRepository.update(userDto.convert(user));
-        return userDto.getId();
+        return userDto.getUserId();
     }
 
     @Override

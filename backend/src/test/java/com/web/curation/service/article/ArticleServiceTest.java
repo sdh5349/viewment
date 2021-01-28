@@ -188,7 +188,7 @@ public class ArticleServiceTest {
         Assertions.assertEquals(findArticles.size(), 2);
     }
 
-    public ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
+    public static ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
         ArticleDto articleDto = new ArticleDto();
 
         articleDto.setUserId(userId);

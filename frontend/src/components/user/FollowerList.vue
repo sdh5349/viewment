@@ -1,5 +1,12 @@
 <template>
+  <div v-if="loading" class="d-flex justify-center align-center">
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </div>
   <v-virtual-scroll
+    v-else
     :items="followers"
     :item-height="50"
     height="auto"
@@ -43,7 +50,7 @@
                 width="55"
                 color="error" 
                 elevation="1" 
-                @click.stop="onFollowerDeleteButton(item)"
+                @click.stop="onFollowerDeleteButton(item.userId)"
               >
                 삭제
               </v-btn>
@@ -85,30 +92,47 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   name: 'FollowerList',
   props: {
-    profileUserId: String
+    profileUserId: String,
   },
   data() {
     return {
+      loading: true,
       loginUserId: '',
-      followers: null,
+      followers: [],
       page: 0,
       size: 200,
       last: false,
     }
   },
-  create() {
-    this.readMore()
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
+  created() {
+    // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드 readMore와 동일하나 loading 변수를 한번만 false로 할당하기위해
     this.loginUserId = sessionStorage.getItem('uid')
+    this.readMore()
   },
   methods: {
     // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드
     readMore() {
       // 필요한 데이터 가져오기
-      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`)
+      this.loading = true
+
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
         this.followers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+        this.loading = false
       })
       .catch(err => {
         alert("오류"); // TODO: 오류페이지로 변경
@@ -135,7 +159,7 @@ export default {
     // 본인 팔로워 리스트일 경우 삭제를 희망하는 유저의 인덱스를 찾아 삭제하는 메서드
     onFollowerDeleteButton (targetUser) {
       if (confirm("삭제하시겠습니까?")) {
-        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followers/${targetUser.userId}`)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
         .then(() => {
         const targetUserIdx = this.followers.indexOf(targetUser)
         this.followers.splice(targetUserIdx, 1)
@@ -152,7 +176,7 @@ export default {
       const targetUserIdx = this.followers.indexOf(targetUser)
       
       if (targetUser.followed) {
-        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/follows/${targetUser.userId}`)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
           this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed
         })
@@ -162,8 +186,8 @@ export default {
           // self.$router.push({ name: 'Error' })
         })
       } else {
-        var params = {'targetUserId' : this.targetUser.userId }
-        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params)
+        var params = {'targetUserId' : targetUser.userId }
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
           this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed 
         })

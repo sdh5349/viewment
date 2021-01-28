@@ -29,10 +29,9 @@
             </v-icon>
           </v-btn>
     
-          <v-btn
+          <v-btn 
             icon
-            @click="createArticle"
-          >
+            @click="goCreateArticle">
             <v-icon>fas fa-edit</v-icon>
           </v-btn>
     
@@ -140,9 +139,19 @@ export default {
       .catch (err=>{})
     },
     goProfile() {
-      this.$router.push({ name: 'Profile' })
+      const loginUserId = sessionStorage.getItem('uid')
+      this.$router.push({ 
+        name: 'Profile', 
+        params: { profileUserId : loginUserId }
+      })
       .catch (err=>{})
     },
+    goCreateArticle() {
+      this.$router.push({ name: 'CreateArticle'})
+      .catch((err) => {
+        alert(err)
+      })
+    }
   },
   created() {
     const token = sessionStorage.getItem('jwt')

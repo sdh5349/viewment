@@ -21,7 +21,7 @@
             </v-text-field>
           </validation-provider>
 
-          <validation-provider rules="required|max:10" v-slot="{ errors }">
+          <validation-provider rules="required|max:8" v-slot="{ errors }">
             <v-text-field
               v-model="nickName" 
               id="nickname" 
@@ -105,22 +105,22 @@ extend('required', {
   message: '필수 입력 항목입니다.'
 })
 
-  extend('min', {
+extend('min', {
   ...min,
   message: '비밀번호는 8자이상이여야 합니다.'
 })
 
 
-  extend('max', {
+extend('max', {
   ...max,
   message: '닉네임은 8자이하 입니다.'
 })
 
 
-  extend('email', {
+extend('email', {
     ...email,
     message: '이메일 형식이 아닙니다.'
-  })
+})
 
 
 export default {
@@ -147,24 +147,26 @@ export default {
       isLoading: false,
     };
   },
+  computed: {
+  },
   methods: {
     submit() {
       const self = this
       self.verificationDisable ='Disabled'
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
       .then((res) => {
-        console.log(res.user)
+        
         res.user.updateProfile({
           displayName: self.nickName,
           })
           .then(()=>{
             const user = firebase.auth().currentUser
-              self.userInfo={
+            self.userInfo={
               "id":  user.uid,
               "password": self.password,
               "email": user.email,
               "nickname": user.displayName,
-              }
+            }
             
 
             axios.post(`${SERVER_URL}/accounts`, self.userInfo)

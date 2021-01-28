@@ -1,5 +1,12 @@
 <template>
+  <div v-if="loading" class="d-flex justify-center align-center">
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </div>
   <v-virtual-scroll
+    v-else
     :items="followings"
     :item-height="50"
     height="auto"
@@ -74,30 +81,47 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   name: 'FollowingList',
   props: {
-    profileUserId: String
+    profileUserId: String,
   },
   data() {
     return {
+      loading: true,
       loginUserId: '',
-      followings: null,
+      followings: [],
       page: 0,
       size: 200,
       last: false,
     }
   },
-  create() {
-    this.readMore()
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
+  created() {
+    // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드 readMore와 동일하나 loading 변수를 한번만 false로 할당하기위해
     this.loginUserId = sessionStorage.getItem('uid')
+    this.readMore()
   },
   methods: {
     // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드
     readMore() {
       // 필요한 데이터 가져오기
-      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followings?page=${this.page}&size=${this.size}`)
+      this.loading = true
+
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followings?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
-        this.followings.push(...res.data)
+        this.followings.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+        this.loading = false
       })
       .catch(err => {
         alert("오류"); // TODO: 오류페이지로 변경
@@ -126,7 +150,7 @@ export default {
       const targetUserIdx = this.followings.indexOf(targetUser)
       
       if (targetUser.followed) {
-        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/follows/${targetUser.userId}`)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
           this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed
         })
@@ -136,8 +160,8 @@ export default {
           // self.$router.push({ name: 'Error' })
         })
       } else {
-        var params = {'targetUserId' : this.targetUser.userId }
-        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params)
+        var params = {'targetUserId' : targetUser.userId }
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
           this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed 
         })

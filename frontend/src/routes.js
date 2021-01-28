@@ -14,15 +14,16 @@ import EditProfile from './views/user/EditProfile.vue'
 import EditAccount from './views/user/EditAccount.vue'
 import CreateArticle from './views/article/CreateArticle.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
+import UpdateArticle from './views/article/UpdateArticle.vue'
 
 
 export default [
     {
         path : '/',
         name : 'Login',
-        meta : {title: '로그인'},
         component : Login,
         props : true,
+        meta : {title: '로그인'},
     },
     {
         path : '/user/join/',
@@ -84,9 +85,10 @@ export default [
         component : EditProfile,
     },
     {
-        path : '/user/account/edit',
+        path : '/user/account/:profileUserId/edit',
         name : 'EditAccount',
         component : EditAccount,
+        props : true,
     },
     {
         path: '*',
@@ -104,8 +106,13 @@ export default [
         component : CreateArticle,
     }, 
     {
-        path : '/article/detail',
+        path : '/article/:articleId',
         name : 'DetailArticle',
         component : DetailArticle,
+    }, 
+    {
+        path : '/article/update/:articleId',
+        name : 'UpdateArticle',
+        component : UpdateArticle,
     }, 
 ]

@@ -65,19 +65,25 @@
 
 <script>
 import axios from 'axios'
+import firebase from 'firebase/app'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'EditAccount',
-  components: {
-
-  },
   props: {
-    profileUserInfo: Object
+    profileUserId: String,
   },
-  data() {
-    return {
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
     }
   },
   methods: {
@@ -91,20 +97,33 @@ export default {
       this.$router.push({ name: 'Login' })
     },
     onAccountDelete() {
-      // TODO: firebase 재인증 후 회원탈퇴 진행해야하고 firebase에서도 삭제해야 함
+      // TODO: firebase 재인증 후 회원탈퇴
+      if (confirm("정말 회원탈퇴 하시겠습니까?")) {
+        // 서버 DB에서 삭제
+        axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`, this.getToken)
+        .then(() => {
+          var user = firebase.auth().currentUser;
+          console.log(user)
+          const self = this
 
-      axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`)
-      .then(() => {
-        if (confirm("정말 회원탈퇴 하시겠습니까?")) {
-          alert("그동안 이용해주셔서 감사합니다.");
-          this.$router.push({ name: 'Login' })
-        }
-      })
-      .catch(err => {
-        alert("오류"); // TODO: 오류페이지로 변경
-        console.log('Error', err.message);
-        // self.$router.push({ name: 'Error' })
-      })
+          // firebase DB에서 삭제
+          user.delete()
+          .then(() => {
+            alert("그동안 이용해주셔서 감사합니다.");
+            self.onLogoutButton()
+          })
+          .catch(err => {
+            alert("오류"); // TODO: 오류페이지로 변경
+            console.log('Error', err.message);
+            // self.$router.push({ name: 'Error' })
+          });
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      }
     }
   }
 }
