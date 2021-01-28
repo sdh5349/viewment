@@ -7,64 +7,31 @@
         md="4"
         sm="6"
     >
-      <h1>추억 기록하기</h1>
+      <h1>추억 기록하기(수정)</h1>
 
       <validation-observer ref="observer" v-slot="{ invalid }">
         <form @submit.prevent="submit">
+  
       
-      
-      <v-row justify="space-around">
-        <v-col cols="10" class="text-center">게시물에 추억추가</v-col>
-
-        <v-col cols="2">
-          <validation-provider rules="" v-slot="{ errors }">
-            <v-file-input
-              v-if="preview.length === 0"
-              accept="image/*"
-              v-model="files"
-              multiple
-              placeholder="추억을 올려주세요!"   
-              prepend-icon="mdi-camera"
-              :error-messages="errors"
-              @change="previewImg"
-              hide-input     
-              >
-            </v-file-input>
-            
-            <v-file-input
-              v-else
-              accept="image/*"
-              multiple
-              placeholder="추억 추가하기" 
-              prepend-icon="+"
-              @change="previewImg"
-              hide-input 
-              >             
-            </v-file-input>
-          </validation-provider>
-        </v-col>
-      </v-row>
+     <v-carousel
+      :show-arrows="false"
+      hide-delimiter-background
+      delimiter-icon="mdi-minus"
+      height="300"
+    >
+      <v-carousel-item
+        v-for="(image, i) in preview"
+        :key="i"
+        :src="'http://localhost:8080/api/v1/images/'+ image.path">    
+      >
+      </v-carousel-item>
+    </v-carousel>
   
 
-      <v-carousel
-        :show-arrows="false"
-        hide-delimiter-background
-        delimiter-icon="mdi-minus"
-        height="300"
-        mouse-drag = true
-      >
-
-        <v-carousel-item
-          v-for="(file, index) in preview" 
-          :key="index"
-          :src="file.url"
-        >   
-        </v-carousel-item>
-      </v-carousel>
 
 
 
-    <div>
+    <!-- <div>
       <v-btn @click="handleClickButton">지도 열기</v-btn>
       <hr>
       <div v-if="visible">
@@ -72,7 +39,7 @@
           @onClick="onMarker"
         />
       </div>
-    </div>
+    </div> -->
     
 
 
@@ -82,7 +49,7 @@
             placeholder="추억을 적어주세요!"
             type="text"
             label="게시글"
-            v-model="content"
+            v-model="contents"
             :error-messages="errors"
             outlined
             >  
@@ -91,7 +58,7 @@
 
 
         <v-combobox
-          v-model="hash"
+          v-model="hashtags"
           :items="items"
           label="해시태그"
           multiple
@@ -124,7 +91,7 @@
           :disabled="invalid"
           block
         >
-          게시물 작성
+          게시물 수정
         </v-btn>
 
 
@@ -139,7 +106,7 @@ import axios from 'axios'
 import firebase from 'firebase/app'
 import { required } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
-import SetLocation from '@/components/article/SetLocation.vue'
+// import SetLocation from '@/components/article/SetLocation.vue'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 
@@ -157,14 +124,13 @@ export default {
   components: {
     ValidationProvider,
     ValidationObserver,
-    SetLocation
+    // SetLocation
   },
   data: () => {
     return {
       imgFiles: [],
       fileInfos: [
       ],
-      preview: [],
       articleInfo: {
         userId: '',
         lat: '',
@@ -175,7 +141,13 @@ export default {
         imgFormData: '',
       },
       articleImages: null,
-      hash: '',
+
+      articleId: '',
+      hashtags: [],
+      contents: '',
+      lat: '',
+      lng: '',
+      preview: '',
       items: ['가나다', '가나', '가나마바사', '가아낭남'],
       content: '',
       position: {
@@ -184,21 +156,10 @@ export default {
       },
       files: [],
       visible: false,
-      articleId : ''
+      
     }
   },
   methods: {
-    previewImg(res) {
-      if (res){    
-      
-        const temp = res.map(imgObt => {
-          return {name: imgObt.name, url: URL.createObjectURL(imgObt)}
-        })
-
-        this.preview.push(...temp)
-      }
-
-    },
     handleClickButton() {
       this.visible = !this.visible
     },
@@ -214,10 +175,11 @@ export default {
     submit() {
 
       this.articleInfo.userId = sessionStorage.getItem('uid')
-      this.articleInfo.lat = this.position.lat
-      this.articleInfo.lng = this.position.lng
-      this.articleInfo.contents = this.content
-      this.articleInfo.hashtags = this.hash
+      this.articleInfo.articleId = this.articleId
+      this.articleInfo.lat = this.lat
+      this.articleInfo.lng = this.lng
+      this.articleInfo.contents = this.contents
+      this.articleInfo.hashtags = this.hashtags
 
       var headers = {
         headers: {
@@ -226,46 +188,48 @@ export default {
         },
       }
       
-      this.articleImages = new FormData()
-      for (var i = 0; i < this.files.length; i++) {
-        this.articleImages.append('articleImages', this.files[i]);
-      }
-      axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
+
+      axios.put(`${SERVER_URL}/articles/` + this.articleId, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
           }
       } )
       .then((res) => {
-        this.articleId = res.data
-        axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
-        .then((res) => {
-          console.log(res)
-          this.$router.push({name: 'DetailArticle', params: {
-            articleId: this.articleId,
-          }})
-        })
-        .catch((err) => {
-          console.log(err)
-          alert(err)
-        })
+        this.$router.push({name: 'DetailArticle', params: {
+          articleId: this.articleId
+        }})
       })
       .catch((err) => {
         console.log(err)
         alert(err)
       })
     },
+    gethash(){
+      const hashtagArray = this.$route.params.hashtagArray
+      for (var i=0; i< hashtagArray.length; i++){
+        this.hashtags.push(hashtagArray[i].contents)
+      }
+    }
   },
   computed: {
-      getToken(){
-        const token = sessionStorage.getItem('jwt')
-        const config = {
-          headers: {
-            'X-Authorization-Firebase': token
-          }
+    getToken(){
+      const token = sessionStorage.getItem('jwt')
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
         }
-        return config
       }
-    },
+      return config
+    }
+  },
+  created() {
+    this.articleId= this.$route.params.articleId,
+    this.contents= this.$route.params.contents,
+    this.lat= this.$route.params.lat,
+    this.lng= this.$route.params.lng,
+    this.preview= this.$route.params.preview
+    this.gethash()
+  }
 }
 </script>
 

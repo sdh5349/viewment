@@ -147,27 +147,29 @@ export default {
       isLoading: false,
     };
   },
+  computed: {
+  },
   methods: {
     submit() {
       const self = this
       self.verificationDisable ='Disabled'
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
       .then((res) => {
-        console.log(res.user)
+        
         res.user.updateProfile({
           displayName: self.nickName,
           })
           .then(()=>{
             const user = firebase.auth().currentUser
-              self.userInfo={
+            self.userInfo={
               "id":  user.uid,
               "password": self.password,
               "email": user.email,
               "nickname": user.displayName,
-              }
+            }
             
 
-            axios.post(`${SERVER_URL}/api/v1/accounts`, self.userInfo)
+            axios.post(`${SERVER_URL}/accounts`, self.userInfo)
             .then(() => {
               console.log('back에 데이터 넘겨주기 성공')
 
