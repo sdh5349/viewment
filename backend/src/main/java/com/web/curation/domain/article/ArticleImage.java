@@ -36,8 +36,9 @@ public class ArticleImage {
     @Column(nullable = false)
     private byte no;
 
-    public static ArticleImage createArticleImage(Image image, int no) {
+    public static ArticleImage createArticleImage(Article article, Image image, int no) {
         ArticleImage articleImage = new ArticleImage();
+        articleImage.setArticle(article);
         articleImage.setImage(image);
         articleImage.setNo((byte) no);
         return articleImage;
