@@ -104,21 +104,25 @@ export default {
     // },
     onChangePassword() {
       this.$router.push({ name: 'ChangePassword' })
+      .catch (err=>{})
     },
     goPrevious() {
       this.$router.go(-1)
     },
     createArticle() {
       this.$router.push({ name: '' })
+      .catch (err=>{})
     },
     goSearch() {
       this.$router.push({ name: 'Search' })
+      .catch (err=>{})
     },
     goFeed() {
       const token = sessionStorage.getItem('jwt')
       if (token) {
         // this.pageName = this.$router.meta.title
         this.$router.push({ name: 'FeedMain' })
+        .catch (err=>{})
       }
       else{
         alert("login required")
@@ -126,12 +130,15 @@ export default {
     },
     goAlarm() {
       this.$router.push({ name: '' })
+      .catch (err=>{})
     },
     goMessage() {
       this.$router.push({ name: '' })
+      .catch (err=>{})
     },
     goProfile() {
       this.$router.push({ name: '' })
+      .catch (err=>{})
     },
   },
   created() {
