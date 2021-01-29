@@ -18,11 +18,13 @@
       hide-delimiter-background
       delimiter-icon="mdi-minus"
       height="300"
+      mouse-drag = true
+      
     >
       <v-carousel-item
         v-for="(image, i) in preview"
         :key="i"
-        :src="'http://localhost:8080/api/v1/images/'+ image.path">    
+        :src="'http://i4b105.p.ssafy.io:8080/api/v1/images/'+ image.path">    
       >
       </v-carousel-item>
     </v-carousel>
@@ -148,7 +150,7 @@ export default {
       lat: '',
       lng: '',
       preview: '',
-      items: ['가나다', '가나', '가나마바사', '가아낭남'],
+      items: ['자취방', '덕명동', '2021년', '집 앞'],
       content: '',
       position: {
         latitude: '',
