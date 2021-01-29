@@ -80,11 +80,12 @@
       hide-delimiter-background
       delimiter-icon="mdi-minus"
       height="300"
+      mouse-drag = true
     >
       <v-carousel-item
         v-for="(image, i) in articleInfo.images "
         :key="i"
-        :src="'http://localhost:8080/api/v1/images/'+ image.path">    
+        :src="'http://i4b105.p.ssafy.io:8080/api/v1/images/'+ image.path">    
       >
       </v-carousel-item>
     </v-carousel>
@@ -104,7 +105,7 @@
             rounded
             
           >
-          {{ hashtag.contents }}
+          #{{ hashtag.contents }}
           </v-btn>
         </v-col>
       </v-row>
@@ -193,8 +194,8 @@ export default {
   },
   methods: {
     getArticle(){
-      console.log(this.articleId)
-      this.articleId = 7
+
+      this.articleId = this.$route.params.articleId
       
       axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/articles/`+ this.articleId, this.getToken)
       .then((res) => {
