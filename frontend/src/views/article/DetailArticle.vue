@@ -188,7 +188,7 @@ export default {
       drawer: false,
       group: null,
       // articleId: this.$route.params.articleId,
-      articleId: 7,
+      articleId: '',
       articleInfo: '',
     }
   },
