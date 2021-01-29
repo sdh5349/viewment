@@ -176,7 +176,7 @@ export default {
       },
       articleImages: null,
       hash: '',
-      items: ['가나다', '가나', '가나마바사', '가아낭남'],
+      items: ['자취방', '덕명동', '2021년', '집 앞'],
       content: '',
       position: {
         latitude: '',
