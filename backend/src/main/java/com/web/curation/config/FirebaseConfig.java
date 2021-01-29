@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Configuration
 public class FirebaseConfig {
@@ -20,6 +21,8 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void init() throws Exception {
+        List<FirebaseApp> apps = FirebaseApp.getApps();
+        if(apps != null && apps.size() != 0) return;
         InputStream serviceAccount = new FileInputStream(path);
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))

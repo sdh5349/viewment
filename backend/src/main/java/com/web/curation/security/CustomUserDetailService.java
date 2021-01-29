@@ -2,7 +2,7 @@ package com.web.curation.security;
 
 import com.web.curation.domain.User;
 import com.web.curation.domain.UserRole;
-import com.web.curation.repository.UserRepository;
+import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,6 +33,6 @@ public class CustomUserDetailService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority(prefix + user.getRole()));
         }
 
-        return new CustomUserDetails(user.getEmail(), "", authorities);
+        return new CustomUserDetails(user.getId(), "", authorities);
     }
 }

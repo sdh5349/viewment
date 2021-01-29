@@ -1,19 +1,16 @@
 package com.web.curation.service.user;
 
 import com.web.curation.domain.User;
-import com.web.curation.domain.UserRole;
-import com.web.curation.dto.UserDto;
+import com.web.curation.dto.user.UserDto;
 import com.web.curation.exceptions.UserDuplicateException;
-import com.web.curation.repository.UserRepository;
+import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequiredArgsConstructor
 @Service
@@ -24,7 +21,7 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public String join(UserDto userDto) {
-        validateDuplicateUser(userDto);
+        validateDuplicateUser(userDto.getEmail());
 
         //ToDo modelMapper 적용
         User newUser = userDto.convert();
@@ -34,19 +31,19 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public void validateDuplicateUser(UserDto userDto) {
-        userRepository.findByEmail(userDto.getEmail())
-                .ifPresent(m-> {throw new UserDuplicateException(userDto.getEmail());}
+    public void validateDuplicateUser(String email) {
+        userRepository.findByEmail(email)
+                .ifPresent(m-> {throw new UserDuplicateException(email);}
         );
     }
 
     @Override
     public String modify(UserDto userDto) {
-        User user = userRepository.findById(userDto.getId())
+        User user = userRepository.findById(userDto.getUserId())
                 .orElseThrow(
                         ()->{throw new UsernameNotFoundException(userDto.getEmail() + "은 등록되지 않은 사용자입니다.");});
         userRepository.update(userDto.convert(user));
-        return userDto.getId();
+        return userDto.getUserId();
     }
 
     @Override
@@ -56,7 +53,7 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public List<User> findAllUsers() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 

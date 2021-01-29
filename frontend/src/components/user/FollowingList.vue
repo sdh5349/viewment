@@ -1,0 +1,180 @@
+<template>
+  <div v-if="loading" class="d-flex justify-center align-center">
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </div>
+  <v-virtual-scroll
+    v-else
+    :items="followings"
+    :item-height="50"
+    height="auto"
+    max-height="100vh"
+    @scroll.native="scrolling"
+  >
+    <template v-slot:default="{ item }">
+      <v-list-item
+        @click="onProfileListItem(item.userId)"
+      >
+        <v-list-item-content>
+          <v-list-item-title>
+            <div class="d-flex justify-space-between">
+              <div>
+                <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 시작 -->
+                <v-list-item-avatar
+                  v-if="item.profileImage"
+                  size="36"
+                  class="my-0"
+                >
+                  <img
+                    src=""
+                  >
+                </v-list-item-avatar>
+                <v-icon
+                  v-else
+                  class="mr-4" 
+                  left 
+                  large
+                > 
+                  mdi-account-circle 
+                </v-icon>
+                  {{ item.nickname}}
+                <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 끝 -->
+              </div>
+              <!-- 팔로우/언팔로우 버튼 시작 -->
+              <v-btn
+                v-if="item.followed"
+                small 
+                class="align-self-center px-0"
+                width="55"
+                elevation="1" 
+                @click.stop="onFollowButton(item)"
+              >
+                언팔로우
+              </v-btn>
+              <v-btn
+                v-else
+                small 
+                class="align-self-center px-0" 
+                width="55"
+                color="primary" 
+                elevation="1" 
+                @click.stop="onFollowButton(item)"
+              >
+                팔로우
+              </v-btn>
+              <!-- 팔로우/언팔로우 버튼 끝 -->
+            </div>
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </template>
+  </v-virtual-scroll>
+</template>
+
+<script>
+import axios from 'axios'
+
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+
+export default {
+  name: 'FollowingList',
+  props: {
+    profileUserId: String,
+  },
+  data() {
+    return {
+      loading: true,
+      loginUserId: '',
+      followings: [],
+      page: 0,
+      size: 200,
+      last: false,
+    }
+  },
+  computed: {
+    getToken() {
+      const token = sessionStorage.getItem('jwt')
+
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
+  created() {
+    // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드 readMore와 동일하나 loading 변수를 한번만 false로 할당하기위해
+    this.loginUserId = sessionStorage.getItem('uid')
+    this.readMore()
+  },
+  methods: {
+    // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드
+    readMore() {
+      // 필요한 데이터 가져오기
+      this.loading = true
+
+      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.profileUserId}/followings?page=${this.page}&size=${this.size}`, this.getToken)
+      .then(res => {
+        this.followings.push(...res.data.content)
+        this.page += 1
+        this.last = res.data.last
+        this.loading = false
+      })
+      .catch(err => {
+        alert("오류"); // TODO: 오류페이지로 변경
+        console.log('Error', err.message);
+        // self.$router.push({ name: 'Error' })
+      })
+    },
+    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
+    scrolling (event) {
+      const scrollInfo = event.target
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+        this.readMore()
+      }
+    },
+    // 팔로워의 프로필로 이동하는 메서드
+    onProfileListItem (targetUserId) {
+      this.$router.push({ 
+        name: 'Profile', 
+        params: {
+          profileUserId : targetUserId,
+        }
+      })
+    },
+    // 팔로우/언팔로우 메서드
+    onFollowButton (targetUser) {
+      const targetUserIdx = this.followings.indexOf(targetUser)
+      
+      if (targetUser.followed) {
+        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
+        .then(() => {
+          this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      } else {
+        var params = {'targetUserId' : targetUser.userId }
+        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/follow`, params, this.getToken)
+        .then(() => {
+          this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed 
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      }
+    },
+  }
+}
+</script>
+
+<style scoped>
+</style>

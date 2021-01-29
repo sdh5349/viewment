@@ -1,0 +1,47 @@
+package com.web.curation.dto.article;
+
+import com.web.curation.domain.article.Article;
+import com.web.curation.dto.hashtag.HashtagDto;
+import com.web.curation.dto.image.ImageDto;
+import com.web.curation.dto.pin.PinDto;
+import com.web.curation.dto.user.UserDto;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * com.web.curation.dto.article
+ * ArticleInfoDto.java
+ * @date    2021-01-27
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
+@Getter
+@Setter
+public class ArticleInfoDto {
+    private Long articleId;
+    private UserDto user;
+    private PinDto pin;
+    private List<ImageDto> images = new ArrayList<>();
+    private List<HashtagDto> hashtags = new ArrayList<>();
+    private String contents;
+    private String wdate;
+
+    public ArticleInfoDto(Article article){
+        this.articleId = article.getArticleId();
+        this.user = new UserDto(article.getUser());
+        this.pin = new PinDto(article.getPin());
+        for (int i = 0; i < article.getArticleImages().size(); i++) {
+            this.images.add(new ImageDto(article.getArticleImages().get(i).getImage()));
+        }
+        for (int i = 0; i < article.getHashtags().size(); i++) {
+
+            this.hashtags.add(new HashtagDto(article.getHashtags().get(i)));
+        }
+        this.contents = article.getContents();
+    }
+}
