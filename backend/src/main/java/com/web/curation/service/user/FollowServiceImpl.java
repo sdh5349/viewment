@@ -1,9 +1,14 @@
 package com.web.curation.service.user;
 
 import com.web.curation.domain.User;
+import com.web.curation.domain.connection.Follow;
 import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.exceptions.ElementNotFoundException;
+import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.follow.FollowRepository;
+import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,55 +22,78 @@ import java.util.stream.Collectors;
 public class FollowServiceImpl implements FollowService{
 
     private final FollowRepository followRepository;
+    private final UserRepository userRepository;
 
-    @Override
-    public Long follow(String uid, String targetUid) {
-        return followRepository.follow(uid, targetUid);
+    public User getUser(String userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()->{throw new UserNotFoundException(); }
+        );
+        return user;
     }
 
     @Override
-    public void unfollow(String uid, String targetUid) {
-        followRepository.unfollow(uid, targetUid);
+    public Long follow(String userId, String targetUserId) {
+        User from = getUser(userId);
+        User to = getUser(targetUserId);
+
+        Follow follow = new Follow();
+        follow.setFrom(from);
+        follow.setTo(to);
+
+        followRepository.save(follow);
+
+        return follow.getId();
     }
 
     @Override
-    public List<SimpleUserInfoDto> findFollowingsByUserId(String currentUserUid, String uid, Pageable pageable) {
-        List<User> currentUserFollowings = followRepository.findFollowings(currentUserUid);
-        int page = pageable.getPageNumber();
-        int size = pageable.getPageSize();
-        List<SimpleUserInfoDto> result = followRepository.findFollowings(uid).stream()
-                .map( user -> {
-                    return new SimpleUserInfoDto(user, currentUserFollowings.contains(user));
-                })
+    public void unfollow(String userId, String targetUserId) {
+        Follow follow = followRepository.findByUserIdAndTargetUserId(userId, targetUserId).orElseThrow(
+                ()->{ throw new ElementNotFoundException("Follow", "follow_Id"); }
+        );
+        followRepository.delete(follow);
+    }
+
+    @Override
+    public Page<SimpleUserInfoDto> findFollowingList(String currentUserId, String userId, Pageable pageable) {
+        User currentUser = getUser(currentUserId);
+        User user = getUser(userId);
+
+        List<User> currentUserFollowings = followRepository.findByFrom(currentUser).stream()
+                .map( follow -> {return follow.getTo();})
                 .collect(Collectors.toList());
-        int start = page*size;
-        int end =  page*size+size;
-        end = end< result.size() ? end : result.size();
-        return result.subList(start, end);
+
+        Page<SimpleUserInfoDto> result = followRepository.findByFrom(user, pageable).map(
+                follow -> {return new SimpleUserInfoDto(follow.getTo(), currentUserFollowings.contains(follow.getTo()));}
+        );
+
+        return result;
     }
 
     @Override
-    public List<SimpleUserInfoDto> findFollowersByUserId(String currentUserUid, String uid, Pageable pageable) {
-        List<User> currentUserFollowings = followRepository.findFollowings(currentUserUid);
-        int page = pageable.getPageNumber();
-        int size = pageable.getPageSize();
-        List<SimpleUserInfoDto> result = followRepository.findFollowers(uid).stream()
-                .map( user -> {
-                    return new SimpleUserInfoDto(user, currentUserFollowings.contains(user));
-                })
+    public Page<SimpleUserInfoDto> findFollowerList(String currentUserId, String userId, Pageable pageable) {
+        User currentUser = getUser(currentUserId);
+        User user = getUser(userId);
+
+        List<User> currentUserFollowings = followRepository.findByFrom(currentUser).stream()
+                .map( follow -> {return follow.getTo();})
                 .collect(Collectors.toList());
-        int start = page*size;
-        int end = page*size+size<result.size() ? page*size + size : result.size();
-        return result.subList(start, end);
+
+        Page<SimpleUserInfoDto> result = followRepository.findByTo(user, pageable).map(
+                follow -> {return new SimpleUserInfoDto(follow.getFrom(), currentUserFollowings.contains(follow.getFrom()));}
+        );
+
+        return result;
     }
 
     @Override
-    public int getSizeofFollowers(String uid) {
-        return followRepository.findFollowers(uid).size();
+    public int getSizeofFollowers(String userId) {
+        User user = getUser(userId);
+        return followRepository.findByTo(user).size();
     }
 
     @Override
-    public int getSizeofFollowings(String uid) {
-        return followRepository.findFollowings(uid).size();
+    public int getSizeofFollowings(String userId) {
+        User user = getUser(userId);
+        return followRepository.findByFrom(user).size();
     }
 }

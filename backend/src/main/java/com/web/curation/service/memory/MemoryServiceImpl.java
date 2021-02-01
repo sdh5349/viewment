@@ -26,6 +26,13 @@ public class MemoryServiceImpl implements MemoryService{
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
 
+    public User getUser(String userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> { throw new UserNotFoundException();}
+        );
+        return user;
+    }
+
     public Memory getMemory(Long memoryId){
         return memoryRepository.findById(memoryId).orElseThrow(
                 ()->{ throw new ElementNotFoundException("Memory", memoryId.toString());}
@@ -34,9 +41,7 @@ public class MemoryServiceImpl implements MemoryService{
 
     @Override
     public Long createWithPin(String userId, MemoryDto memoryDto, Long pinId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> { throw new UserNotFoundException(userId);}
-        );
+        User user = getUser(userId);
 
         Pin pin = pinRepository.findById(pinId).orElseThrow(
                 () -> { throw new ElementNotFoundException("Pin", pinId.toString());}
@@ -53,9 +58,7 @@ public class MemoryServiceImpl implements MemoryService{
 
     @Override
     public Long createWithoutPin(String userId, MemoryDto memoryDto) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> { throw new UserNotFoundException(userId);}
-        );
+        User user = getUser(userId);
 
         Pin pin = new Pin();
         pin.setAddress("추후에 수정");
@@ -77,11 +80,9 @@ public class MemoryServiceImpl implements MemoryService{
 
     @Override
     public List<MemoryDto> getMemories(String userId) {
-        User findUser = userRepository.findById(userId).orElseThrow(() -> {
-            throw new UserNotFoundException(userId);
-        });
+        User user = getUser(userId);
 
-        List<MemoryDto> result = memoryRepository.findByUser(findUser).stream()
+        List<MemoryDto> result = memoryRepository.findByUser(user).stream()
                 .map(memory -> {
                     return new MemoryDto(memory);
                 })

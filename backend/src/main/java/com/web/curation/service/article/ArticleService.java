@@ -50,7 +50,7 @@ public class ArticleService {
 
         //TODO optional 확인
         User user = userRepository.findById(articleDto.getUserId()).orElseThrow(
-                ()->{ throw new UserNotFoundException(articleDto.getUserId()); }
+                ()->{ throw new UserNotFoundException(); }
         );
         article.setUser(user);
 

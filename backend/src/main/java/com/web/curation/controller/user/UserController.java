@@ -26,10 +26,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
+
     private final FollowService followService;
     private final UserService userService;
-
-
+    
     @GetMapping("/{userId}/page")
     public ResponseEntity<?> getUserPage(@PathVariable("userId") String userId, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
@@ -37,24 +37,22 @@ public class UserController {
         return ResponseEntity.ok().body(userPage);
     }
 
-
     /**
      * 팔로잉 관련 메소드
      */
-
     @GetMapping("/{userId}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable("userId") String userId, PageRequest pageable, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
-        List<SimpleUserInfoDto> result = followService.findFollowingsByUserId(currentUserId, userId, pageable.of());
+        Page<SimpleUserInfoDto> result = followService.findFollowingList(currentUserId, userId, pageable.of());
 
-        return ResponseEntity.ok().body(new PageImpl<SimpleUserInfoDto>(result));
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping("/{userId}/followers")
     public ResponseEntity<?> getFollowers(@PathVariable("userId") String userId, PageRequest pageable, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
-        List<SimpleUserInfoDto> result = followService.findFollowersByUserId(currentUserId, userId, pageable.of());
-        return ResponseEntity.ok().body(new PageImpl<SimpleUserInfoDto>(result));
+        Page<SimpleUserInfoDto> result = followService.findFollowerList(currentUserId, userId, pageable.of());
+        return ResponseEntity.ok().body(result);
     }
 
     @PostMapping("/{userId}/follow")
