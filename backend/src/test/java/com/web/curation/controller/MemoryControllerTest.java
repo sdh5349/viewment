@@ -11,8 +11,6 @@ import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.service.memory.MemoryService;
-import org.assertj.core.api.Assertions;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
