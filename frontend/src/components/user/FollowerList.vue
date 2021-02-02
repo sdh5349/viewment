@@ -127,7 +127,7 @@ export default {
       // 필요한 데이터 가져오기
       this.loading = true
 
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`, this.getToken)
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
         this.followers.push(...res.data.content)
         this.page += 1
@@ -159,7 +159,7 @@ export default {
     // 본인 팔로워 리스트일 경우 삭제를 희망하는 유저의 인덱스를 찾아 삭제하는 메서드
     onFollowerDeleteButton (targetUser) {
       if (confirm("삭제하시겠습니까?")) {
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
         .then(() => {
         const targetUserIdx = this.followers.indexOf(targetUser)
         this.followers.splice(targetUserIdx, 1)
@@ -176,7 +176,7 @@ export default {
       const targetUserIdx = this.followers.indexOf(targetUser)
       
       if (targetUser.followed) {
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
           this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed
         })
@@ -187,7 +187,7 @@ export default {
         })
       } else {
         var params = {'targetUserId' : targetUser.userId }
-        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/follow`, params, this.getToken)
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
           this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed 
         })

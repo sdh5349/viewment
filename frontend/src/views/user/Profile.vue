@@ -28,7 +28,7 @@
             size="80"
           >
             <img
-              src=""
+              :src="profileImage"
             >
           </v-list-item-avatar>
           <v-icon
@@ -192,6 +192,7 @@ export default {
       loading: true,
       loginUserId: '',
       profileUserInfo: null,
+      profileImage: null,
       tab: null,
       tabItems: [
         { tabIcon: 'mdi-view-module', content: 'UserArticleGrid' },
@@ -222,12 +223,20 @@ export default {
   },
   methods: {
     dataFetch() {
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.profileUserId}/page`, this.getToken)
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
         this.profileUserInfo = res.data
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
+        if (this.profileUserInfo.profileImage) {
+          axios.get(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
+          .then(res => {
+            this.profileImage = res.data
+          })
+        }
+      })
+      .then(() => {
         this.loading = false
       })
       .catch(err => {
@@ -238,7 +247,7 @@ export default {
     },
     onFollowButton() {
       if (this.profileUserInfo.followed) {
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followings/${this.profileUserId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${this.profileUserId}`, this.getToken)
         .then(() => {
           this.profileUserInfo.countFollowers -= 1
           this.profileUserInfo.followed = !this.profileUserInfo.followed
@@ -250,7 +259,7 @@ export default {
         })
       } else {
         var params = {'targetUserId' : this.profileUserId }
-        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/follow`, params, this.getToken)
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
           console.log("??")
           this.profileUserInfo.countFollowers += 1

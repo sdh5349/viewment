@@ -14,7 +14,7 @@
             size="150"
           >
             <img
-              :src="previewUrl"
+              :src="previewImage"
             >
           </v-avatar>
           <v-icon
@@ -81,8 +81,11 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { required, max } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
 setInteractionMode('eager') // 유효성 검사의 시기
@@ -115,10 +118,12 @@ export default {
   },
   data() {
     return {
+      loading: true,
+      profileUserInfo: null,
       nickname: '',
       message: '',
-      imgFile: null,
-      previewUrl: null,
+      profileImage: null,
+      previewImage: null,
     }
   },
   computed: {
@@ -138,31 +143,97 @@ export default {
   },
   methods: {
     dataFetch() {
-      
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
+      .then(res => {
+        // 현재 보고있는 프로필 페이지 유저의 정보 초기화
+        this.profileUserInfo = res.data
+        this.nickname = this.profileUserInfo.nickname
+        this.message = this.profileUserInfo.message
+
+        // 현재 로그인한 유저의 uid 초기화
+        this.loginUserId = sessionStorage.getItem('uid')
+        if (this.profileUserInfo.profileImage) {
+          axios.get(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
+          .then(res => {
+            this.previewImage = res.data
+            this.profileImage = res.data
+          })
+        }
+      })
+      .then(() => {
+        this.loading = false
+      })
+      .catch(err => {
+        alert("오류"); // TODO: 오류페이지로 변경
+        console.log('Error', err.message);
+        // self.$router.push({ name: 'Error' })
+      })
     },
     submit () {
       this.$refs.observer.validate()
+
+      const params = {
+        'nickname': this.nickname,
+        'message': this.message
+      }
+
+      const config = {
+        headers: {
+          'Content-type': 'multipart/form-data',
+          'X-Authorization-Firebase': sessionStorage.getItem('jwt')
+        }
+      } 
+
+      // 닉네임과 메세지 변경사항에 대한 부분먼저 보낸다
+      axios.patch(`${SERVER_URL}/accounts/${this.profileUserId}`, params, this.getToken)
+      .then(() => {
+        // 프로필 이미지 관련 요청
+        // 현재 페이지에 선택한 이미지가 있고
+        if (this.profileImage) {
+          // 기존에 프로필 이미지가 있었던 유저라면
+          if (this.profileUserInfo.profileImage) {
+            axios.put(`${SERVER_URL}/images/${this.profileUserId.profileImage.path}`, this.profileImage, config)
+            .then(() => {
+            })
+            .catch(err => {
+            })
+          } else {
+            axios.post(`${SERVER_URL}/images/${this.profileUserId.profileImage.path}`, this.profileImage, config)
+            .then(() => {
+              })
+            .catch(err => {
+              })
+          }
+        // 현재 페이지에 선택한 이미지가 없고
+        } else {
+          // 기존에 프로필 이미지가 있었던 유저라면
+          if (this.profileUserInfo.profileImage) {
+            axios.delete(`${SERVER_URL}/images/${this.profileUserId.profileImage.path}`, this.profileImage, config)
+            .then(() => {
+            })
+            .catch(err => {
+            })
+          }
+        }
+      })
+      .catch(err => {
+
+      })
     },
     onPickFile () {
       this.$refs.fileInput.click()
     },
     onFilePicked (event) {
-      this.imgFile = event.target.files[0]
+      const imageFile = event.target.files[0]
 
-      if (this.imgFile) {
-        this.previewUrl = URL.createObjectURL(this.imgFile)
+      if (imageFile) {
+        this.previewImage = URL.createObjectURL(imageFile)
+
+        this.profileImage = new FormData()
+        this.profileImage.append('profileImage', imageFile)
       }
-      
-      // let filename = files[0].name
-      // const fileReader = new FileReader()
-      // fileReader.addEventListener('load', () => {
-      //   this.imageUrl = fileReader.result
-      // })
-      // fileReader.readAsDataURL(files[0])
-      // this.image = files[0]
     }
   }
-
 }
 </script>
 
