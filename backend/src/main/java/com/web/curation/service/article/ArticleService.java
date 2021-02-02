@@ -25,11 +25,10 @@ import java.util.Optional;
 /**
  * com.web.curation.service.article
  * ArticleService.java
- * @date    2021-01-26 오전 11:02
- * @author  이주희
  *
- * @변경이력
- * 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
+ * @author 이주희
+ * @date 2021-01-26 오전 11:02
+ * @변경이력 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
  **/
 
 @Service
@@ -48,39 +47,14 @@ public class ArticleService {
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
 
-        //TODO optional 확인
         User user = userRepository.findById(articleDto.getUserId()).orElseThrow(
-                ()->{ throw new UserNotFoundException(articleDto.getUserId()); }
+                () -> {
+                    throw new UserNotFoundException(articleDto.getUserId());
+                }
         );
         article.setUser(user);
 
-
-        Pin pin = null;
-        if (articleDto.getPinId() != null && articleDto.getPinId() != 0)
-            pin = pinRepository.findById(articleDto.getPinId()).get();
-        else {
-            Pin newPin = new Pin();
-            newPin.setLocation(articleDto.getLat(), articleDto.getLng());
-            // TODO kakao api에서 위치의 주소 받아오기
-            newPin.setAddress("추후에 수정");
-            Long savedPinId = pinRepository.save(newPin).getPinId();
-            pin = pinRepository.findById(savedPinId).get();
-        }
-        article.setPin(pin);
-
-        for (String contents : articleDto.getHashtags()) {
-            List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
-            if (hashtags.size() != 0) {
-                article.addHashtag(hashtags.get(0));
-            } else {
-                Hashtag hashtag = new Hashtag();
-                hashtag.setContents(contents);
-                Hashtag savedHashtag = hashtagRepository.save(hashtag);
-                article.addHashtag(savedHashtag);
-            }
-        }
-
-        article.setContents(articleDto.getContents());
+        setData(articleDto, article);
 
         articleRepository.save(article);
 
@@ -88,8 +62,12 @@ public class ArticleService {
     }
 
     public ArticleInfoDto findByArticleId(Long articleId) {
-        Optional<Article> article= articleRepository.findByArticleId(articleId);
-        return new ArticleInfoDto(articleRepository.findByArticleId(articleId).get());
+        Article article = articleRepository.findById(articleId).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Article", articleId.toString());
+                }
+        );
+        return new ArticleInfoDto(article);
     }
 
     public List<ArticleInfoDto> findByHashtag(String hashtag) {
@@ -113,23 +91,51 @@ public class ArticleService {
     @Transactional
     public Long modify(ArticleDto articleDto) {
 
-        Article article = articleRepository.findByArticleId(articleDto.getArticleId()).get();
+        Article article = articleRepository.findById(articleDto.getArticleId()).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
+                }
+        );
 
         article.resetPin();
+        article.resetHashtag();
+        setData(articleDto, article);
+
+        return article.getArticleId();
+    }
+
+    @Transactional
+    public void delete(Long articleId) {
+        Article findArticle = articleRepository.findById(articleId).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("article", articleId.toString());
+                }
+        );
+        findArticle.resetHashtag();
+        articleRepository.delete(findArticle);
+    }
+
+    public void setData(ArticleDto articleDto, Article article) {
         Pin pin = null;
-        if (articleDto.getPinId() != null)
-            pin = pinRepository.findById(articleDto.getPinId()).get();
-        else {
+        if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
+            pin = pinRepository.findById(articleDto.getPinId()).orElseThrow(
+                    () -> {
+                        throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
+                    }
+            );
+        }else {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
-            // TODO kakao api에서 위치의 주소 받아오기
-            newPin.setAddress("추후에 수정");
+            newPin.setAddress(articleDto.getAddressName());
             Long savedPinId = pinRepository.save(newPin).getPinId();
-            pin = pinRepository.findById(savedPinId).get();
+            pin = pinRepository.findById(savedPinId).orElseThrow(
+                    () -> {
+                        throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
+                    }
+            );
         }
         article.setPin(pin);
 
-        article.resetHashtag();
         for (String contents : articleDto.getHashtags()) {
             List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
             if (hashtags.size() != 0) {
@@ -143,17 +149,6 @@ public class ArticleService {
         }
 
         article.setContents(articleDto.getContents());
-
-        return article.getArticleId();
-    }
-
-    @Transactional
-    public void delete(Long articleId) {
-        Article findArticle = articleRepository.findByArticleId(articleId).orElseThrow(
-                ()->{ throw new ElementNotFoundException("article", articleId.toString()); }
-        );
-        findArticle.resetHashtag();
-        articleRepository.delete(articleId);
     }
 
 }
