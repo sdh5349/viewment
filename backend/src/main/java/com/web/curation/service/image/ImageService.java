@@ -33,6 +33,7 @@ import java.io.File;
 public class ImageService {
     @Value("${image.path}")
     private String DIR;
+
     private final ImageRepository imageRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
