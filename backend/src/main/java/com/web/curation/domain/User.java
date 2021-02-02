@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
  * @author  김종성
  *
  * @변경이력
+ * articles, memories CascadeType.ALL 로 변경 2021-02-01
  **/
 
 @Entity
@@ -54,14 +56,14 @@ public class User {
     /**
      * Memory
      */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Memory> memories = new ArrayList<>();
 
 
     /**
      * Article
      */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL)
     private List<Article> articles = new ArrayList<>();
 
 

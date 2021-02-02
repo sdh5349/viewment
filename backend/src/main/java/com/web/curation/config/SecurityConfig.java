@@ -45,6 +45,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationProvider authenticationProvider;
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/asset/**","/v2/api-docs", "/configuration/**",
+                "/swagger-resources/**", "/swagger-ui.html", "/webjars/**", "/swagger-ui/**", "/swagger/**");
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception{
         http.csrf().disable()
                 .cors().and()
@@ -70,12 +76,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(authenticationProvider);
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/asset/**","/v2/api-docs", "/configuration/ui",
-                "/swagger-resources", "/configuration/security", "/swagger-ui.html", "/webjars/**", "/swagger-ui/**");
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -87,10 +87,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    /*@Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }*/
 
     public void authenticationEntryPoint(HttpServletRequest request, HttpServletResponse response,
                                          AuthenticationException authenticationException) throws IOException {

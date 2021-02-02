@@ -1,7 +1,7 @@
 package com.web.curation.controller.account;
 
 import com.web.curation.commons.ErrorResponse;
-import com.web.curation.dto.user.UserDto;
+import com.web.curation.dto.user.AccountDto;
 import com.web.curation.exceptions.UserDuplicateException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.service.user.AccountService;
@@ -14,10 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-/*@ApiResponses(value = { @ApiResponse(code = 401, message = "Unauthorized", response = BasicResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = BasicResponse.class),
-        @ApiResponse(code = 404, message = "Not Found", response = BasicResponse.class),
-        @ApiResponse(code = 500, message = "Failure", response = BasicResponse.class) })*/
 
 @Api(tags = {"1. Account"})
 @CrossOrigin(origins = {"*"})
@@ -26,32 +22,31 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
 
-    /*private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;*/
     private final AccountService accountService;
 
-    @ApiOperation(value = "회원 가입", response = String.class)
+    @ApiOperation(value = "회원 가입")
     @ApiResponse(code = 201, message = "created")
     @PostMapping("")
-    public ResponseEntity<?> join(@RequestBody UserDto userDto){
+    public ResponseEntity<String> join(@RequestBody AccountDto userDto){
         accountService.join(userDto);
         return new ResponseEntity<String>("Created", HttpStatus.CREATED);
     }
 
 
     @ApiOperation(value = "회원 계정 수정")
-    @PatchMapping("")
-    public ResponseEntity<?> modify(@RequestBody UserDto userDto){
+    @PatchMapping("/{userId}")
+    public ResponseEntity<String> modify(@PathVariable("userId") String userId, @RequestBody AccountDto userDto){
+        userDto.setUserId(userId);
         String modifyId = accountService.modify(userDto);
         return new ResponseEntity<String>("Modified: " + modifyId, HttpStatus.OK);
     }
 
 
     @ApiOperation(value = "회원 탈퇴")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(value = "id") String id){
-        String deleteId = accountService.delete(id);
-        return new ResponseEntity<String>("Deleted: " + deleteId, HttpStatus.OK);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> delete(@PathVariable(value = "userId") String userId){
+        accountService.delete(userId);
+        return new ResponseEntity<String>("Deleted: " + userId, HttpStatus.OK);
     }
 
     @ApiOperation(value = "중복 이메일 확인")

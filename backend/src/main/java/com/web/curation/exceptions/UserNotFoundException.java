@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class UserNotFoundException extends RuntimeException {
-    private String value;
+    private final String value = "사용자가 존재하지 않습니다.";
 }
