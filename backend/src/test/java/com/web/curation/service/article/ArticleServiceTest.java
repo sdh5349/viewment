@@ -77,8 +77,6 @@ public class ArticleServiceTest {
 
         Article savedArticle = articleService.write(articleDto);
 
-        em.flush();
-
         Article findArticle = articleRepository.findById(savedArticle.getArticleId()).orElseThrow(
                 () -> {
                     throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
@@ -96,8 +94,6 @@ public class ArticleServiceTest {
         articleDto.setLng(127.082347);
 
         Article savedArticle = articleService.write(articleDto);
-
-        em.flush();
 
         Article findArticle = articleRepository.findById(savedArticle.getArticleId()).orElseThrow(
                 () -> {
