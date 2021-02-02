@@ -5,7 +5,7 @@ import com.web.curation.dto.hashtag.HashtagDto;
 import com.web.curation.dto.image.ImageDto;
 import com.web.curation.dto.pin.PinDto;
 import com.web.curation.dto.reply.ReplyDto;
-import com.web.curation.dto.user.UserDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,14 +25,14 @@ import java.util.List;
 @Setter
 public class ArticleSimpleDto {
     private Long articleId;
-    private UserDto user;
+    private SimpleUserInfoDto user;
     private PinDto pin;
     private ImageDto thumbnail;
     private String wdate;
 
     public ArticleSimpleDto(Article article){
         this.articleId = article.getArticleId();
-        this.user = new UserDto(article.getUser());
+        this.user = new SimpleUserInfoDto(article.getUser());
         this.pin = new PinDto(article.getPin());
         if(article.getArticleImages().size()>0)
             this.thumbnail = new ImageDto(article.getArticleImages().get(0).getImage());
