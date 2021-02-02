@@ -1,5 +1,13 @@
 <template>
+  <v-row v-if="loading">
+    <v-progress-circular
+      :width="3"
+      color="red"
+      indeterminate
+    ></v-progress-circular>
+  </v-row>
   <v-row
+    v-else
     justify="center"
   >
     <v-col
@@ -9,19 +17,40 @@
     > 
       <div class="d-flex justify-center">
         <div>
-          <v-avatar
-            v-if="true"
-            size="150"
-          >
-            <img
-              :src="previewImage"
+          <v-card
+          elevation="0"
+          > 
+            <v-avatar
+              v-if="this.profileImageUrl"
+              size="150"
             >
-          </v-avatar>
-          <v-icon
-            v-else
-            color="primary"
-            size="160"
-          >mdi-account-circle</v-icon>
+              <img
+                :src="profileImageUrl"
+              >
+            </v-avatar>
+            <v-icon
+              v-else
+              color="primary"
+              size="160"
+            >mdi-account-circle</v-icon>
+
+            <!-- 프로필 삭제 버튼 시작 -->
+            <v-btn
+              class="no-background-color bottom-right-position"
+              x-small
+              fab 
+              elevation="0"
+              @click="onDeleteProfileImageButton"
+            >
+              <v-icon
+              large
+              color="primary"
+              >
+              mdi-delete-empty-outline
+              </v-icon>
+            </v-btn>
+            <!-- 프로필 삭제 버튼 끝 -->
+          </v-card>
 
           <div class="d-flex justify-center my-4">
             <!-- <input type="file" ref="file" hidden>
@@ -113,17 +142,15 @@ export default {
     ValidationProvider,
     ValidationObserver,
   },
-  props: {
-    profileUserId: String,
-  },
   data() {
     return {
+      profileUserId: sessionStorage.getItem('uid'),
       loading: true,
       profileUserInfo: null,
       nickname: '',
       message: '',
-      profileImage: null,
-      previewImage: null,
+      profileImageUrl: null,
+      isFileChanged: false,
     }
   },
   computed: {
@@ -139,7 +166,7 @@ export default {
     }
   },
   created() {
-    // this.dataFetch()
+    this.dataFetch()
   },
   methods: {
     dataFetch() {
@@ -153,11 +180,7 @@ export default {
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
         if (this.profileUserInfo.profileImage) {
-          axios.get(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
-          .then(res => {
-            this.previewImage = res.data
-            this.profileImage = res.data
-          })
+          this.profileImageUrl = `${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`
         }
       })
       .then(() => {
@@ -171,45 +194,51 @@ export default {
     },
     submit () {
       this.$refs.observer.validate()
-
+      
+      // 닉네임과 메세지 변경사항
       const params = {
         'nickname': this.nickname,
         'message': this.message
       }
 
-      const config = {
-        headers: {
-          'Content-type': 'multipart/form-data',
-          'X-Authorization-Firebase': sessionStorage.getItem('jwt')
-        }
-      } 
-
       // 닉네임과 메세지 변경사항에 대한 부분먼저 보낸다
       axios.patch(`${SERVER_URL}/accounts/${this.profileUserId}`, params, this.getToken)
       .then(() => {
-        // 프로필 이미지 관련 요청
-        // 현재 페이지에 선택한 이미지가 있고
-        if (this.profileImage) {
+        // 현재 페이지에 선택되어있는 사진이 있고
+        if (this.isFileChanged) {
+          // put, post 요청 시 필요한 헤더를 config 변수에 할당
+          const config = {
+            headers: {
+              'Content-type': 'multipart/form-data',
+              'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
+            },
+          }
+
           // 기존에 프로필 이미지가 있었던 유저라면
           if (this.profileUserInfo.profileImage) {
-            axios.put(`${SERVER_URL}/images/${this.profileUserId.profileImage.path}`, this.profileImage, config)
+            axios.put(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.profileImageFile, config)
             .then(() => {
+              alert("put 완료")
             })
             .catch(err => {
+              console.log(err)
             })
+          // 기존에 프로필 이미지가 없었던 유저라면
           } else {
-            axios.post(`${SERVER_URL}/images/${this.profileUserId.profileImage.path}`, this.profileImage, config)
+            axios.post(`${SERVER_URL}/images/profile/${this.profileUserId}`, this.profileImageFile, config)
             .then(() => {
-              })
+              alert("post 완료")
+            })
             .catch(err => {
-              })
+            })
           }
         // 현재 페이지에 선택한 이미지가 없고
         } else {
           // 기존에 프로필 이미지가 있었던 유저라면
-          if (this.profileUserInfo.profileImage) {
-            axios.delete(`${SERVER_URL}/images/${this.profileUserId.profileImage.path}`, this.profileImage, config)
+          if (this.profileUserInfo.profileImage && this.profileImageUrl === null) {
+            axios.delete(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
             .then(() => {
+              alert("delete 완료")
             })
             .catch(err => {
             })
@@ -217,26 +246,42 @@ export default {
         }
       })
       .catch(err => {
-
       })
     },
     onPickFile () {
+      console.log("동작하냐")
       this.$refs.fileInput.click()
     },
     onFilePicked (event) {
       const imageFile = event.target.files[0]
-
+      console.log("동작하냐")
       if (imageFile) {
-        this.previewImage = URL.createObjectURL(imageFile)
-
-        this.profileImage = new FormData()
-        this.profileImage.append('profileImage', imageFile)
+        this.profileImageUrl = URL.createObjectURL(imageFile)
+        console.log(imageFile)
+        this.profileImageFile = new FormData()
+        this.profileImageFile.append('profileImage', imageFile)
+        this.isFileChanged = true
+      }
+    },
+    onDeleteProfileImageButton () {
+      if (confirm('프로필 이미지를 삭제하시겠습니까?')) {
+        this.profileImageUrl = null
       }
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
+/* 배경을 사용하지 않는다 */
+  .no-background-color {
+    background-color: transparent !important;
+  }
 
+/* 프로필 이미지 삭제 버튼의 위치를 설정한다 */
+  .bottom-right-position {
+    position: absolute; 
+    bottom: 0px; 
+    right: 0px;
+  }
 </style>

@@ -103,7 +103,7 @@
           <v-btn 
             class="mx-0, px-0"         
             rounded
-            
+            @click='clickHashtag(hashtag.contents)'
           >
           #{{ hashtag.contents }}
           </v-btn>
@@ -118,27 +118,6 @@
     좋아요 수 스크랩 수
     <v-divider class="mx-4"></v-divider>
     
-    <!-- <v-card-text
-      v-for="(reply, i ) in articleInfo.replies"
-      :key=i>
-      <v-icon >
-        {{ icons.mdiAccount }}
-      </v-icon>
-      {{reply.user.nickname}}
-      {{reply.contents}}
-      <v-btn>대 댓글</v-btn> 
-      <div
-        v-for="(rereply, i) in reply.rereplies"
-        :key=i
-        class="ml-3"
-      >
-        <v-icon >
-          {{ icons.mdiAccount }}
-        </v-icon>
-        {{rereply.user.nickname}}
-        {{rereply.contents}}
-      </div>
-    </v-card-text> -->
     
     <v-divider class="mx-4"></v-divider>
     <v-row>
@@ -181,6 +160,7 @@
 export default {
   data() {
     return{
+      SERVER: process.env.VUE_APP_SERVER_URL,
       icons: {
         mdiAccount,
         mdiHeart,
@@ -201,6 +181,7 @@ export default {
       .then((res) => {
         
         this.articleInfo = res.data
+        console.log(this.articleInfo)
         
       })
     },
@@ -221,6 +202,11 @@ export default {
         alert('게시물 삭제 완료')
         this.$router.push({name: 'Feed'})
       })
+    },
+    clickHashtag(res){
+      this.$router.push({name: 'Search', params: {
+        clickedHash: res
+      }})
     }
   },
   watch: {

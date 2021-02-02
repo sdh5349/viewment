@@ -63,7 +63,7 @@ export default [
         component : ActionUrlHandler,
     },
     {
-        path : '/user/profile/:profileUserId',
+        path : '/user/:profileUserId',
         name : 'Profile',
         component : Profile,
         props : true,
@@ -78,6 +78,7 @@ export default [
         path : '/memory/:profileUserId/memory-list',
         name : 'MemoryList',
         component : MemoryList,
+        props : true,
     },
     {
         path : '/user/profile/edit',
@@ -85,10 +86,9 @@ export default [
         component : EditProfile,
     },
     {
-        path : '/user/account/:profileUserId/edit',
+        path : '/user/account/edit',
         name : 'EditAccount',
         component : EditAccount,
-        props : true,
     },
     {
         path: '*',

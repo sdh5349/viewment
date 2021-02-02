@@ -9,8 +9,7 @@
     v-else
     :items="followers"
     :item-height="50"
-    height="auto"
-    max-height="100vh"
+    class="scroll-container"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
@@ -203,4 +202,11 @@ export default {
 </script>
 
 <style scoped>
+/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
+  .scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin-bottom: 50px;
+  }
 </style>

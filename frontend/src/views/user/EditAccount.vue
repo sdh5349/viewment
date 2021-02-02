@@ -71,8 +71,10 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'EditAccount',
-  props: {
-    profileUserId: String,
+  data() {
+    return {
+      profileUserId: sessionStorage.getItem('uid'),
+    }
   },
   computed: {
     getToken() {

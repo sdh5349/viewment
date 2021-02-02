@@ -1,12 +1,31 @@
 <template>
-  <div>
-      <h1>그리드 형 피드 표시</h1>
-  </div>
+  <v-row
+  >
+    <v-col
+      v-for="n in 3"
+      :key="n"
+    >
+      <v-card
+        outlined
+        tile
+      >
+      
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
-export default {
+import axios from 'axios'
 
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+
+export default {
+  name: 'UserArticleGrid',
+  data() {
+    return { 
+    }
+  }
 }
 </script>
 

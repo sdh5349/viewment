@@ -130,6 +130,7 @@ export default {
   },
   data: () => {
     return {
+      SERVER: process.env.VUE_APP_SERVER_URL,
       imgFiles: [],
       fileInfos: [
       ],

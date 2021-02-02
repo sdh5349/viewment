@@ -15,6 +15,7 @@
           <v-list-item
             v-for="hash in keyword.slice(0,9)"
             :key="hash.content"
+            @click="goGrid(hash)"
           >
             <v-list-item-avatar>
               <v-icon>
@@ -66,12 +67,15 @@ export default {
       console.log(this.getToken)
       axios.get(`${SERVER_URL}/hashtags/${keyword}`, this.getToken)
         .then((res) => {
-        console.log(res)        
+        console.log(res)            
         })
         .catch((err)=> {
           alert('error'+err.message)
         })
     },
+    goGrid(hash) {
+      console.log(hash)
+    }
   },
   watch: {
     search: function(res) {

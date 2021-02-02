@@ -6,6 +6,7 @@
         lg="4"
         md="4"
         sm="6"
+        style="margin-bottom: 50px;"
     >
       <h1>추억 기록하기</h1>
 
@@ -14,7 +15,7 @@
       
       
       <v-row justify="space-around">
-        <v-col cols="10" class="text-center mt-5">게시물에 사진올리기</v-col>
+        <v-col cols="10" class="text-center my-5">게시물에 사진올리기</v-col>
 
         <v-col cols="2">
           <validation-provider rules="" v-slot="{ errors }">
@@ -173,7 +174,6 @@ export default {
         addressName: '',
         contents: '',
         hashtags: '',
-        imgFormData: '',
       },
       articleImages: null,
       hash: '',
@@ -219,8 +219,13 @@ export default {
       this.articleInfo.lng = this.position.lng
       this.articleInfo.contents = this.content
       this.articleInfo.hashtags = this.hash
+<<<<<<< Updated upstream
       this.articleInfo.addressName = this.addressName
+      
+=======
+      this.articleInfo.addressName = 'test'
 
+>>>>>>> Stashed changes
       var headers = {
         headers: {
           'Content-type': 'multipart/form-data',
@@ -232,12 +237,18 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
+<<<<<<< Updated upstream
+      
+=======
+      console.log(this.articleInfo)
+>>>>>>> Stashed changes
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
           }
       } )
       .then((res) => {
+        
         this.articleId = res.data
         axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
         .then((res) => {
