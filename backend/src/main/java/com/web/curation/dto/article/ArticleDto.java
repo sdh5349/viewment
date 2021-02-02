@@ -26,6 +26,7 @@ public class ArticleDto {
     private double lng;
     private Long pinId;
     private String contents;
+    private String addressName;
     private List<String> hashtags;
 
 }

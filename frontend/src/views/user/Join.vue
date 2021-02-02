@@ -167,7 +167,7 @@ export default {
             }
             
 
-            axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/accounts`, self.userInfo)
+            axios.post(`${SERVER_URL}/accounts`, self.userInfo)
             .then(() => {
               console.log('back에 데이터 넘겨주기 성공')
 

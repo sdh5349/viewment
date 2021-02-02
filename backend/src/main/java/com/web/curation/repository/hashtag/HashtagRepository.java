@@ -24,19 +24,4 @@ public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
     List<Hashtag> findByContentsStartingWithIgnoreCase(String contents);
 
-//    @PersistenceContext
-//    private EntityManager em;
-//
-//    public Hashtag save(Hashtag hashtag){
-//        em.persist(hashtag);
-//        return hashtag;
-//    }
-//
-//    //TODO unique column이라서 어차피 하나인데... 리스트로만 받아올 수 있으려나?
-//    public List<Hashtag> findByContents(String contents) {
-//        return em.createQuery("select h from Hashtag h where h.contents = :contents", Hashtag.class)
-//                .setParameter("contents", contents)
-//                .getResultList();
-//    }
-
 }

@@ -197,7 +197,7 @@ export default {
 
       this.articleId = this.$route.params.articleId
       
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/articles/`+ this.articleId, this.getToken)
+      axios.get(`${SERVER_URL}/articles/`+ this.articleId, this.getToken)
       .then((res) => {
         
         this.articleInfo = res.data
@@ -216,7 +216,7 @@ export default {
       }})
     },
     deleteArticle(){
-      axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/articles/`+ this.articleId, this.getToken )
+      axios.delete(`${SERVER_URL}/articles/`+ this.articleId, this.getToken )
       .then((res) => {
         alert('게시물 삭제 완료')
         this.$router.push({name: 'Feed'})
