@@ -47,20 +47,30 @@
     <div id="map" class="map"></div>
     <div id="result"></div>
     <v-btn @click="markerCheck(position)">기억 완료</v-btn>
+    <MemoryLocation
+      v-if="is_Memoryshow"
+      @close-Memorymodal="is_Memoryshow=false"
+      @onMemory='saveMemory'
+      >
+
+    </MemoryLocation>
   </div>
 </template>
 
 <script>
 import SearchArticleLocation from "../article/SearchArticleLocation.vue" 
+import MemoryLocation from "./MemoryLocation.vue"
 
 export default {
   components: {
-    SearchArticleLocation
+    SearchArticleLocation,
+    MemoryLocation
   },
   data() {
     return{
       addressName: '',
       is_show: false,
+      is_Memoryshow: false,
       map: '',
       myLocation: '',
       address: '',
@@ -160,7 +170,7 @@ export default {
 
     },
     markerCheck(res) {
-      this.$emit('onClick', this.position)
+      this.is_Memoryshow = !this.is_Memoryshow
     },
     mapClick() {
         
@@ -238,9 +248,16 @@ export default {
         })
       }
     },
-    searchLocationModal() {
+    searchLocationModal(res) {
       this.is_show = !this.is_show
+
     },
+    saveMemory(res) {
+      this.is_Memoryshow = !this.is_Memoryshow
+      res.lat= this.position.Ma
+      res.lng= this.position.La
+      this.$emit('onClick', res)
+    }
   }
 }
 </script>
