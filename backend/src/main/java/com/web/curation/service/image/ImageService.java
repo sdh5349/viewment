@@ -86,14 +86,16 @@ public class ImageService {
     public void deleteProfileImage(String userId) {
         String path = "profile/" + userId;
 
-        File dest = new File(DIR + path);
-        if (dest.exists())
-            dest.delete();
-
         User user = userRepository.findById(userId).orElseThrow(
                 () -> {
                     throw new UsernameNotFoundException(userId + "은 등록되지 않은 사용자입니다.");
                 });
-        imageRepository.delete(user.getProfileImage());
+        Image deleteImage = user.getProfileImage();
+        user.resetProfileImage();
+        imageRepository.delete(deleteImage);
+
+        File dest = new File(DIR + path);
+        if (dest.exists())
+            dest.delete();
     }
 }
