@@ -14,10 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-/*@ApiResponses(value = { @ApiResponse(code = 401, message = "Unauthorized", response = BasicResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = BasicResponse.class),
-        @ApiResponse(code = 404, message = "Not Found", response = BasicResponse.class),
-        @ApiResponse(code = 500, message = "Failure", response = BasicResponse.class) })*/
 
 @Api(tags = {"1. Account"})
 @CrossOrigin(origins = {"*"})
@@ -28,10 +24,10 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @ApiOperation(value = "회원 가입", response = String.class)
+    @ApiOperation(value = "회원 가입")
     @ApiResponse(code = 201, message = "created")
     @PostMapping("")
-    public ResponseEntity<?> join(@RequestBody AccountDto userDto){
+    public ResponseEntity<String> join(@RequestBody AccountDto userDto){
         accountService.join(userDto);
         return new ResponseEntity<String>("Created", HttpStatus.CREATED);
     }
@@ -39,7 +35,7 @@ public class AccountController {
 
     @ApiOperation(value = "회원 계정 수정")
     @PatchMapping("/{userId}")
-    public ResponseEntity<?> modify(@PathVariable("userId") String userId, @RequestBody AccountDto userDto){
+    public ResponseEntity<String> modify(@PathVariable("userId") String userId, @RequestBody AccountDto userDto){
         userDto.setUserId(userId);
         String modifyId = accountService.modify(userDto);
         return new ResponseEntity<String>("Modified: " + modifyId, HttpStatus.OK);
