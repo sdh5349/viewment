@@ -5,7 +5,6 @@ import com.web.curation.dto.hashtag.HashtagDto;
 import com.web.curation.dto.image.ImageDto;
 import com.web.curation.dto.pin.PinDto;
 import com.web.curation.dto.reply.ReplyDto;
-import com.web.curation.dto.user.UserDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import lombok.Getter;
 import lombok.Setter;

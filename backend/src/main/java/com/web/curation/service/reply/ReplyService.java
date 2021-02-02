@@ -37,7 +37,7 @@ public class ReplyService {
         Reply reply = new Reply();
 
         User findUser = userRepository.findById(replyDto.getUserId()).orElseThrow(() -> {
-            throw new UserNotFoundException("사용자가 존재하지 않습니다.");
+            throw new UserNotFoundException();
         });
         reply.setUser(findUser);
 
