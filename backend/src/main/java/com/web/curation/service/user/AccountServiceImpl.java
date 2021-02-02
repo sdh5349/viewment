@@ -5,6 +5,7 @@ import com.web.curation.domain.UserRole;
 import com.web.curation.dto.user.AccountDto;
 import com.web.curation.exceptions.UserDuplicateException;
 import com.web.curation.exceptions.UserNotFoundException;
+import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public void delete(String userId) {
         User user = getUser(userId);
+        userRepository.deleteAssociatedFollow(user);
         userRepository.delete(user);
     }
 

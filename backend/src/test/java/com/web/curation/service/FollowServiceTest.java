@@ -2,6 +2,8 @@ package com.web.curation.service;
 
 import com.web.curation.domain.User;
 import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.repository.user.UserRepository;
+import com.web.curation.service.user.AccountService;
 import com.web.curation.service.user.FollowService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,20 +14,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @SpringBootTest
 @Transactional
 public class FollowServiceTest {
 
-    @PersistenceContext
-    EntityManager em;
-
     @Autowired
     FollowService followService;
+
+    @Autowired
+    AccountService accountService;
+
+    @Autowired
+    UserRepository userRepository;
 
     @BeforeEach
     void setUp(){
@@ -34,10 +36,11 @@ public class FollowServiceTest {
         User u3 = new User("ccc", "C", "C");
         User u4 = new User("ddd", "D", "D");
 
-        em.persist(u1);
-        em.persist(u2);
-        em.persist(u3);
-        em.persist(u4);
+        userRepository.save(u1);
+        userRepository.save(u2);
+        userRepository.save(u3);
+        userRepository.save(u4);
+
 
         followService.follow("aaa", "bbb");
         followService.follow("aaa", "ccc");
@@ -62,5 +65,18 @@ public class FollowServiceTest {
                 .collect(Collectors.toList()).size();
 
         Assertions.assertThat(size).isSameAs(1);
+    }
+
+    @Test
+    void 유저_삭제시_팔로워_목록_변화_성공() throws Exception{
+
+        String from = "ddd";
+        String to = "aaa";
+
+        accountService.delete(from);
+
+        Page<SimpleUserInfoDto> list = followService.findFollowerList("aaa", "aaa", PageRequest.of(0, 10));
+
+        Assertions.assertThat(list.getContent().size()).isEqualTo(2);
     }
 }

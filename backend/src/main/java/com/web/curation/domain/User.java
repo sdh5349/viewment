@@ -3,6 +3,7 @@ package com.web.curation.domain;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.connection.Follow;
 //import com.web.curation.domain.reply.Reply;
+import com.web.curation.domain.connection.Likes;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
@@ -71,7 +72,10 @@ public class User {
      * Reply
      */
 //    @OneToMany(mappedBy = "user")
-//    private List<Reply> replies = new ArrayList<>();
+//    private List<Reply> replies = new ArrayList<>()
+
+    @OneToMany(mappedBy = "user")
+    private List<Likes> likes = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name="IMAGE_ID")
@@ -83,6 +87,16 @@ public class User {
     public void addMemory(Memory memory){
         this.memories.add(memory);
         memory.setUser(this);
+    }
+
+    public void addLike(Likes like){
+        this.likes.add(like);
+        like.setUser(this);
+    }
+
+    public void removeLike(Likes like){
+        this.likes.remove(like);
+        like.setUser(null);
     }
     
     public void setProfileImage(Image image) {

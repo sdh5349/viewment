@@ -2,6 +2,7 @@ package com.web.curation.domain.article;
 
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
+import com.web.curation.domain.connection.Likes;
 import com.web.curation.domain.hashtag.Hashtag;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -47,6 +48,7 @@ public class Article {
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
     private List<Hashtag> hashtags = new ArrayList<>();
+
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contents;

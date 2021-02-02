@@ -3,9 +3,8 @@ package com.web.curation.service.article;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.article.ArticleImage;
 import com.web.curation.domain.connection.Follow;
-import com.web.curation.domain.connection.Like;
+import com.web.curation.domain.connection.Likes;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * com.web.curation.service.article
@@ -173,18 +171,25 @@ public class ArticleService {
         User user = getUser(userId);
         Article article = getArticle(articleId);
 
-        Like like = new Like();
+        Likes like = new Likes();
         like.setUser(user);
         like.setArticle(article);
 
         likeRepository.save(like);
+
+        user.addLike(like);
     }
 
     @Transactional
     public void unlike(String userId, Long articleId){
-        Like like = likeRepository.findByUserIdAndArticleId(userId, articleId).orElseThrow(
+        Likes like = likeRepository.findByUserIdAndArticleId(userId, articleId).orElseThrow(
                 ()->{throw new ElementNotFoundException("User, Article", "userId "+articleId.toString());}
         );
+
+        User user = getUser(userId);
+
+        user.removeLike(like);
+
         likeRepository.delete(like);
     }
 

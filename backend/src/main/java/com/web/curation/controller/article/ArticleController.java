@@ -91,7 +91,7 @@ public class ArticleController {
         return ResponseEntity.ok().body("success");
     }
 
-    @GetMapping("/{articleId}/likes")
+    @GetMapping("/{articleId}/like-users")
     public ResponseEntity<Page<SimpleUserInfoDto>> getLikeUser(@PathVariable("articleId") Long articleId, PageRequest pageable, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
         Page<SimpleUserInfoDto> result = articleService.findLikeUsers(currentUserId, articleId, pageable.of());
