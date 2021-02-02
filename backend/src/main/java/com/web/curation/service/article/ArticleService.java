@@ -4,6 +4,7 @@ import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.article.ArticleImage;
+import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.domain.hashtag.Hashtag;
@@ -32,7 +33,7 @@ import java.util.Optional;
  **/
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class ArticleService {
 
@@ -43,7 +44,6 @@ public class ArticleService {
     private final ImageRepository imageRepository;
     private final HashtagRepository hashtagRepository;
 
-    @Transactional
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
 
@@ -59,6 +59,7 @@ public class ArticleService {
         return article;
     }
 
+    @Transactional(readOnly = true)
     public ArticleInfoDto findByArticleId(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(
                 () -> {
@@ -68,25 +69,26 @@ public class ArticleService {
         return new ArticleInfoDto(article);
     }
 
-    public List<ArticleInfoDto> findByHashtag(String hashtag) {
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> findByHashtag(String hashtag) {
         List<Article> articles = articleRepository.findByHashtag(hashtag);
-        List<ArticleInfoDto> result = new ArrayList<>();
+        List<ArticleSimpleDto> result = new ArrayList<>();
         for (int i = 0; i < articles.size(); i++) {
-            result.add(new ArticleInfoDto(articles.get(i)));
+            result.add(new ArticleSimpleDto(articles.get(i)));
         }
         return result;
     }
 
-    public List<ArticleInfoDto> findByUserId(String userId) {
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> findByUserId(String userId) {
         List<Article> articles = articleRepository.findByUserId(userId);
-        List<ArticleInfoDto> result = new ArrayList<>();
+        List<ArticleSimpleDto> result = new ArrayList<>();
         for (int i = 0; i < articles.size(); i++) {
-            result.add(new ArticleInfoDto(articles.get(i)));
+            result.add(new ArticleSimpleDto(articles.get(i)));
         }
         return result;
     }
 
-    @Transactional
     public Long modify(ArticleDto articleDto) {
 
         Article article = articleRepository.findById(articleDto.getArticleId()).orElseThrow(
@@ -102,7 +104,6 @@ public class ArticleService {
         return article.getArticleId();
     }
 
-    @Transactional
     public void delete(Long articleId) {
         Article findArticle = articleRepository.findById(articleId).orElseThrow(
                 () -> {
@@ -121,7 +122,7 @@ public class ArticleService {
                         throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
                     }
             );
-        }else {
+        } else {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             newPin.setAddress(articleDto.getAddressName());
@@ -134,18 +135,19 @@ public class ArticleService {
         }
         article.setPin(pin);
 
-        for (String contents : articleDto.getHashtags()) {
-            List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
-            if (hashtags.size() != 0) {
-                article.addHashtag(hashtags.get(0));
-            } else {
-                Hashtag hashtag = new Hashtag();
-                hashtag.setContents(contents);
-                Hashtag savedHashtag = hashtagRepository.save(hashtag);
-                article.addHashtag(savedHashtag);
+        if (articleDto.getHashtags() != null) {
+            for (String contents : articleDto.getHashtags()) {
+                List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
+                if (hashtags.size() != 0) {
+                    article.addHashtag(hashtags.get(0));
+                } else {
+                    Hashtag hashtag = new Hashtag();
+                    hashtag.setContents(contents);
+                    Hashtag savedHashtag = hashtagRepository.save(hashtag);
+                    article.addHashtag(savedHashtag);
+                }
             }
         }
-
         article.setContents(articleDto.getContents());
     }
 

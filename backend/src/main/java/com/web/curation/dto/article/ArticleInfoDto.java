@@ -4,6 +4,8 @@ import com.web.curation.domain.article.Article;
 import com.web.curation.dto.hashtag.HashtagDto;
 import com.web.curation.dto.image.ImageDto;
 import com.web.curation.dto.pin.PinDto;
+import com.web.curation.dto.reply.ReplyDto;
+import com.web.curation.dto.user.UserDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +31,7 @@ public class ArticleInfoDto {
     private PinDto pin;
     private List<ImageDto> images = new ArrayList<>();
     private List<HashtagDto> hashtags = new ArrayList<>();
+    private List<ReplyDto> replies = new ArrayList<>();
     private String contents;
     private String wdate;
 
@@ -40,9 +43,12 @@ public class ArticleInfoDto {
             this.images.add(new ImageDto(article.getArticleImages().get(i).getImage()));
         }
         for (int i = 0; i < article.getHashtags().size(); i++) {
-
             this.hashtags.add(new HashtagDto(article.getHashtags().get(i)));
         }
+        for (int i = 0; i < article.getReplies().size(); i++) {
+            this.replies.add(new ReplyDto(article.getReplies().get(i)));
+        }
         this.contents = article.getContents();
+        this.wdate = article.getWdate().toString();
     }
 }
