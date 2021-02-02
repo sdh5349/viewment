@@ -173,7 +173,6 @@ export default {
         addressName: '',
         contents: '',
         hashtags: '',
-        imgFormData: '',
       },
       articleImages: null,
       hash: '',
@@ -210,6 +209,7 @@ export default {
     onMarker(res) {
       this.position.lat = res.Ma
       this.position.lng = res.La
+      this.addressName = res.addressName
       
       },
     submit() {
@@ -232,7 +232,7 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      
+      console.log(this.articleInfo)
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')

@@ -132,7 +132,12 @@ export default {
       })
     },
     markerCheck() {
-      this.$emit('onClick', this.coordinates)
+      const markers = {
+        Ma: this.coordinates.Ma,
+        La: this.coordinates.La,
+        addressName: this.addressName
+      }
+      this.$emit('onClick', markers)
     },
     mapClick(mouseEvent) {
       const self = this
