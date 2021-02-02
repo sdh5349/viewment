@@ -4,6 +4,7 @@ import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.article.ArticleImage;
+import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.domain.hashtag.Hashtag;
@@ -71,21 +72,21 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleInfoDto> findByHashtag(String hashtag) {
+    public List<ArticleSimpleDto> findByHashtag(String hashtag) {
         List<Article> articles = articleRepository.findByHashtag(hashtag);
-        List<ArticleInfoDto> result = new ArrayList<>();
+        List<ArticleSimpleDto> result = new ArrayList<>();
         for (int i = 0; i < articles.size(); i++) {
-            result.add(new ArticleInfoDto(articles.get(i)));
+            result.add(new ArticleSimpleDto(articles.get(i)));
         }
         return result;
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleInfoDto> findByUserId(String userId) {
+    public List<ArticleSimpleDto> findByUserId(String userId) {
         List<Article> articles = articleRepository.findByUserId(userId);
-        List<ArticleInfoDto> result = new ArrayList<>();
+        List<ArticleSimpleDto> result = new ArrayList<>();
         for (int i = 0; i < articles.size(); i++) {
-            result.add(new ArticleInfoDto(articles.get(i)));
+            result.add(new ArticleSimpleDto(articles.get(i)));
         }
         return result;
     }
