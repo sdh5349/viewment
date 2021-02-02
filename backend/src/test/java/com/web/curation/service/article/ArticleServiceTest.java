@@ -60,7 +60,6 @@ public class ArticleServiceTest {
         hashtag.setContents("tag1");
 
         em.persist(hashtag);
-
     }
 
 
