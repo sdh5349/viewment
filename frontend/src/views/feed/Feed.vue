@@ -27,7 +27,9 @@
 
   </v-row>
     <div v-if="view === 0">
-      <Map />
+      <Map 
+        @onClick="onMemory"
+      />
     </div>
     <div v-if="view === 1">
       <Feed />
@@ -55,6 +57,15 @@ export default {
     },
     goFeed() {
       this.view = 1
+    },
+    onMemory(res) {
+      // 기억하기 요청 보내면 됨
+      if (res){
+        console.log(res)
+      }
+      else {
+        alert('기억할 위치를 설정 안했습니다.')
+      }
     }
   }
 }
