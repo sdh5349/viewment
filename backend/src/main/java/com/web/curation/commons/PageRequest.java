@@ -14,7 +14,7 @@ public class PageRequest {
     }
 
     public void setSize(int size) {
-        final int MAX_SIZE = 10;
+        final int MAX_SIZE = 500;
         this.size = size > MAX_SIZE ? MAX_SIZE : size;
     }
 
@@ -23,7 +23,12 @@ public class PageRequest {
     }
 
     public PageRequest(){};
+
     public org.springframework.data.domain.PageRequest of(){
         return org.springframework.data.domain.PageRequest.of(page, size, Sort.unsorted());
+    }
+
+    public org.springframework.data.domain.PageRequest of(Sort sort){
+        return org.springframework.data.domain.PageRequest.of(page, size, sort);
     }
 }

@@ -8,11 +8,4 @@ import java.util.List;
 public class ErrorResponse {
     private final String message;
     private final String code;
-//    private List<FieldError> errors;
-//
-//    static class FieldError{
-//        private String field;
-//        private String value;
-//        private String reason;
-//    }
 }

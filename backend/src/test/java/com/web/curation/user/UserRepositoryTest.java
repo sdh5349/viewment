@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,10 +57,10 @@ public class UserRepositoryTest {
         //given
 
         //when
-        List<SimpleUserInfoDto> list = userService.findUsersByNickname("bbb", "A", PageRequest.of(0, 10));
+        Page<SimpleUserInfoDto> list = userService.findUsersByNickname("bbb", "A", PageRequest.of(0, 10));
         //then
 
-        Assertions.assertThat(list.size()).isEqualTo(3);
+        Assertions.assertThat((int)list.getContent().size()).isEqualTo(3);
     }
 
     @Test
@@ -67,10 +68,10 @@ public class UserRepositoryTest {
         //given
 
         //when
-        List<SimpleUserInfoDto> list = userService.findUsersByNickname("bbb", "A", PageRequest.of(1, 2));
+        Page<SimpleUserInfoDto> list = userService.findUsersByNickname("bbb", "A", PageRequest.of(1, 2));
         //then
 
-        Assertions.assertThat(list.size()).isEqualTo(1);
+        Assertions.assertThat((int)list.getContent().size()).isEqualTo(1);
     }
 
 }

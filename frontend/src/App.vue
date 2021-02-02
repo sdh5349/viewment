@@ -111,20 +111,23 @@ export default {
     goPrevious() {
       this.$router.go(-1)
     },
-    createArticle() {
-      this.$router.push({ name: 'CreateArticle' })
-      .catch (err=>{})
-    },
     goSearch() {
       this.$router.push({ name: 'Search' })
-      .catch (err=>{})
+      .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
+      })
     },
     goFeed() {
       const token = sessionStorage.getItem('jwt')
       if (token) {
-        // this.pageName = this.$router.meta.title
         this.$router.push({ name: 'Feed' })
-        .catch (err=>{})
+        .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
+        })
       }
       else{
         alert("login required")
@@ -132,11 +135,19 @@ export default {
     },
     goAlarm() {
       this.$router.push({ name: '' })
-      .catch (err=>{})
+      .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
+      })
     },
     goMessage() {
       this.$router.push({ name: '' })
-      .catch (err=>{})
+      .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
+      })
     },
     goProfile() {
       const loginUserId = sessionStorage.getItem('uid')
@@ -144,12 +155,18 @@ export default {
         name: 'Profile', 
         params: { profileUserId : loginUserId }
       })
-      .catch (err=>{})
+      .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
+      })
     },
     goCreateArticle() {
-      this.$router.push({ name: 'CreateArticle'})
-      .catch((err) => {
-        alert(err)
+      this.$router.push({ name: 'CreateArticle' })
+      .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
       })
     }
   },

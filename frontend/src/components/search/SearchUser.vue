@@ -5,22 +5,22 @@
   >
     <v-list>
       <v-list-item
-        v-for="user in users.slice(0,9)"
-        :key="user.nickname"
+        v-for="user in nickname.slice(0,9)"
+        :key="user.content.nickname"
       >
         <v-list-item-avatar>
           <v-img
-            :alt="`${user.nickname} avatar`"
-            :src="user.profileimg"
+            :alt="`${user.content.nickname} avatar`"
+            :src="user.content.profileImage"
           ></v-img>
         </v-list-item-avatar>
 
         <v-list-item-content>
-          <v-list-item-title v-text="user.nickname"></v-list-item-title>
+          <v-list-item-title v-text="user.content.nickname"></v-list-item-title>
         </v-list-item-content>
 
         <v-list-item-icon>
-          <v-icon :color="user.active ? 'deep-red accent-4' : 'grey'">
+          <v-icon :color="user.content.followed ? 'deep-red accent-4' : 'grey'">
             mdi-heart
           </v-icon>
         </v-list-item-icon>
@@ -37,7 +37,7 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   data() {
     return {
-      users: [],
+     nickname: [],
     }
   },
   props: {
@@ -58,9 +58,9 @@ export default {
     }
   },
   methods: {
-    getUsers(users) {
+    getUsers(nickname) {
       console.log(this.getToken)
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1`, this.getToken)
+      axios.get(`${SERVER_URL}/users/like/${nickname}`, this.getToken)
         .then((res) => {
         console.log(res)        
         })

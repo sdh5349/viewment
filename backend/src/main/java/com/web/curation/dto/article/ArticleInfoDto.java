@@ -6,6 +6,7 @@ import com.web.curation.dto.image.ImageDto;
 import com.web.curation.dto.pin.PinDto;
 import com.web.curation.dto.reply.ReplyDto;
 import com.web.curation.dto.user.UserDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,13 +20,14 @@ import java.util.List;
  * @author  이주희
  *
  * @변경이력
+ * UserDto -> SimpleUserInfoDto
  **/
 
 @Getter
 @Setter
 public class ArticleInfoDto {
     private Long articleId;
-    private UserDto user;
+    private SimpleUserInfoDto user;
     private PinDto pin;
     private List<ImageDto> images = new ArrayList<>();
     private List<HashtagDto> hashtags = new ArrayList<>();
@@ -35,7 +37,7 @@ public class ArticleInfoDto {
 
     public ArticleInfoDto(Article article){
         this.articleId = article.getArticleId();
-        this.user = new UserDto(article.getUser());
+        this.user = new SimpleUserInfoDto(article.getUser());
         this.pin = new PinDto(article.getPin());
         for (int i = 0; i < article.getArticleImages().size(); i++) {
             this.images.add(new ImageDto(article.getArticleImages().get(i).getImage()));

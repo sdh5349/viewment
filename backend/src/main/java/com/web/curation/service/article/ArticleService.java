@@ -48,9 +48,7 @@ public class ArticleService {
         Article article = new Article();
 
         User user = userRepository.findById(articleDto.getUserId()).orElseThrow(
-                () -> {
-                    throw new UserNotFoundException(articleDto.getUserId());
-                }
+                ()->{ throw new UserNotFoundException(); }
         );
         article.setUser(user);
 

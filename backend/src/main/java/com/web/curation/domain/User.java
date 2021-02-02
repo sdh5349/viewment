@@ -23,6 +23,7 @@ import java.util.List;
  *
  * @변경이력
  * 21-02-02 replies 추가
+ * articles, memories CascadeType.ALL 로 변경 2021-02-01
  **/
 
 @Entity
@@ -56,14 +57,14 @@ public class User {
     /**
      * Memory
      */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Memory> memories = new ArrayList<>();
 
 
     /**
      * Article
      */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL)
     private List<Article> articles = new ArrayList<>();
 
 

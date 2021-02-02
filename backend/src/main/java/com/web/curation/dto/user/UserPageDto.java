@@ -5,6 +5,15 @@ import com.web.curation.domain.User;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * com.web.curation.dto.user
+ * UserPageDto.java
+ * @date    2021-01-25 오후 5:46
+ * @author  김종성
+ *
+ * @변경이력
+ **/
+
 @Getter
 @Setter
 public class UserPageDto {
@@ -16,11 +25,12 @@ public class UserPageDto {
     private int countFollowings;
     private int countFollowers;
     private int countMemories;
+    private int countArticles;
     private boolean isFollowed;
 
     public UserPageDto(){}
 
-    public UserPageDto(User user, int countFollowers, int countFollowings, int countMemories, boolean isFollowed){
+    public UserPageDto(User user, int countFollowers, int countFollowings, int countMemories, int countArticles, boolean isFollowed){
         this.userId = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
@@ -31,5 +41,4 @@ public class UserPageDto {
         this.countMemories = countMemories;
         this.isFollowed = isFollowed;
     }
-
 }
