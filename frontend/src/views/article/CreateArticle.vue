@@ -220,7 +220,7 @@ export default {
       this.articleInfo.contents = this.content
       this.articleInfo.hashtags = this.hash
       this.articleInfo.addressName = this.addressName
-
+      
       var headers = {
         headers: {
           'Content-type': 'multipart/form-data',
@@ -232,12 +232,14 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
+      
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
           }
       } )
       .then((res) => {
+        
         this.articleId = res.data
         axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
         .then((res) => {

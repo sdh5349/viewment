@@ -24,7 +24,7 @@
       <v-carousel-item
         v-for="(image, i) in preview"
         :key="i"
-        :src="'http://i4b105.p.ssafy.io:8080/api/v1/images/'+ image.path">    
+        :src="SERVER+ '/images/'+ image.path">    
       >
       </v-carousel-item>
     </v-carousel>
@@ -130,6 +130,7 @@ export default {
   },
   data: () => {
     return {
+      SERVER: process.env.VUE_APP_SERVER_URL,
       imgFiles: [],
       fileInfos: [
       ],
