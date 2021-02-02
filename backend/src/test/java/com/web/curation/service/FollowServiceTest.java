@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,13 +51,13 @@ public class FollowServiceTest {
     }
 
     @Test
-    void 내가_팔로우하지_않는_사용자가_포함된_목록() throws Exception{
+    void 내가_팔로우하지_않는_사용자가_포함된_팔로워_목록() throws Exception{
         //given
 
         //when
-        List<SimpleUserInfoDto> followers = followService.findFollowersByUserId("aaa", "aaa", PageRequest.of(0, 10));
+        Page<SimpleUserInfoDto> followers = followService.findFollowerList("aaa", "aaa", PageRequest.of(0, 10));
         //then
-        int size = followers.stream()
+        int size = followers.getContent().stream()
                 .filter(f -> !f.isFollowed())
                 .collect(Collectors.toList()).size();
 
