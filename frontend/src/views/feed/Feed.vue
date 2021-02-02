@@ -29,28 +29,43 @@
     <div v-if="view === 0">
       <Map 
         @onClick="onMemory"
+        :goMemoryInfo="goMemoryInfo"
       />
     </div>
     <div v-if="view === 1">
       <Feed />
     </div>
+
+
+    <MemoryDrawer
+      @goToMemory="goToMemory"
+    >
+    </MemoryDrawer>
+
+
+
+
+
 </v-container>
 </template>
 
 <script>
 import Map from '@/components/feed/Map.vue'
 import Feed from '@/components/feed/Feed.vue'
+import MemoryDrawer from '@/components/feed/MemoryDrawer.vue'
 import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   components: {
     Map,
-    Feed
+    Feed,
+    MemoryDrawer
   },
   data() {
     return {
       view: 0,
+      goMemoryInfo: '',
     }
   },
   methods: {
@@ -76,6 +91,9 @@ export default {
       else {
         alert('기억할 위치를 설정 안했습니다.')
       }
+    },
+    goToMemory(res) {
+      this.goMemoryInfo = res
     }
   },
   computed: {
