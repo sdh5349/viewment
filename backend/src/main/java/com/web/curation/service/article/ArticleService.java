@@ -182,6 +182,7 @@ public class ArticleService {
         likeRepository.save(like);
 
         user.addLike(like);
+        article.addLike(like);
     }
 
     @Transactional
@@ -191,10 +192,11 @@ public class ArticleService {
         );
 
         User user = getUser(userId);
-
-        user.removeLike(like);
+        Article article = getArticle(articleId);
 
         likeRepository.delete(like);
+        user.removeLike(like);
+        article.removeLike(like);
     }
 
     public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable){

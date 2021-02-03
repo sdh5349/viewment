@@ -54,6 +54,9 @@ public class Article {
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reply> replies = new ArrayList<>();
 
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Likes> likes = new ArrayList<>();
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contents;
 
@@ -83,6 +86,16 @@ public class Article {
     public void addHashtag(Hashtag hashtag){
         hashtags.add(hashtag);
         hashtag.getArticles().add(this);
+    }
+
+    public void addLike(Likes like){
+        this.likes.add(like);
+        like.setArticle(this);
+    }
+
+    public void removeLike(Likes like){
+        this.likes.remove(like);
+        like.setArticle(null);
     }
 
     public void resetPin() {

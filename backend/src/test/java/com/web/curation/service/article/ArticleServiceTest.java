@@ -9,6 +9,9 @@ import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
+import com.web.curation.repository.like.LikeRepository;
+import com.web.curation.repository.pin.PinRepository;
+import com.web.curation.service.user.AccountService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,8 @@ import java.util.List;
  * @author 이주희
  * @date 2021-01-26 오후 5:34
  * @변경이력
+ * 김종성 - 좋아요 기능 테스트코드 추가
+ *
  **/
 
 @SpringBootTest
@@ -42,6 +47,14 @@ public class ArticleServiceTest {
     @Autowired
     ArticleRepository articleRepository;
 
+    @Autowired
+    PinRepository pinRepository;
+
+    @Autowired
+    LikeRepository likeRepository;
+
+    @Autowired
+    AccountService accountService;
 
     @PersistenceContext
     EntityManager em;
@@ -212,6 +225,72 @@ public class ArticleServiceTest {
             System.out.println(article.getContents());
 
         Assertions.assertEquals(findArticles.size(), 2);
+    }
+
+    @Test
+    void 게시글_좋아요() throws Exception{
+        //given
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        pinRepository.save(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        Article article = articleService.write(articleDto1);
+
+        //when
+        articleService.like("aaa", article.getArticleId());
+
+        //then
+        int n = likeRepository.countByArticle(article).intValue();
+
+        org.assertj.core.api.Assertions.assertThat(n).isEqualTo(1);
+    }
+
+    @Test
+    void 게시글_좋아요_취소() throws Exception{
+        //given
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        pinRepository.save(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        Article article = articleService.write(articleDto1);
+
+        //when
+        articleService.like("aaa", article.getArticleId());
+
+        articleService.unlike("aaa", article.getArticleId());
+        //then
+        int n = likeRepository.countByArticle(article).intValue();
+
+        org.assertj.core.api.Assertions.assertThat(n).isEqualTo(0);
+    }
+
+    @Test
+    void 유저_삭제시_좋아요_변경_여부() throws Exception{
+        //given
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        pinRepository.save(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        Article article = articleService.write(articleDto1);
+
+        //when
+        articleService.like("aaa", article.getArticleId());
+
+        accountService.delete("aaa");
+
+        //then
+        int n = likeRepository.countByArticle(article).intValue();
+
+        org.assertj.core.api.Assertions.assertThat(n).isEqualTo(0);
     }
 
     public static ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
