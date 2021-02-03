@@ -6,6 +6,7 @@
         lg="4"
         md="4"
         sm="6"
+        style="margin-bottom: 50px;"
     >
       <h1>추억 기록하기</h1>
 
@@ -14,7 +15,7 @@
       
       
       <v-row justify="space-around">
-        <v-col cols="10" class="text-center mt-5">게시물에 사진올리기</v-col>
+        <v-col cols="10" class="text-center my-5">게시물에 사진올리기</v-col>
 
         <v-col cols="2">
           <validation-provider rules="" v-slot="{ errors }">
@@ -232,7 +233,7 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      console.log(this.articleInfo)
+
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')

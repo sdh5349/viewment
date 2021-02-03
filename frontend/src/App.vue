@@ -44,10 +44,10 @@
           class="overflow-y-auto"
           max-height="600"
         > -->
-          <v-container fluid style="height: 1500px;" class="mt-5">
+          <v-container fluid class="mt-5">
             <router-view
-             class="mt-5"
-             @login="login=true"
+            class="mt-5"
+            @login="login=true"
             />
           </v-container>
         <!-- </v-sheet> -->
@@ -179,6 +179,11 @@ export default {
 };
 </script>
 
-<style>
-
+<style scoped>
+/* 컨테이너의 높이를 화면에 꽉차게 늘린다 */
+  .stretch-height {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 </style>
