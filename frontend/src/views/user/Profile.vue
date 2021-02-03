@@ -224,10 +224,6 @@ export default {
   },
   created() {
     this.dataFetch()
-    axios.get(`${SERVER_URL}/articles/searchbyuserid/${this.profileUserId}?page=0&size=3`, this.getToken)
-    .then(res => {
-      console.log(res)
-    })
   },
   methods: {
     dataFetch() {
@@ -238,8 +234,7 @@ export default {
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
         if (this.profileUserInfo.profileImage) {
-          // 서버에서 이미지 삭제기능 제대로 작동하면 주석 삭제
-          // this.profileImageUrl = `${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`
+          this.profileImageUrl = `${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`
         }
       })
       .then(() => {

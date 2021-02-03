@@ -135,10 +135,12 @@ public class ArticleService {
         }
         article.setPin(pin);
 
+        article.setContents(articleDto.getContents());
+
         if (articleDto.getHashtags() != null) {
             for (String contents : articleDto.getHashtags()) {
                 List<Hashtag> hashtags = hashtagRepository.findByContents(contents);
-                if (hashtags.size() != 0) {
+                if (hashtags.size() > 0) {
                     article.addHashtag(hashtags.get(0));
                 } else {
                     Hashtag hashtag = new Hashtag();
@@ -148,7 +150,6 @@ public class ArticleService {
                 }
             }
         }
-        article.setContents(articleDto.getContents());
     }
 
 }

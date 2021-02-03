@@ -210,6 +210,7 @@ export default {
     onMarker(res) {
       this.position.lat = res.Ma
       this.position.lng = res.La
+      this.addressName = res.addressName
       
       },
     submit() {
@@ -219,13 +220,8 @@ export default {
       this.articleInfo.lng = this.position.lng
       this.articleInfo.contents = this.content
       this.articleInfo.hashtags = this.hash
-<<<<<<< Updated upstream
       this.articleInfo.addressName = this.addressName
       
-=======
-      this.articleInfo.addressName = 'test'
-
->>>>>>> Stashed changes
       var headers = {
         headers: {
           'Content-type': 'multipart/form-data',
@@ -238,9 +234,8 @@ export default {
         this.articleImages.append('articleImages', this.files[i]);
       }
 <<<<<<< Updated upstream
-      
+
 =======
-      console.log(this.articleInfo)
 >>>>>>> Stashed changes
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {

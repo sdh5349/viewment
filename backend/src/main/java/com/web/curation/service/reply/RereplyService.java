@@ -36,7 +36,7 @@ public class RereplyService {
         Rereply rereply = new Rereply();
 
         User findUser = userRepository.findById(rereplyDto.getUserId()).orElseThrow(() -> {
-            throw new UserNotFoundException("사용자가 존재하지 않습니다.");
+            throw new UserNotFoundException();
         });
         rereply.setUser(findUser);
 

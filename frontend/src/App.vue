@@ -46,8 +46,8 @@
         > -->
           <v-container fluid class="mt-5">
             <router-view
-             class="mt-5"
-             @login="login=true"
+            class="mt-5"
+            @login="login=true"
             />
           </v-container>
         <!-- </v-sheet> -->

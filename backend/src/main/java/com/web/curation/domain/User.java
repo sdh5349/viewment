@@ -89,4 +89,8 @@ public class User {
     public void setProfileImage(Image image) {
         this.profileImage = image;
     }
+
+    public void resetProfileImage() {
+        profileImage = null;
+    }
 }
