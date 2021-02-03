@@ -1,9 +1,9 @@
 package com.web.curation.domain;
 
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.connection.Follow;
-//import com.web.curation.domain.reply.Reply;
 import com.web.curation.domain.connection.Likes;
+import com.web.curation.domain.reply.Reply;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
@@ -23,6 +23,7 @@ import java.util.List;
  * @author  김종성
  *
  * @변경이력
+ * 21-02-02 replies 추가
  * articles, memories CascadeType.ALL 로 변경 2021-02-01
  **/
 
@@ -71,11 +72,14 @@ public class User {
     /**
      * Reply
      */
-//    @OneToMany(mappedBy = "user")
-//    private List<Reply> replies = new ArrayList<>()
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Reply> replies = new ArrayList<>();
+
+
 
     @OneToMany(mappedBy = "user")
     private List<Likes> likes = new ArrayList<>();
+
 
     @OneToOne
     @JoinColumn(name="IMAGE_ID")
@@ -101,5 +105,9 @@ public class User {
     
     public void setProfileImage(Image image) {
         this.profileImage = image;
+    }
+
+    public void resetProfileImage() {
+        profileImage = null;
     }
 }

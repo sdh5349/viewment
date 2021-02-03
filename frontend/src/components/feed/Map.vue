@@ -47,20 +47,39 @@
     <div id="map" class="map"></div>
     <div id="result"></div>
     <v-btn @click="markerCheck(position)">기억 완료</v-btn>
+    <MemoryLocation
+      v-if="is_Memoryshow"
+      @close-Memorymodal="is_Memoryshow=false"
+      @onMemory='saveMemory'
+      >
+
+    </MemoryLocation>
+
+    
+
+
+
+
   </div>
 </template>
 
 <script>
 import SearchArticleLocation from "../article/SearchArticleLocation.vue" 
+import MemoryLocation from "./MemoryLocation.vue"
 
 export default {
+  props: [
+    'goMemoryInfo'
+  ],
   components: {
-    SearchArticleLocation
+    SearchArticleLocation,
+    MemoryLocation
   },
   data() {
     return{
       addressName: '',
       is_show: false,
+      is_Memoryshow: false,
       map: '',
       myLocation: '',
       address: '',
@@ -113,10 +132,9 @@ export default {
     },
     initMap() {
       const self = this
-      self.options = {
-        
-        center: new kakao.maps.LatLng(36.3586873, 127.30278400),
-        level: 3 
+      self.options = { 
+          center: new kakao.maps.LatLng(36.3586873, 127.30278400),
+          level: 3 
       }
       self.container = document.getElementById("map")
       self.map = new kakao.maps.Map(self.container, self.options)
@@ -160,7 +178,7 @@ export default {
 
     },
     markerCheck(res) {
-      this.$emit('onClick', this.position)
+      this.is_Memoryshow = !this.is_Memoryshow
     },
     mapClick() {
         
@@ -238,9 +256,34 @@ export default {
         })
       }
     },
-    searchLocationModal() {
+    searchLocationModal(res) {
       this.is_show = !this.is_show
+
     },
+    saveMemory(res) {
+      this.is_Memoryshow = !this.is_Memoryshow
+      res.lat= this.position.Ma
+      res.lng= this.position.La
+      this.$emit('onClick', res)
+    },
+    moveMemory() {
+      const self = this
+      self.options = {
+        center: new kakao.maps.LatLng(self.goMemoryInfo.lng, self.goMemoryInfo.lat),
+        level: 3 
+      }  
+      self.map = new kakao.maps.Map(self.container, self.options)
+        
+      kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+        self.mapClick(mouseEvent)
+      })
+    },
+
+  },
+  watch: {
+    goMemoryInfo: function () {
+      this.moveMemory()
+    }
   }
 }
 </script>

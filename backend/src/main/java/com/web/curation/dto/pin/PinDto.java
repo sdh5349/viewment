@@ -19,11 +19,11 @@ public class PinDto {
     private Long pinId;
     private double lat;
     private double lng;
-    private String address;
+    private String addressName;
 
     public PinDto(Pin pin) {
         pinId = pin.getPinId();
-        address = pin.getAddress();
+        addressName = pin.getAddress();
         lat = pin.getLocation().getX();
         lng = pin.getLocation().getY();
     }
