@@ -24,8 +24,8 @@
       <v-carousel-item
         v-for="(image, i) in preview"
         :key="i"
-        :src="'${SERVER_URL}/images/'+ image.path">    
-      >
+        :src="SERVER+ '/images/'+ image.path">  
+        
       </v-carousel-item>
     </v-carousel>
   

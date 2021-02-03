@@ -3,6 +3,9 @@ package com.web.curation.service.article;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
+import com.web.curation.domain.connection.Follow;
+import com.web.curation.domain.connection.Likes;
+import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.domain.article.ArticleImage;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.exceptions.ElementNotFoundException;
@@ -10,18 +13,21 @@ import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.domain.hashtag.Hashtag;
 import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleInfoDto;
+import com.web.curation.repository.follow.FollowRepository;
+import com.web.curation.repository.like.LikeRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
 import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.pin.PinRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * com.web.curation.service.article
@@ -30,6 +36,7 @@ import java.util.Optional;
  * @author 이주희
  * @date 2021-01-26 오전 11:02
  * @변경이력 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
+ * @변경이력 김종성: like, unlike 기능 추가
  **/
 
 @Service
@@ -43,6 +50,8 @@ public class ArticleService {
     private final PinRepository pinRepository;
     private final ImageRepository imageRepository;
     private final HashtagRepository hashtagRepository;
+    private final LikeRepository likeRepository;
+    private final FollowRepository followRepository;
 
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
@@ -66,7 +75,12 @@ public class ArticleService {
                     throw new ElementNotFoundException("Article", articleId.toString());
                 }
         );
-        return new ArticleInfoDto(article);
+
+        int likes = likeRepository.countByArticle(article).intValue();
+
+        ArticleInfoDto articleInfoDto = new ArticleInfoDto(article);
+        articleInfoDto.setLikes(likes);
+        return articleInfoDto;
     }
 
     @Transactional(readOnly = true)
@@ -150,6 +164,64 @@ public class ArticleService {
                 }
             }
         }
+    }
+
+    /***
+     *  좋아요 관련 메소드
+     */
+
+    @Transactional
+    public void like(String userId, Long articleId){
+        User user = getUser(userId);
+        Article article = getArticle(articleId);
+
+        Likes like = new Likes();
+        like.setUser(user);
+        like.setArticle(article);
+
+        likeRepository.save(like);
+
+        user.addLike(like);
+        article.addLike(like);
+    }
+
+    @Transactional
+    public void unlike(String userId, Long articleId){
+        Likes like = likeRepository.findByUserIdAndArticleId(userId, articleId).orElseThrow(
+                ()->{throw new ElementNotFoundException("User, Article", "userId "+articleId.toString());}
+        );
+
+        User user = getUser(userId);
+        Article article = getArticle(articleId);
+
+        likeRepository.delete(like);
+        user.removeLike(like);
+        article.removeLike(like);
+    }
+
+    public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable){
+        User currentUser = getUser(currentUserId);
+        Article article = getArticle(articleId);
+        List<Follow> follows = followRepository.findByFrom(currentUser);
+
+        Page<SimpleUserInfoDto> result = likeRepository.findByArticle(article, pageable).map(
+                (like) -> {return new SimpleUserInfoDto(like.getUser(), follows.contains(like.getUser()));}
+        );
+        return result;
+    }
+
+    private User getUser(String userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()->{throw new UserNotFoundException();}
+        );
+        return user;
+    }
+
+    private Article getArticle(Long articleId){
+        Article article = articleRepository.findById(articleId).orElseThrow(
+                () -> { throw new ElementNotFoundException("article", articleId.toString()); }
+        );
+        return article;
     }
 
 }

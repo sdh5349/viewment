@@ -233,10 +233,7 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
