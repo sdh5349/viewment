@@ -1,5 +1,10 @@
 <template>
   <v-row v-if="loading">
+    <v-progress-circular
+      :width="3"
+      color="red"
+      indeterminate
+    ></v-progress-circular>
   </v-row>
   <v-row
     v-else
@@ -24,11 +29,11 @@
           elevation="0"
         >
           <v-list-item-avatar
-            v-if="profileUserInfo.profileImage"
+            v-if="profileImageUrl"
             size="80"
           >
             <img
-              src=""
+              :src="profileImageUrl"
             >
           </v-list-item-avatar>
           <v-icon
@@ -40,7 +45,7 @@
           <!-- 계정설정 버튼 시작 -->
           <v-btn
             v-if="loginUserId === profileUserId"
-            class="no-background-color top-right-position"
+            class="no-background-color bottom-right-position"
             x-small
             fab 
             elevation="0"
@@ -80,7 +85,7 @@
         class="col-3 disable-events"
         text
       >
-        <!-- {{ profileUserInfo.articleCount }} -->
+        {{ profileUserInfo.countArticles }}
         <br/>
         게시글
       </v-btn>
@@ -192,6 +197,7 @@ export default {
       loading: true,
       loginUserId: '',
       profileUserInfo: null,
+      profileImageUrl: null,
       tab: null,
       tabItems: [
         { tabIcon: 'mdi-view-module', content: 'UserArticleGrid' },
@@ -218,7 +224,6 @@ export default {
   },
   created() {
     this.dataFetch()
-    console.log("프로필 크리에이티드 라이프 사이클")
   },
   methods: {
     dataFetch() {
@@ -228,6 +233,11 @@ export default {
         this.profileUserInfo = res.data
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
+        if (this.profileUserInfo.profileImage) {
+          this.profileImageUrl = `${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`
+        }
+      })
+      .then(() => {
         this.loading = false
       })
       .catch(err => {
@@ -238,7 +248,7 @@ export default {
     },
     onFollowButton() {
       if (this.profileUserInfo.followed) {
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followings/${this.profileUserId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${this.profileUserId}`, this.getToken)
         .then(() => {
           this.profileUserInfo.countFollowers -= 1
           this.profileUserInfo.followed = !this.profileUserInfo.followed
@@ -290,12 +300,7 @@ export default {
       })
     },
     onEditProfileButton() {
-      this.$router.push({ 
-        name: 'EditProfile', 
-        params: {
-          profileUserInfo : this.profileUserInfo,
-        }
-      })
+      this.$router.push({ name: 'EditProfile' })
     },
     onEditAccountButton() {
       this.$router.push({ name: 'EditAccount' })
@@ -316,7 +321,7 @@ export default {
   }
 
 /* 계정설정 버튼의 위치를 설정한다 */
-  .top-right-position {
+  .bottom-right-position {
     position: absolute; 
     bottom: 0px; 
     right: 0px;

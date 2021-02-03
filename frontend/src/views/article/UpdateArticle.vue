@@ -24,7 +24,7 @@
       <v-carousel-item
         v-for="(image, i) in preview"
         :key="i"
-        :src="SERVER+ '/images/'+ image.path">    
+        :src="'${SERVER_URL}/images/'+ image.path">    
       >
       </v-carousel-item>
     </v-carousel>
@@ -192,7 +192,7 @@ export default {
       }
       
 
-      axios.put(`http://i4b105.p.ssafy.io:8080/api/v1/articles/` + this.articleId, this.articleInfo, {
+      axios.put(`${SERVER_URL}/articles/` + this.articleId, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt')
           }

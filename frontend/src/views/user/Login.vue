@@ -116,7 +116,6 @@ export default {
         const user = res.user
         const verifiedState = user.emailVerified
 
-        console.log(verifiedState)
         if (verifiedState){
         
           user.getIdToken()
