@@ -1,7 +1,5 @@
 <template>
   <div>
-
-    
     <v-text-field 
       @click='searchLocationModal' 
       v-model="address" 
@@ -103,12 +101,7 @@ export default {
       var places = new kakao.maps.services.Places()
 
       self.coordinates = new kakao.maps.LatLng(res.y, res.x)
-      self.container = document.getElementById('map') 
-        self.options = {
-            center: new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La), // 지도의 중심좌표
-            level: 3 
-      }
-      self.map = new kakao.maps.Map(self.container, self.options)
+      self.map.setCenter(new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La))
       self.marker = new kakao.maps.Marker({
         map: self.map,
         position: self.coordinates
@@ -120,7 +113,7 @@ export default {
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name + result[0].code
+            self.addressName = result[0].address_name
         }
       }
       geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
@@ -172,5 +165,6 @@ export default {
 .map {
   width: 100%;
   height: 400px;
+  z-index: 0;
 }
 </style>
