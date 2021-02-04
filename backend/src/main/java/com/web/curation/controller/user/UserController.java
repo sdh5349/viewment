@@ -83,4 +83,11 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @ApiOperation(value = "닉네임으로 회원 검색")
+    @GetMapping("/like/{nickname}")
+    public ResponseEntity<Page<SimpleUserInfoDto>> searchNickname(@PathVariable("nickname") String nickname, Authentication authentication, PageRequest pageable){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
+        Page<SimpleUserInfoDto> result = userService.findUsersByNickname(currentUserId, nickname, pageable.of());
+        return ResponseEntity.ok().body(result);
+    }
 }
