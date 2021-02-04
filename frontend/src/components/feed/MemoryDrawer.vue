@@ -5,7 +5,7 @@
     class="overflow-hidden"
     style="position: relative;"
   >
-    <v-container class="fill-height">
+    <v-container>
       <v-row
         align="center"
         justify="center"
@@ -72,7 +72,7 @@ export default {
       axios.get(`${SERVER_URL}/users/${userId}/memories`, this.getToken)
       .then((res) => {
         this.memories = res.data
-        console.log(this.memories)
+        this.$emit('getMemories', this.memories)
       })
     },
     goMemory(res) {

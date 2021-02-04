@@ -6,9 +6,11 @@ import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.dto.user.UserPageDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
+import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.user.UserRepository;
+import com.web.curation.service.article.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final MemoryRepository memoryRepository;
+    private final ArticleRepository articleRepository;
 
     public User getUser(String userId){
         User user = userRepository.findById(userId)
@@ -48,7 +51,7 @@ public class UserServiceImpl implements UserService{
         int countFollowings = followRepository.findByFrom(user).size();
         int countFollowers = followRepository.findByTo(user).size();
         int countMemories = memoryRepository.findByUser(user).size();
-        int countArticles = 0;
+        int countArticles = articleRepository.findByUserId(user.getId()).size();
 
         return new UserPageDto(user, countFollowers, countFollowings, countMemories, countArticles, isFollowed);
     }

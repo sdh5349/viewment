@@ -3,7 +3,10 @@ package com.web.curation.repository.article;
 import com.web.curation.domain.article.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,10 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByUserId(String userId);
 
     @Query("SELECT a FROM Article a JOIN a.hashtags h WHERE UPPER(h.contents) = UPPER(:contents)")
-    List<Article> findByHashtag(String contents);
+    List<Article> findByHashtag(@Param("contents") String contents);
+
+    List<Article> findByArticleIdIn(Collection<Long> articleIds);
+
+    List<Article> findByWdateAfter(Timestamp timestamp);
 
 }

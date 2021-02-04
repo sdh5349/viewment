@@ -39,7 +39,7 @@ public class Pin {
     private List<Memory> memories = new ArrayList<>();
 
     public void setLocation(double lat, double lng) {
-        String wktPoint = String.format("POINT(%s %s)", lat, lng);
+        String wktPoint = String.format("POINT(%s %s)", lng, lat);
         Point point = null;
         try {
             point = (Point) new WKTReader().read(wktPoint);

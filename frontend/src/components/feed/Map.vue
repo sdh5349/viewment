@@ -3,7 +3,8 @@
     <v-text-field 
       @click='searchLocationModal' 
       v-model="address" 
-      label='주소 검색'>
+      label='주소 검색'
+      >
     </v-text-field>
 
     <SearchArticleLocation
@@ -13,12 +14,16 @@
       >
     </SearchArticleLocation>
 
-
+    <v-btn @click='articleMarkers'>게시물 받아오기</v-btn>
 
     <v-row>
 
-      <v-col>
-        <v-btn > 
+      <v-col
+        col-2
+      >
+        <v-btn 
+          fab
+        > 
           <v-icon>
             mdi-cog-outline
           </v-icon>
@@ -26,7 +31,11 @@
       </v-col>
 
       <v-col>
-        <v-btn @click="moveLocation"> 
+        <v-btn 
+          @click="moveLocation"
+          fab
+          
+        > 
           <v-icon>
             mdi-apple-safari
           </v-icon>
@@ -34,7 +43,10 @@
       </v-col>
       
       <v-col>
-        <v-btn @click="checkMemory"> 
+        <v-btn 
+          @click="checkMemory"
+          fab  
+        > 
           <v-icon>
             mdi-pin
           </v-icon>
@@ -43,8 +55,10 @@
 
     </v-row>
 
-    {{ addressName }}
-    <div id="map" class="map"></div>
+    <!-- <div> v-if="articles != ''"> -->
+      <div id="map" class="map"></div>
+    <!-- </div> -->
+
     <div id="result"></div>
     <v-btn @click="markerCheck(position)">기억 완료</v-btn>
     <MemoryLocation
@@ -54,7 +68,6 @@
       >
 
     </MemoryLocation>
-
     
 
 
@@ -64,12 +77,15 @@
 </template>
 
 <script>
-import SearchArticleLocation from "../article/SearchArticleLocation.vue" 
+import SearchArticleLocation from "../feed/SearchArticleLocation.vue" 
 import MemoryLocation from "./MemoryLocation.vue"
+import axios from 'axios'
+const SERVER_URL = process.env.VUE_APP_SERVER_URL 
 
 export default {
   props: [
-    'goMemoryInfo'
+    'goMemoryInfo',
+    'myMemories'
   ],
   components: {
     SearchArticleLocation,
@@ -87,33 +103,10 @@ export default {
       container: '',
       options: '',
       position: '',
+      markers: [],
       checkMemoryState: false,
-      positions : [
-          {
-            title: '카카오', 
-            latlng: new kakao.maps.LatLng(33.450705, 126.570677)
-          },
-          {
-            title: '생태연못', 
-            latlng: new kakao.maps.LatLng(33.450936, 126.569477)
-          },
-          {
-            title: '텃밭', 
-            latlng: new kakao.maps.LatLng(33.450879, 126.569940)
-          },
-          {
-            title: '근린공원',
-            latlng: new kakao.maps.LatLng(33.451393, 126.570738)
-          },
-          {
-            title: '최애 초밥집',
-            latlng: new kakao.maps.LatLng(36.358280, 127.30320581)
-          },
-            {
-            title: '우리 집',
-            latlng: new kakao.maps.LatLng(36.3586873, 127.30278400)
-          }
-      ]
+      is_infowindow: false,
+      articles: '',
     }
   },
   mounted() {
@@ -138,7 +131,9 @@ export default {
       }
       self.container = document.getElementById("map")
       self.map = new kakao.maps.Map(self.container, self.options)
-      self.alreadyMarker(self.map)
+      
+      
+      self.alreadyMarker()
       // 주소 넣기
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
@@ -148,69 +143,62 @@ export default {
       }
       geocoder.coord2RegionCode(127.30278400, 36.3586873, callback)
       
-      self.mapClick()
+
+      kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+      self.mapClick(mouseEvent)
+      })
     },
     searchAddress(res) {
       const self = this
       self.address = res.place_name
       var places = new kakao.maps.services.Places()
-
       self.coordinates = new kakao.maps.LatLng(res.y, res.x)
-      self.container = document.getElementById('map') 
-        self.options = {
-            center: new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La), // 지도의 중심좌표
-            level: 3 
-      }
-      self.map = new kakao.maps.Map(self.container, self.options)
+      self.map.setCenter(new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La))
 
       // 주소 넣기
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name + result[0].code
+            self.addressName = result[0].address_name
         }
       }
       geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
-      // self.alreadyMarker(self.map)
+
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
       self.mapClick(mouseEvent)
       })
 
     },
+    mapClick(mouseEvent) {
+        const self = this
+        if (self.checkMemoryState){  
+          var latlng = mouseEvent.latLng;   
+          self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
+          var marker = new kakao.maps.Marker({
+            map: self.map,
+            position: self.position
+          })        
+          // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
+          if (self.markerInfo==''){
+            marker.setMap(self.map)
+          } else {
+            self.markerInfo.setMap(null)
+            marker.setMap(self.map)
+          }
+          self.markerInfo = marker 
+
+        // 주소 넣기
+        var geocoder = new kakao.maps.services.Geocoder()
+        var callback = function(result, status) {
+          if (status === kakao.maps.services.Status.OK) {
+              self.addressName = result[0].address_name
+          }
+        }
+        geocoder.coord2RegionCode(self.position.La, self.position.Ma, callback)
+      }
+    },
     markerCheck(res) {
       this.is_Memoryshow = !this.is_Memoryshow
-    },
-    mapClick() {
-        
-        const self = this
-        self.map = new kakao.maps.Map(this.container, this.options)
-        kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
-          if (self.checkMemoryState){  
-            var latlng = mouseEvent.latLng;      
-            self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
-            var marker = new kakao.maps.Marker({
-              map: self.map,
-              position: self.position
-            })        
-            // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
-            if (self.markerInfo==''){
-              marker.setMap(self.map)
-            } else {
-              self.markerInfo.setMap(null)
-              marker.setMap(self.map)
-            }
-            self.markerInfo = marker 
-
-          // 주소 넣기
-          var geocoder = new kakao.maps.services.Geocoder()
-          var callback = function(result, status) {
-            if (status === kakao.maps.services.Status.OK) {
-                self.addressName = result[0].address_name + result[0].code
-            }
-          }
-          geocoder.coord2RegionCode(self.position.La, self.position.Ma, callback)
-        }
-      })
     },
     moveLocation() {
       const self = this
@@ -219,19 +207,10 @@ export default {
         self.myLocation = coordinates
       })
       .then(() => {
-        self.options = {
-          center: new kakao.maps.LatLng(self.myLocation.lat, self.myLocation.lng),
-          level: 3 
-        }  
-        self.map = new kakao.maps.Map(self.container, self.options)
-        
+        self.map.setCenter(new kakao.maps.LatLng(self.myLocation.lat, self.myLocation.lng))
         kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
-        self.mapClick(mouseEvent)
+          self.mapClick(mouseEvent)
         })
-
-
-        // 요거 수정
-        // self.alreadyMarker(self.map)
       })
     },
     checkMemory() {
@@ -240,51 +219,144 @@ export default {
         this.markerInfo.setMap(null)
       }
     },
-    alreadyMarker(map) {
+    alreadyMarker() {
       const self = this
-      var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
-    
-      for (var i = 0; i < this.positions.length; i ++) {
-           
-        var imageSize = new kakao.maps.Size(24, 35);     
-        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);    
+      const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"
+      const imageSize = new kakao.maps.Size(24, 35)
+      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+      for (var i = 0; i < self.myMemories.length; i ++) {
+        
+        self.position = new kakao.maps.LatLng(self.myMemories[i].lat, self.myMemories[i].lng)
         var marker = new kakao.maps.Marker({
             map: self.map, 
-            position: self.positions[i].latlng,
-            title : self.positions[i].title,
+            position: self.position,
+            title : self.myMemories[i].name,
             image : markerImage
         })
+
+        var infowindow = new kakao.maps.InfoWindow({
+            content: marker.Fb // 인포윈도우에 표시할 내용
+        })
+
+        kakao.maps.event.addListener(marker, 'click', makeOverListener(self.map, marker, infowindow))
+        
+      }
+      
+
+      function makeOverListener(map, marker, infowindow) {
+            return function() {
+              this.is_infowindow = !this.is_infowindow
+              if (this.is_infowindow){
+                infowindow.open(map, marker)
+              }
+              else{
+                infowindow.close()
+              }
+            };
+        }
+    },
+    getArticle() {
+      axios.get(`${SERVER_URL}/pins`, this.getToken)
+      .then((res)=> {
+        this.articles = res.data
+      }) 
+    },
+    articleMarkers() {
+      const self = this
+
+      const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
+      const imageSize = new kakao.maps.Size(24, 35)
+      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+
+      for (var i = 0; i < self.articles.length; i ++) {
+        const position = new kakao.maps.LatLng(self.articles[i].lat, self.articles[i].lng)
+        var marker = new kakao.maps.Marker({
+            map: self.map, 
+            position: position,
+            title : self.articles[i].address_name,
+            image : markerImage
+        })
+        
+        const id = self.articles[i].pinId
+        kakao.maps.event.addListener(marker, 'click', articleMarkerClick(id))
+    
+      }
+      function articleMarkerClick(id) {
+        return function() {
+          self.$router.push({name: 'BindArticle', params: {
+            pinId: id,
+          }})
+        }
       }
     },
+    // articleMarkerClick(id) {
+    //   console.log(id)
+    // },
     searchLocationModal(res) {
       this.is_show = !this.is_show
-
     },
     saveMemory(res) {
+      const self = this
       this.is_Memoryshow = !this.is_Memoryshow
       res.lat= this.position.Ma
       res.lng= this.position.La
+      
+      const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"
+      const imageSize = new kakao.maps.Size(24, 35)
+      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+
+      self.position = new kakao.maps.LatLng(res.lat, res.lng)
+      var marker = new kakao.maps.Marker({
+          map: self.map, 
+          position: self.position,
+          title : res.name,
+          image :markerImage
+      })
+      this.markers.push(marker)    
       this.$emit('onClick', res)
     },
     moveMemory() {
       const self = this
-      self.options = {
-        center: new kakao.maps.LatLng(self.goMemoryInfo.lng, self.goMemoryInfo.lat),
-        level: 3 
-      }  
-      self.map = new kakao.maps.Map(self.container, self.options)
-        
+      console.log(self.goMemoryInfo)
+      self.map.setCenter(new kakao.maps.LatLng(self.goMemoryInfo.lat, self.goMemoryInfo.lng))
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
         self.mapClick(mouseEvent)
       })
     },
-
+  },
+  created() {
+    this.getArticle()
   },
   watch: {
     goMemoryInfo: function () {
       this.moveMemory()
+    },
+    // markers: function () {
+      
+    //   for (var i = 0; i < 3; i++) {
+        
+
+    //     // console.log(this.markers[i].Fb)
+    //     // var infowindow = new kakao.maps.InfoWindow({
+    //     // content: this.markers[i].Fb // 인포윈도우에 표시할 내용
+    //     // }
+    //     // this.markers[i].setMap(this.map)
+    //   }
+
+      
+    // }
+  },
+  computed: {
+    getToken(){
+      const token = sessionStorage.getItem('jwt')
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
     }
-  }
+  },
 }
 </script>
 
@@ -292,5 +364,6 @@ export default {
 .map {
   width: 100%;
   height: 400px;
+  z-index: 0; 
 }
 </style>

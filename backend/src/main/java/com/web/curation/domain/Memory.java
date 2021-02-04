@@ -40,4 +40,7 @@ public class Memory {
     @ColumnDefault("50")
     private int radius;
 
+
+
+
 }

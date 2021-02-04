@@ -94,6 +94,7 @@ public class MemoryServiceImpl implements MemoryService{
     public Long deleteMemory(Long memoryId) {
         Memory memory = getMemory(memoryId);
         memoryRepository.delete(memory);
+        memory.getUser().removeMemory(memory);
         return memoryId;
     }
 

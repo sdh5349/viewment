@@ -28,8 +28,10 @@
   </v-row>
     <div v-if="view === 0">
       <Map 
+        v-if="myMemories"
         @onClick="onMemory"
         :goMemoryInfo="goMemoryInfo"
+        :myMemories="myMemories"
       />
     </div>
     <div v-if="view === 1">
@@ -39,6 +41,7 @@
 
     <MemoryDrawer
       @goToMemory="goToMemory"
+      @getMemories="getMemories"
     >
     </MemoryDrawer>
 
@@ -66,6 +69,7 @@ export default {
     return {
       view: 0,
       goMemoryInfo: '',
+      myMemories: ''
     }
   },
   methods: {
@@ -78,10 +82,12 @@ export default {
     onMemory(res) {
 
       if (res){
+        console.log(res)
         const userId = sessionStorage.getItem('uid')
         axios.post(`${SERVER_URL}/users/${userId}/memories`, res, this.getToken)
         .then(()=> {
-
+          alert('이 장소를 기억했습니다.')
+          this.$router.go()
 
         })
         .catch((err)=> {
@@ -94,6 +100,12 @@ export default {
     },
     goToMemory(res) {
       this.goMemoryInfo = res
+    },
+    getMemories(res) {
+      this.myMemories = res
+    },
+    getArticles() {
+
     }
   },
   computed: {

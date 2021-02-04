@@ -15,7 +15,7 @@ import EditAccount from './views/user/EditAccount.vue'
 import CreateArticle from './views/article/CreateArticle.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
 import UpdateArticle from './views/article/UpdateArticle.vue'
-
+import BindArticle from './views/article/BindArticle.vue'
 
 export default [
     {
@@ -115,5 +115,10 @@ export default [
         path : '/article/update/:articleId',
         name : 'UpdateArticle',
         component : UpdateArticle,
+    }, 
+    {
+        path : '/pin/:pinId',
+        name : 'BindArticle',
+        component : BindArticle,
     }, 
 ]

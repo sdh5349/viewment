@@ -10,7 +10,7 @@
       <h1>추억 기록하기(수정)</h1>
 
       <validation-observer ref="observer" v-slot="{ invalid }">
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="mb-5">
   
       
      <v-carousel
@@ -24,8 +24,8 @@
       <v-carousel-item
         v-for="(image, i) in preview"
         :key="i"
-        :src="'${SERVER_URL}/images/'+ image.path">    
-      >
+        :src="SERVER+ '/images/'+ image.path">  
+        
       </v-carousel-item>
     </v-carousel>
   
@@ -95,9 +95,10 @@
         >
           게시물 수정
         </v-btn>
-
+        <br>
 
         </form>
+        
       </validation-observer>
     </v-col>
   </v-row>

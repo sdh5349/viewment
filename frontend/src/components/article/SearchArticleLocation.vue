@@ -1,11 +1,12 @@
 <template>
   <div class="modal">
-    <div class="overlay" @click="$emit('close-modal')"></div>
+    <div class="overlay" @click="$emit('close-modal')" ></div>
     <div class="modal-card">
 
       <v-text-field 
         v-model="address" 
-        label='주소 검색'>
+        label='주소 검색'
+        >
      </v-text-field>
 
       <v-card
@@ -20,7 +21,7 @@
           >
             <v-list-item-avatar>
               <v-icon>
-              mdi-map-marker
+                mdi-map-marker
               </v-icon>
             </v-list-item-avatar>    
             <v-list-item-content>
@@ -84,7 +85,9 @@ export default {
 </script>
 
 <style>
-.modal, 
+.modal {
+  z-index: 10;
+}
 .overlay { 
   width: 100%; 
   height: 100%; 
@@ -94,7 +97,7 @@ export default {
 } 
 .overlay { 
   opacity: 0.5; 
-  background-color: red; 
+  background-color: black; 
 } 
 .modal-card { 
   position: relative; 
@@ -104,7 +107,6 @@ export default {
   padding: 20px; 
   background-color: white; 
   min-height: 300px; 
-  z-index: 10; 
   opacity: 1; 
 }
 </style>

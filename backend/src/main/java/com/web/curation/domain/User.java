@@ -1,6 +1,8 @@
 package com.web.curation.domain;
 
 import com.web.curation.domain.article.Article;
+import com.web.curation.domain.connection.Likes;
+import com.web.curation.domain.reply.Reply;
 import com.web.curation.domain.connection.Follow;
 import com.web.curation.domain.reply.Reply;
 import lombok.Getter;
@@ -74,6 +76,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Reply> replies = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Likes> likes = new ArrayList<>();
+
+
     @OneToOne
     @JoinColumn(name="IMAGE_ID")
     private Image profileImage;
@@ -84,6 +90,21 @@ public class User {
     public void addMemory(Memory memory){
         this.memories.add(memory);
         memory.setUser(this);
+    }
+
+    public void removeMemory(Memory memory){
+        this.memories.remove(memory);
+        memory.setUser(null);
+    }
+
+    public void addLike(Likes like){
+        this.likes.add(like);
+        like.setUser(this);
+    }
+
+    public void removeLike(Likes like){
+        this.likes.remove(like);
+        like.setUser(null);
     }
     
     public void setProfileImage(Image image) {
