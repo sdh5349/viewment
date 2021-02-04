@@ -15,8 +15,6 @@
       md="4"
       sm="6"
     >
-    <h1>프로필</h1>
-
 
     <!-- 프로필 카드 시작 -->
     <v-card
@@ -45,10 +43,9 @@
           <!-- 계정설정 버튼 시작 -->
           <v-btn
             v-if="loginUserId === profileUserId"
-            class="no-background-color bottom-right-position"
+            class="bottom-right-position"
             x-small
-            fab 
-            elevation="0"
+            icon
             @click="onEditAccountButton"
           >
             <v-icon
@@ -216,15 +213,15 @@ export default {
   watch: {
     profileUserId: function() {
       this.loading = true
-      this.dataFetch()
+      this.fetchData()
     }
   },
   created() {
-    this.dataFetch()
+    this.fetchData()
   },
   methods: {
     // 데이터 초기화 메서드
-    dataFetch() {
+    fetchData() {
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
@@ -316,15 +313,10 @@ export default {
     pointer-events: none
   }
 
-/* 배경을 사용하지 않는다 */
-  .no-background-color {
-    background-color: transparent !important;
-  }
-
 /* 계정설정 버튼의 위치를 설정한다 */
   .bottom-right-position {
     position: absolute; 
-    bottom: 0px; 
-    right: 0px;
+    bottom: 0.4rem; 
+    right: 0.4rem;
   }
 </style>

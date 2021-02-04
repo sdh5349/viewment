@@ -33,7 +33,7 @@
                   class="my-0"
                 >
                   <img
-                    src=""
+                    :src="imageServerPrefix + item.profileImage.path"
                   >
                 </v-list-item-avatar>
                 <v-icon
@@ -93,6 +93,7 @@ export default {
       loading: true,
       loginUserId: '',
       followings: [],
+      imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
       size: 200,
       last: false,

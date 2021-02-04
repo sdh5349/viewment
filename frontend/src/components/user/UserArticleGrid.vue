@@ -11,11 +11,11 @@
       <v-hover v-slot="{ hover }">
         <v-scale-transition>
           <v-img
-            :src="serverUrl + article.thumbnail.path"
-            :lazy-src="serverUrl + article.thumbnail.path"
+            :src="imageServerPrefix + article.thumbnail.path"
+            :lazy-src="imageServerPrefix + article.thumbnail.path"
             aspect-ratio="1"
             class="grey lighten-2 image-hover"
-            @click="onArticleThumbnail"
+            @click="onArticleThumbnail(article.articleId)"
           >
 
             <!-- 이미지 요청이 길어지면 뜨는 로딩 창 시작 -->
@@ -40,7 +40,7 @@
                 class="d-flex black lighten-2 reveal white--text text-center"
                 style="height: 100%; font-size: 1.2rem;"
               >
-              {{ article.pin.addressName | truncate(20, '...') }}
+                <span style="white-space: pre-line">{{ article.pin.addressName | truncate(20, '...') }}</span>
               </div>
             </v-expand-transition>
             <!-- 이미지에 위치 정보를 나타내기 위한 트랜지션 끝 -->
@@ -63,9 +63,9 @@ export default {
   filters: {
     truncate: function (text, length, suffix) {
       if (text && text.length > length) {
-        const textList = text.substring(0, length).split(' ')
+        const textArray = text.substring(0, length).split(' ')
         // 20자가 넘으면 공백 기준으로 단어를 자른후 마지막 인덱스만 버린채 문자열로 보여준다.
-        return textList.slice(0,-1).join(' ')
+        return textArray.slice(0,-1).join('\n')
       } else {
         return text;
       }
@@ -77,7 +77,7 @@ export default {
   data() {
     return { 
       articlesInfo: [],
-      serverUrl: `${SERVER_URL}/images/`
+      imageServerPrefix: `${SERVER_URL}/images/`
       // page: 0,
       // size: 20,
     }
@@ -102,14 +102,18 @@ export default {
       // axios.get(`${SERVER_URL}/articles/searchbyuserid/${this.profileUserId}?page=${this.page}&size=${this.size}`, this.getToken)
       axios.get(`${SERVER_URL}/articles/searchbyuserid/${this.profileUserId}`, this.getToken)
       .then(res => {
-        console.log(res.data)
         this.articlesInfo = res.data
       })
       .catch(err => {
       })
     },
-    onArticleThumbnail() {
-      console.log('hi')
+    onArticleThumbnail(articleId) {
+      this.$router.push({ 
+        name: 'DetailArticle', 
+        params: {
+          articleId,
+        }
+      })
     }
   }
 }

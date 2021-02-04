@@ -36,14 +36,12 @@
 
             <!-- 프로필 삭제 버튼 시작 -->
             <v-btn
-              class="no-background-color bottom-right-position"
-              x-small
-              fab 
-              elevation="0"
+              class="bottom-right-position"
+              icon
               @click="onDeleteProfileImageButton"
             >
               <v-icon
-              large
+              x-large
               color="primary"
               >
               mdi-delete-empty-outline
@@ -166,11 +164,11 @@ export default {
     }
   },
   created() {
-    this.dataFetch()
+    this.fetchData()
   },
   methods: {
     // 데이터 초기화 메서드
-    dataFetch() {
+    fetchData() {
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
@@ -260,13 +258,17 @@ export default {
     },
     // 사진 파일을 불러오는 버튼
     onFilePicked (event) {
-      const imageFile = event.target.files[0]
-      if (imageFile) {
+      const imageFile = event.target.files[0] 
+
+      if (imageFile && imageFile.size < 20971520) {
         this.profileImageUrl = URL.createObjectURL(imageFile)
         this.profileImageFile = new FormData()
         this.profileImageFile.append('profileImage', imageFile)
         this.isFileChanged = true
+      } else if (imageFile) {
+        alert("파일 크기는 20MB를 넘길 수 없습니다.")
       }
+
     },
     // 프로필 이미지를 삭제하는 버튼
     onDeleteProfileImageButton () {
@@ -279,11 +281,6 @@ export default {
 </script>
 
 <style scoped>
-/* 배경을 사용하지 않는다 */
-  .no-background-color {
-    background-color: transparent !important;
-  }
-
 /* 프로필 이미지 삭제 버튼의 위치를 설정한다 */
   .bottom-right-position {
     position: absolute; 
