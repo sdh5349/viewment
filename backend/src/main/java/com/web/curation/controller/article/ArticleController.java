@@ -1,15 +1,20 @@
 package com.web.curation.controller.article;
 
+import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleInfoDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.service.article.ArticleService;
 import com.web.curation.service.image.ImageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +25,7 @@ import java.util.List;
  * @date    2021-01-27
  * @author  이주희
  *
- * @변경이력
+ * @변경이력 김종성: 좋아요 기능 추가
  **/
 
 
@@ -83,4 +88,33 @@ public class ArticleController {
         articleService.delete(articleId);
         return ResponseEntity.ok().build();
     }
+
+    /***
+     * 게시글 좋아요
+     */
+    @PostMapping("/{articleId}/like")
+    public ResponseEntity<String> likeArticle(@PathVariable("articleId") Long articleId, Authentication authentication){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
+
+        articleService.like(currentUserId, articleId);
+
+        return ResponseEntity.ok().body("like");
+    }
+
+    @DeleteMapping("/{articleId}/unlike")
+    public ResponseEntity<String> unlikeArticle(@PathVariable("articleId") Long articleId, Authentication authentication){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
+
+        articleService.unlike(currentUserId, articleId);
+
+        return ResponseEntity.ok().body("success");
+    }
+
+    @GetMapping("/{articleId}/like-users")
+    public ResponseEntity<Page<SimpleUserInfoDto>> getLikeUser(@PathVariable("articleId") Long articleId, PageRequest pageable, Authentication authentication){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
+        Page<SimpleUserInfoDto> result = articleService.findLikeUsers(currentUserId, articleId, pageable.of());
+        return ResponseEntity.ok().body(result);
+    }
+
 }

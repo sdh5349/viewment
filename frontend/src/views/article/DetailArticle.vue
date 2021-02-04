@@ -86,8 +86,7 @@
         v-for="(image, i) in articleInfo.images "
         :key="i"
         :src="SERVER + '/images/'+ image.path">    
-      >
-      
+
       </v-carousel-item>
     </v-carousel>
      

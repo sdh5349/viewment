@@ -31,7 +31,7 @@ public class MemoryController {
 
     @ApiOperation(value = "회원의 모든 기억하기 가져오기")
     @GetMapping("/users/{userId}/memories")
-    public ResponseEntity<?> getMemories(@PathVariable("userId") String userId){
+    public ResponseEntity<List<MemoryDto>> getMemories(@PathVariable("userId") String userId){
         List<MemoryDto> memories = memoryService.getMemories(userId);
         return ResponseEntity.ok().body(memories);
     }

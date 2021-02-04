@@ -34,6 +34,8 @@ public class ArticleInfoDto {
     private String contents;
     private String wdate;
 
+    private int likes;
+
     public ArticleInfoDto(Article article){
         this.articleId = article.getArticleId();
         this.user = new SimpleUserInfoDto(article.getUser());
