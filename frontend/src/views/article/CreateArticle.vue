@@ -142,8 +142,9 @@ import firebase from 'firebase/app'
 import { required } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
 import SetLocation from '@/components/article/SetLocation.vue'
-const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+const request = axios.CancelToken.source()
 
 
 
@@ -233,10 +234,10 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-
+      
       axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
-            'X-Authorization-Firebase': sessionStorage.getItem('jwt')
+            'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
           }
       } )
       .then((res) => {
@@ -268,7 +269,7 @@ export default {
         const token = sessionStorage.getItem('jwt')
         const config = {
           headers: {
-            'X-Authorization-Firebase': token
+            'X-Authorization-Firebase': token,
           }
         }
         return config

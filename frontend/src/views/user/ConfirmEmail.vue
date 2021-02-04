@@ -7,7 +7,6 @@
       md="4"
       sm="6"
     >
-      <h1>이메일 인증</h1>
       <validation-observer
         ref="observer"
         v-slot="{ invalid }"

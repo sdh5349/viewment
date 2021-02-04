@@ -1,151 +1,183 @@
 <template>
-  <div v-if="articleInfo">
-    <v-card>
-    <v-container>
-      <v-row>
-        <v-col
-          cols="10"
-          >
-          <v-icon >
-            {{ icons.mdiAccount }}
-          </v-icon>  
-          {{ articleInfo.user.nickname }}
-        </v-col>
-            
-        <v-spacer></v-spacer>
-      
-        <v-col
-          cols="2"
-        >
-          <v-btn icon>
-            <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-          </v-btn>
-
-          <v-navigation-drawer
-            v-model="drawer"
-            absolute
-            bottom
-            temporary
-          >
-            <v-list
-              nav
-              dense
-            >
-              <v-list-item-group
-                v-model="group"
-                active-class="deep-purple--text text--accent-4"
-              >
-                <v-list-item>
-                  <v-list-item-title @click='updateArticle'>수정</v-list-item-title>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-title @click='deleteArticle'>삭제</v-list-item-title>
-                </v-list-item>
-
-              </v-list-item-group>
-            </v-list>
-          </v-navigation-drawer>
-
-    
-
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col
-          cols='3'
-        >
-          <v-icon color="green darken-2">mdi-call-split</v-icon>
-        </v-col>
-
-        <v-col 
-          cols='9'
-        >
-          {{ articleInfo.pin.address }}
-        </v-col>
-           
-      </v-row>
-    </v-container>
-  
-
-
-  <v-card
-    elevation="24"
-    max-width="100%"
-    class="mx-auto"
+  <!-- 데이터 요청이 완료되지 않았다면 로딩화면 시작 -->
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
   >
-    <v-system-bar lights-out></v-system-bar>
-    <v-carousel
-      :show-arrows="false"
-      hide-delimiter-background
-      delimiter-icon="mdi-minus"
-      height="300"
-      mouse-drag = true
-    >
-      <v-carousel-item
-        v-for="(image, i) in articleInfo.images "
-        :key="i"
-        :src="SERVER + '/images/'+ image.path">    
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </v-row>
+  <!-- 데이터 요청이 완료되지 않았다면 로딩화면 끝-->
 
-      </v-carousel-item>
-    </v-carousel>
-     
-           
+
+  <v-row 
+    v-else
+    justify="center"
+    class="scroll-container">
+    <v-col lg="4" md="4" sm="6">
+      
+      <!-- 게시물 헤더 부분 시작 -->
+      <v-list-item
+      >
+        <v-list-item-content>
+          <v-list-item-title>
+            <div class="d-flex justify-space-between">
+              <!-- 사용자 아이콘, 닉네임 시작 -->
+              <div class="text-h6">
+                <v-list-item-avatar
+                  v-if="articleInfo.user.profileImage"
+                  size="36"
+                  class="my-0"
+                >
+                  <img
+                    :src="imageServerPrefix + articleInfo.user.profileImage.path"
+                  >
+                </v-list-item-avatar>
+                <v-icon
+                  v-else
+                  class="mr-4" 
+                  left 
+                  large
+                > 
+                  mdi-account-circle 
+                </v-icon>
+                  {{ articleInfo.user.nickname }}
+              </div>
+              <!-- 사용자 아이콘, 닉네임 끝 -->
+              
+              <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 시작 -->
+              <v-menu transition="scroll-y-transition">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="m-0"
+                    v-bind="attrs"
+                    v-on="on"
+                    icon
+                  >
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list class="py-0">
+                  <v-list-item>
+                    <v-list-item-title @click='updateArticle'>수정</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title @click='deleteArticle'>삭제</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+              <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 끝 -->
+
+            </div>
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <!-- 게시물 헤더 부분 끝 -->
+      
+      <!-- 게시물 작성 시간 시작 -->
+      <p class="text-overline mb-0">{{articleInfo.wdate | dateFormat()}}</p>
+      <!-- 게시물 작성 시간 끝 -->
+      
+      <!-- 디바이더 -->
+      <v-divider class="pb-2"></v-divider>
   
-    <v-card-text>
-      <v-row>
-        <v-col
-          
-          v-for="(hashtag, i) in articleInfo.hashtags"
-          :key="i"
-          
-        >  
-          <v-btn 
-            class="mx-0, px-0"         
-            rounded
-            @click='clickHashtag(hashtag.contents)'
+      <!--  -->
+      <v-card elevation="10">
+        <!-- 위치정보 시작 -->
+        <v-card-title>
+          <v-icon
+            large
+            left
           >
-          #{{ hashtag.contents }}
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-card-text>
-
-    <v-card-text>
-      {{articleInfo.contents}}
-    </v-card-text>
-
-    좋아요 수 스크랩 수
-    <v-divider class="mx-4"></v-divider>
-    
-    
-    <v-divider class="mx-4"></v-divider>
-    <v-row>
-      <v-col>
-        <v-btn>
-          <v-icon>
-            {{ icons.mdiHeart }}
+            mdi-map-marker
           </v-icon>
-        </v-btn>
-      </v-col>
-      <v-col >
-        <v-text-field
-            
-        ></v-text-field>
-      </v-col>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <span 
+                v-if="articleInfo.pin.addressName"
+                v-bind="attrs"
+                v-on="on" 
+                class="text-h6"
+              >{{ articleInfo.pin.addressName | truncate(10, '...')}}</span>
+            </template>
+            <span>{{articleInfo.pin.addressName}}</span>
+          </v-tooltip>
+        </v-card-title>
+        <!-- 위치정보 끝 -->
 
-      <v-col >
-        <v-btn>
-          댓글달기
-        </v-btn>
-      </v-col>
-    </v-row>
+        <!-- 캐러셀 + 좋아요 버튼 시작 -->
+        <div class="relative-container">
+       
+          <!-- 사진을 조회하는 캐러셀 시작 -->
+          <v-carousel 
+            :show-arrows="false" 
+            hide-delimiter-background 
+            delimiter-icon="mdi-minus" 
+            height="300"
+            mouse-drag=true
+          >
+            <v-carousel-item 
+              v-for="(articleImage, idx) in articleInfo.images" 
+              :key="idx" 
+              :src="imageServerPrefix +  articleImage.path">
+            </v-carousel-item>
+          </v-carousel>      
+          <!-- 사진을 조회하는 캐러셀 끝 -->
+          
+          <!-- 좋아요 버튼 시작 -->
+          <v-btn 
+            icon
+            class="bottom-left-position"
+          >        
+            <v-icon v-if="true" x-large>mdi-heart-outline</v-icon>
+            <v-icon v-else x-large color="error">mdi-heart</v-icon>
+          </v-btn>
+          <!-- 좋아요 버튼 시작 -->
+        </div>
+        <!-- 캐러셀 + 좋아요 버튼 끝 -->
+  
+        <v-card-actions>
+          <v-row>
+            <v-col class="x-overflow-container" >
+              <v-chip
+                v-for="(hashtag, i) in articleInfo.hashtags" :key="i"
+                class="mx-1"
+                style="display: inline-block;"
+                label
+                color="primary"
+                @click='clickHashtag(hashtag.contents)'
+              >
+              #{{ hashtag.contents }}
+              </v-chip>
+            </v-col>
+          </v-row>
+        </v-card-actions>
 
+        <v-card-text class="pa-2">
+          {{articleInfo.contents}}
+        </v-card-text>
 
-  </v-card>
-  </v-card>
+        <v-card-text class="pa-1 text-caption">
+          좋아요 <span> {{0}}</span>개  스크랩 <span> {{0}}</span>개
+        </v-card-text>
 
-  </div>
+      <v-divider class="pb-2"></v-divider>
+      </v-card>
+
+      <v-text-field
+        v-model="commentInput"
+        class="bottom-comment-input ma-0 pa-0"
+        label="댓글 달기"
+        outlined
+        hide-details
+      ></v-text-field>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -155,12 +187,31 @@
   } from '@mdi/js'
   import axios from 'axios'
   import UpdateArticleVue from './UpdateArticle.vue'
+
   const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
+  name: 'DatailArticle',
+  filters: {
+    truncate(text, length, suffix) {
+      if (text.length > length) {
+        return text.substring(0, length) + suffix;
+      } else {
+        return text;
+      }
+    },
+    dateFormat(date) {
+      const dateArray = date.split(' ')[0].split('-')
+      return dateArray[0]+'년 '+dateArray[1]+'월 '+ dateArray[2]+'일'
+    },
+  },
+  props: {
+    articleId: [Number, String]
+  },
   data() {
     return{
-      SERVER: process.env.VUE_APP_SERVER_URL,
+      loading: true,
+      imageServerPrefix: `${SERVER_URL}/images/`,
       icons: {
         mdiAccount,
         mdiHeart,
@@ -168,25 +219,43 @@ export default {
       drawer: false,
       group: null,
       // articleId: this.$route.params.articleId,
-      articleId: '',
       articleInfo: '',
     }
   },
+  computed: {
+    getToken(){
+      const token = sessionStorage.getItem('jwt')
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
+  watch: {
+    group () {
+      this.drawer = false
+    },
+  },
+  created() {
+    this.fetchData()
+  },
   methods: {
-    getArticle(){
-
-      this.articleId = this.$route.params.articleId
-      
+    fetchData() {
       axios.get(`${SERVER_URL}/articles/`+ this.articleId, this.getToken)
-      .then((res) => {
-        
+      .then(res => {
         this.articleInfo = res.data
         console.log(this.articleInfo)
-        
+      })
+      .then(() => {
+        this.loading = false
+      })
+      .catch(err => {
+        alert(err)
       })
     },
     updateArticle(){
-      console.log('update')
       this.$router.push({name: 'UpdateArticle', params: {
         articleId: this.articleId,
         hashtagArray: this.articleInfo.hashtags,
@@ -209,28 +278,42 @@ export default {
       }})
     }
   },
-  watch: {
-    group () {
-      this.drawer = false
-    },
-  },
-  created() {
-    this.getArticle()
-  },
-  computed: {
-    getToken(){
-      const token = sessionStorage.getItem('jwt')
-      const config = {
-        headers: {
-          'X-Authorization-Firebase': token
-        }
-      }
-      return config
-    }
-  },
 }
 </script>
 
-<style>
+<style scoped>
+/* 가로로 컨텐츠가 넘칠 땐 다음 컨테이너로 가로 스크롤을 사용한다 */
+.x-overflow-container {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
 
+/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
+.scroll-container {
+  height: 100%;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
+
+/* 계정설정 버튼의 위치를 설정한다 */
+.bottom-left-position {
+  position: absolute; 
+  bottom: 0.4rem; 
+  left: 0.4rem;
+  z-index: 1;
+}
+
+.relative-container {
+  position: relative
+}
+
+.bottom-comment-input {
+  position: fixed;
+  bottom: 2px;
+  left: 0;
+  background: white;
+  width: 100%;
+  z-index: 5;
+}
 </style>
