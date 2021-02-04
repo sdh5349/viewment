@@ -92,6 +92,11 @@ public class User {
         memory.setUser(this);
     }
 
+    public void removeMemory(Memory memory){
+        this.memories.remove(memory);
+        memory.setUser(null);
+    }
+
     public void addLike(Likes like){
         this.likes.add(like);
         like.setUser(this);

@@ -7,7 +7,6 @@
         md="4"
         sm="6"
     >
-      <h1>가입하기</h1>
       <validation-observer ref="observer" v-slot="{ invalid }">
         <form @submit.prevent="submit">
           <validation-provider rules="required|email" v-slot="{ errors }">

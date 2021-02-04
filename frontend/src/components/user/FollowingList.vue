@@ -1,14 +1,21 @@
 <template>
-  <div v-if="loading" class="d-flex justify-center align-center">
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
     <v-progress-circular
       indeterminate
       color="primary"
     ></v-progress-circular>
-  </div>
+  </v-row>
   <v-virtual-scroll
     v-else
     :items="followings"
     :item-height="50"
+    class="scroll-container"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
@@ -26,7 +33,7 @@
                   class="my-0"
                 >
                   <img
-                    src=""
+                    :src="imageServerPrefix + item.profileImage.path"
                   >
                 </v-list-item-avatar>
                 <v-icon
@@ -42,7 +49,7 @@
               </div>
               <!-- 팔로우/언팔로우 버튼 시작 -->
               <v-btn
-                v-if="item.followed"
+                v-if="item.followed && item.userId !== loginUserId"
                 small 
                 class="align-self-center px-0"
                 width="55"
@@ -52,7 +59,7 @@
                 언팔로우
               </v-btn>
               <v-btn
-                v-else
+                v-else-if="item.userId !== loginUserId"
                 small 
                 class="align-self-center px-0" 
                 width="55"
@@ -86,6 +93,7 @@ export default {
       loading: true,
       loginUserId: '',
       followings: [],
+      imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
       size: 200,
       last: false,
@@ -119,6 +127,8 @@ export default {
         this.followings.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+      })
+      .then(() => {
         this.loading = false
       })
       .catch(err => {

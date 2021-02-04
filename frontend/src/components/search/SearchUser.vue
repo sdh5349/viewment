@@ -5,8 +5,8 @@
   >
     <v-list>
       <v-list-item
-        v-for="user in nickname.slice(0,9)"
-        :key="user.content.nickname"
+        v-for="user in users.slice(0,9)"
+        :key="user.nickname"
       >
         <v-list-item-avatar>
           <v-img
@@ -37,12 +37,15 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   data() {
     return {
-     nickname: [],
+     users: [],
     }
   },
   props: {
     search : {
       type: String,
+    },
+    onTab : {
+      type: Number,
     }
   },
   computed: {
@@ -58,11 +61,12 @@ export default {
     }
   },
   methods: {
-    getUsers(nickname) {
-      console.log(this.getToken)
-      axios.get(`${SERVER_URL}/users/like/${nickname}`, this.getToken)
+    getUsers() {
+      axios.get(`${SERVER_URL}/users/like/${this.search}`, this.getToken)
         .then((res) => {
-        console.log(res)        
+        console.log(res)     
+        console.log("성공")  
+        this.users = res.data
         })
         .catch((err)=> {
           alert('error'+err.message)
@@ -70,8 +74,19 @@ export default {
     },
   },
   watch: {
-    search: function(res) {
-      this.getUsers(res)
+    search: function() {
+      console.log("유저a")
+      if(this.onTab===3){
+        this.getUsers()
+        
+      }
+
+    },
+    onTab: function() {
+      console.log("유저b")
+      if(this.onTab===3){
+        this.getUsers()
+      }
     }
   },
 }

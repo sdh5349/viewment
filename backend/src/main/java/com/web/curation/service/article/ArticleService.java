@@ -221,9 +221,11 @@ public class ArticleService {
         User user = getUser(userId);
         Article article = getArticle(articleId);
 
-        likeRepository.delete(like);
         user.removeLike(like);
         article.removeLike(like);
+
+        likeRepository.delete(like);
+
     }
 
     public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable) {
