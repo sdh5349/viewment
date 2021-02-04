@@ -14,6 +14,7 @@
       >
         {{searchLabel}}
       </template>
+
     </v-text-field>
   </v-row>
   <!-- 탭 -->
@@ -33,18 +34,16 @@
   <!-- 탭-컴포넌트 -->
     <v-tabs-items
       v-model="onTab"
-      continuous
-      default
     >
       <v-tab-item
         v-for="tabItem in tabItems"
         :key="tabItem.tabId"
-        disabled
       >
         <v-card flat>
           <component 
             v-bind:is="tabItem.content"
-            :search=search
+            :search="search"
+            :onTab="onTab"
           ></component>
         </v-card>
       </v-tab-item>
@@ -73,16 +72,21 @@ export default {
       search: null,
       onTab: null,
       tabItems: [
-        { tabId: 0, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
-        { tabId: 1, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
-        { tabId: 2, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
+        { tabId: 0, tabName: 'record', icon: 'mdi-heart', content: 'SearchRecord', searchLabel: "Search"},
+        { tabId: 1, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
+        { tabId: 2, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
+        { tabId: 3, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
       ],
     }
   },
   methods: {
     onSearch(res) {
-      this.search = res
-      // console.log(this.search)
+        this.search = res
+    }
+  },
+  watch: {
+    onTab: function() {
+      console.log(this.onTab)
     }
   }
 }
