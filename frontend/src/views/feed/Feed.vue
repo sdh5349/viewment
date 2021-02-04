@@ -103,7 +103,9 @@ export default {
     },
     getMemories(res) {
       this.myMemories = res
-      
+    },
+    getArticles() {
+
     }
   },
   computed: {
