@@ -4,8 +4,9 @@ import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.article.FeedArticleDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.service.article.ArticleService;
 import com.web.curation.service.image.ImageService;
 import io.swagger.annotations.Api;
@@ -26,6 +27,7 @@ import java.util.List;
  * @author  이주희
  *
  * @변경이력 김종성: 좋아요 기능 추가
+ * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
  **/
 
 
@@ -73,6 +75,20 @@ public class ArticleController {
     public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag) {
         List<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag);
         return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
+    @ApiOperation(value = "기본 피드 게시글 조회 - 노출 정도 설정 가능")
+    @GetMapping("/forfeed")
+    public ResponseEntity<?> getArticlesForFeed(FeedArticleDto feedArticleDto) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(feedArticleDto);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지")
+    @GetMapping("/pins")
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+        return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
     @ApiOperation(value = "게시글 수정", notes = "contents, hashtags만 수정 가능 \n articleId, contents, hashtags, userId, pinId 필수")

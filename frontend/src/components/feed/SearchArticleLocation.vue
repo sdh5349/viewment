@@ -107,6 +107,7 @@ export default {
   padding: 20px; 
   background-color: white; 
   min-height: 300px; 
+  z-index: 10; 
   opacity: 1; 
 }
 </style>

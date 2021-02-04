@@ -5,8 +5,8 @@ import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.connection.Follow;
 import com.web.curation.domain.connection.Likes;
+import com.web.curation.dto.article.FeedArticleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
-import com.web.curation.domain.article.ArticleImage;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
@@ -21,6 +21,7 @@ import com.web.curation.repository.hashtag.HashtagRepository;
 import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.pin.PinRepository;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * com.web.curation.service.article
@@ -37,6 +39,7 @@ import java.util.List;
  * @date 2021-01-26 오전 11:02
  * @변경이력 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
  * @변경이력 김종성: like, unlike 기능 추가
+ * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
  **/
 
 @Service
@@ -56,9 +59,7 @@ public class ArticleService {
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
 
-        User user = userRepository.findById(articleDto.getUserId()).orElseThrow(
-                ()->{ throw new UserNotFoundException(); }
-        );
+        User user = getUser(articleDto.getUserId());
         article.setUser(user);
 
         setData(articleDto, article);
@@ -70,11 +71,7 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public ArticleInfoDto findByArticleId(Long articleId) {
-        Article article = articleRepository.findById(articleId).orElseThrow(
-                () -> {
-                    throw new ElementNotFoundException("Article", articleId.toString());
-                }
-        );
+        Article article = getArticle(articleId);
 
         int likes = likeRepository.countByArticle(article).intValue();
 
@@ -103,13 +100,52 @@ public class ArticleService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> getArticlesForFeed(FeedArticleDto feedArticleDto) {
+        List<Article> articles = new ArrayList<>();
+
+        User user = getUser(feedArticleDto.getUserId());
+
+        if (feedArticleDto.isIncludeMine()) {
+            articles.addAll(user.getArticles());
+        }
+        if (feedArticleDto.isIncludeFollowings()) {
+            List<Follow> followings = followRepository.findByFrom(user);
+            for (int i = 0; i < followings.size(); i++) {
+                articles.addAll(followings.get(i).getTo().getArticles());
+            }
+        }
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
+                    Point point = article.getPin().getLocation();
+                    dto.setDistance(calcDistance(feedArticleDto.getLat(), feedArticleDto.getLng(), point.getY(), point.getX()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds) {
+        List<Article> articles = new ArrayList<>();
+        for (int i = 0; i < pinIds.length; i++) {
+            Pin pin = getPin(pinIds[i]);
+            articles.addAll(pin.getArticles());
+        }
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
     public Long modify(ArticleDto articleDto) {
 
-        Article article = articleRepository.findById(articleDto.getArticleId()).orElseThrow(
-                () -> {
-                    throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
-                }
-        );
+        Article article = getArticle(articleDto.getArticleId());
 
         article.resetPin();
         article.resetHashtag();
@@ -119,11 +155,7 @@ public class ArticleService {
     }
 
     public void delete(Long articleId) {
-        Article findArticle = articleRepository.findById(articleId).orElseThrow(
-                () -> {
-                    throw new ElementNotFoundException("article", articleId.toString());
-                }
-        );
+        Article findArticle = getArticle(articleId);
         findArticle.resetHashtag();
         findArticle.getUser().getArticles().remove(findArticle);
         articleRepository.delete(findArticle);
@@ -132,21 +164,13 @@ public class ArticleService {
     public void setData(ArticleDto articleDto, Article article) {
         Pin pin = null;
         if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
-            pin = pinRepository.findById(articleDto.getPinId()).orElseThrow(
-                    () -> {
-                        throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
-                    }
-            );
+            pin = getPin(articleDto.getPinId());
         } else {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             newPin.setAddress(articleDto.getAddressName());
             Long savedPinId = pinRepository.save(newPin).getPinId();
-            pin = pinRepository.findById(savedPinId).orElseThrow(
-                    () -> {
-                        throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
-                    }
-            );
+            pin = getPin(savedPinId);
         }
         article.setPin(pin);
 
@@ -172,7 +196,7 @@ public class ArticleService {
      */
 
     @Transactional
-    public void like(String userId, Long articleId){
+    public void like(String userId, Long articleId) {
         User user = getUser(userId);
         Article article = getArticle(articleId);
 
@@ -187,9 +211,11 @@ public class ArticleService {
     }
 
     @Transactional
-    public void unlike(String userId, Long articleId){
+    public void unlike(String userId, Long articleId) {
         Likes like = likeRepository.findByUserIdAndArticleId(userId, articleId).orElseThrow(
-                ()->{throw new ElementNotFoundException("User, Article", "userId "+articleId.toString());}
+                () -> {
+                    throw new ElementNotFoundException("User, Article", "userId " + articleId.toString());
+                }
         );
 
         User user = getUser(userId);
@@ -202,29 +228,73 @@ public class ArticleService {
 
     }
 
-    public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable){
+    public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable) {
         User currentUser = getUser(currentUserId);
         Article article = getArticle(articleId);
         List<Follow> follows = followRepository.findByFrom(currentUser);
 
         Page<SimpleUserInfoDto> result = likeRepository.findByArticle(article, pageable).map(
-                (like) -> {return new SimpleUserInfoDto(like.getUser(), follows.contains(like.getUser()));}
+                (like) -> {
+                    return new SimpleUserInfoDto(like.getUser(), follows.contains(like.getUser()));
+                }
         );
         return result;
     }
 
-    private User getUser(String userId){
+    /**
+     * 거리 계산 메소드
+     */
+
+    public double calcDistance(double srcLat, double srcLng, double destLat, double destLng) {
+        double theta = srcLng - destLng;
+        double dist = Math.sin(deg2rad(srcLat)) * Math.sin(deg2rad(destLat))
+                + Math.cos(deg2rad(srcLat)) * Math.cos(deg2rad(srcLat)) * Math.cos(deg2rad(theta));
+
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+
+        dist = dist * 1.609344;
+
+        return dist;
+    }
+
+    // This function converts decimal degrees to radians
+    private double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    // This function converts radians to decimal degrees
+    private double rad2deg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+
+
+    private User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                ()->{throw new UserNotFoundException();}
+                () -> {
+                    throw new UserNotFoundException();
+                }
         );
         return user;
     }
 
-    private Article getArticle(Long articleId){
+    private Article getArticle(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(
-                () -> { throw new ElementNotFoundException("article", articleId.toString()); }
+                () -> {
+                    throw new ElementNotFoundException("article", articleId.toString());
+                }
         );
         return article;
+    }
+
+    private Pin getPin(Long pinId) {
+        Pin pin = pinRepository.findById(pinId).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Pin", pinId.toString());
+                }
+        );
+        return pin;
     }
 
 }

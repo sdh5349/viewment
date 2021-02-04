@@ -29,6 +29,7 @@ public class ArticleSimpleDto {
     private PinDto pin;
     private ImageDto thumbnail;
     private String wdate;
+    private double distance;
 
     public ArticleSimpleDto(Article article){
         this.articleId = article.getArticleId();
