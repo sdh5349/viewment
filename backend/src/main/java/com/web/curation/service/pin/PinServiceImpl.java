@@ -1,7 +1,7 @@
 package com.web.curation.service.pin;
 
 import com.web.curation.domain.Pin;
-import com.web.curation.dto.PinDto;
+import com.web.curation.dto.pin.PinDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.repository.pin.PinRepository;
 import lombok.RequiredArgsConstructor;

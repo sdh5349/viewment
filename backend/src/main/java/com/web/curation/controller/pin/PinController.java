@@ -1,6 +1,6 @@
 package com.web.curation.controller.pin;
 
-import com.web.curation.dto.PinDto;
+import com.web.curation.dto.pin.PinDto;
 import com.web.curation.service.pin.PinService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

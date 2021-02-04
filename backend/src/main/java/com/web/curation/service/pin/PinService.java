@@ -1,6 +1,7 @@
 package com.web.curation.service.pin;
 
-import com.web.curation.dto.PinDto;
+
+import com.web.curation.dto.pin.PinDto;
 
 import java.util.List;
 

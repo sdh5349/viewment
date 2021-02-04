@@ -92,6 +92,7 @@ public class ArticleController {
     /***
      * 게시글 좋아요
      */
+    @ApiOperation(value = "게시글 좋아요")
     @PostMapping("/{articleId}/like")
     public ResponseEntity<String> likeArticle(@PathVariable("articleId") Long articleId, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
@@ -101,6 +102,7 @@ public class ArticleController {
         return ResponseEntity.ok().body("like");
     }
 
+    @ApiOperation(value = "게시글 좋아요 취소")
     @DeleteMapping("/{articleId}/unlike")
     public ResponseEntity<String> unlikeArticle(@PathVariable("articleId") Long articleId, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
@@ -110,6 +112,7 @@ public class ArticleController {
         return ResponseEntity.ok().body("success");
     }
 
+    @ApiOperation(value = "게시글 좋아요 누른 회원")
     @GetMapping("/{articleId}/like-users")
     public ResponseEntity<Page<SimpleUserInfoDto>> getLikeUser(@PathVariable("articleId") Long articleId, PageRequest pageable, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
