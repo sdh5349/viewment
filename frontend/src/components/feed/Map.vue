@@ -211,7 +211,7 @@ export default {
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       for (var i = 0; i < self.myMemories.length; i ++) {
         
-        self.position = new kakao.maps.LatLng(self.myMemories[i].lng, self.myMemories[i].lat)
+        self.position = new kakao.maps.LatLng(self.myMemories[i].lat, self.myMemories[i].lng)
         var marker = new kakao.maps.Marker({
             map: self.map, 
             position: self.position,
