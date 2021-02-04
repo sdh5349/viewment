@@ -105,4 +105,8 @@ public class Article {
     public void resetHashtag() {
         hashtags.clear();
     }
+
+    public void resetUser() {
+        user = null;
+    }
 }
