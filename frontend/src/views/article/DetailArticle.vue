@@ -87,6 +87,7 @@
         :key="i"
         :src="SERVER + '/images/'+ image.path">    
       >
+      
       </v-carousel-item>
     </v-carousel>
      
