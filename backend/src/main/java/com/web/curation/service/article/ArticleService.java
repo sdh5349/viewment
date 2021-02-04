@@ -157,6 +157,7 @@ public class ArticleService {
     public void delete(Long articleId) {
         Article findArticle = getArticle(articleId);
         findArticle.resetHashtag();
+        findArticle.resetUser();
         articleRepository.delete(findArticle);
     }
 
