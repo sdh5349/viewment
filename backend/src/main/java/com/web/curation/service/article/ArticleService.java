@@ -100,6 +100,49 @@ public class ArticleService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> getArticlesForFeed(FeedArticleDto feedArticleDto) {
+        List<Article> articles = new ArrayList<>();
+
+        User user = getUser(feedArticleDto.getUserId());
+
+        if (feedArticleDto.isIncludeMine()) {
+            articles.addAll(user.getArticles());
+        }
+        if (feedArticleDto.isIncludeFollowings()) {
+            List<Follow> followings = followRepository.findByFrom(user);
+            for (int i = 0; i < followings.size(); i++) {
+                articles.addAll(followings.get(i).getTo().getArticles());
+            }
+        }
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
+                    Point point = article.getPin().getLocation();
+                    dto.setDistance(calcDistance(feedArticleDto.getLat(), feedArticleDto.getLng(), point.getY(), point.getX()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds) {
+        List<Article> articles = new ArrayList<>();
+        for (int i = 0; i < pinIds.length; i++) {
+            Pin pin = getPin(pinIds[i]);
+            articles.addAll(pin.getArticles());
+        }
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
     public Long modify(ArticleDto articleDto) {
 
         Article article = getArticle(articleDto.getArticleId());
@@ -120,21 +163,13 @@ public class ArticleService {
     public void setData(ArticleDto articleDto, Article article) {
         Pin pin = null;
         if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
-            pin = pinRepository.findById(articleDto.getPinId()).orElseThrow(
-                    () -> {
-                        throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
-                    }
-            );
+            pin = getPin(articleDto.getPinId());
         } else {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             newPin.setAddress(articleDto.getAddressName());
             Long savedPinId = pinRepository.save(newPin).getPinId();
-            pin = pinRepository.findById(savedPinId).orElseThrow(
-                    () -> {
-                        throw new ElementNotFoundException("Pin", articleDto.getPinId().toString());
-                    }
-            );
+            pin = getPin(savedPinId);
         }
         article.setPin(pin);
 
@@ -203,49 +238,9 @@ public class ArticleService {
         return result;
     }
 
-    private User getUser(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> {
-                    throw new UserNotFoundException();
-                }
-        );
-        return user;
-    }
-
-    private Article getArticle(Long articleId) {
-        Article article = articleRepository.findById(articleId).orElseThrow(
-                () -> {
-                    throw new ElementNotFoundException("article", articleId.toString());
-                }
-        );
-        return article;
-    }
-
-    public List<ArticleSimpleDto> getArticlesForFeed(FeedArticleDto feedArticleDto) {
-        List<Article> articles = new ArrayList<>();
-
-        User user = getUser(feedArticleDto.getUserId());
-
-        if (feedArticleDto.isIncludeMine()) {
-            articles.addAll(user.getArticles());
-        }
-        if (feedArticleDto.isIncludeFollowings()) {
-            List<Follow> followings = followRepository.findByFrom(user);
-            for (int i = 0; i < followings.size(); i++) {
-                articles.addAll(followings.get(i).getTo().getArticles());
-            }
-        }
-
-        List<ArticleSimpleDto> result = articles.stream()
-                .map(article -> {
-                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
-                    Point point = article.getPin().getLocation();
-                    dto.setDistance(calcDistance(feedArticleDto.getLat(), feedArticleDto.getLng(), point.getY(), point.getX()));
-                    return dto;
-                })
-                .collect(Collectors.toList());
-        return result;
-    }
+    /**
+     * 거리 계산 메소드
+     */
 
     public double calcDistance(double srcLat, double srcLng, double destLat, double destLng) {
         double theta = srcLng - destLng;
@@ -270,4 +265,33 @@ public class ArticleService {
     private double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
+
+
+    private User getUser(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> {
+                    throw new UserNotFoundException();
+                }
+        );
+        return user;
+    }
+
+    private Article getArticle(Long articleId) {
+        Article article = articleRepository.findById(articleId).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("article", articleId.toString());
+                }
+        );
+        return article;
+    }
+
+    private Pin getPin(Long pinId) {
+        Pin pin = pinRepository.findById(pinId).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Pin", pinId.toString());
+                }
+        );
+        return pin;
+    }
+
 }
