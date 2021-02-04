@@ -79,8 +79,15 @@ public class ArticleController {
 
     @ApiOperation(value = "기본 피드 게시글 조회 - 노출 정도 설정 가능")
     @GetMapping("/forfeed")
-    public ResponseEntity<?> getPinsForMap(FeedArticleDto feedArticleDto) {
+    public ResponseEntity<?> getArticlesForFeed(FeedArticleDto feedArticleDto) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(feedArticleDto);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지")
+    @GetMapping("/pins")
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
