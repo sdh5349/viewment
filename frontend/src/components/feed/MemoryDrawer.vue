@@ -1,11 +1,12 @@
 <template>
   
   <v-sheet
-    height="400"
-    class="overflow-hidden"
-    style="position: relative;"
+    absolute
+    height="100"
   >
-    <v-container>
+    <v-container
+    
+    >
       <v-row
         align="center"
         justify="center"
@@ -14,6 +15,7 @@
           color="pink"
           dark
           @click.stop="drawer = !drawer"
+          block
         >
           ^
         </v-btn>
@@ -22,9 +24,10 @@
 
     <v-navigation-drawer
       v-model="drawer"
-      absolute
-      temporary
       bottom
+      class="memoryDrawer"
+      height="400px"
+      hide-overlay
     >
 
 
@@ -34,7 +37,6 @@
         <v-list-item
           v-for="memory in memories"
           :key="memory.memoryId"
-          link
         >
           <v-list-item-icon>
             <v-icon>
@@ -52,6 +54,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+    
   </v-sheet>
 </template>
 
@@ -98,5 +101,9 @@ export default {
 </script>
 
 <style>
-
+.memoryDrawer{
+  z-index: 10;
+  position: absolute;
+  
+}
 </style>

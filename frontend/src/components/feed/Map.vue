@@ -1,78 +1,86 @@
 <template>
   <div>
-    <v-text-field 
-      @click='searchLocationModal' 
-      v-model="address" 
-      label='주소 검색'
-      >
-    </v-text-field>
+    <v-container>
+      <v-row >
+        <v-col cols='12'>
+          <v-text-field 
+            @click='searchLocationModal' 
+            v-model="address" 
+            label='주소 검색'
+            >
+          </v-text-field>
+        </v-col>
+        
+        <v-col cols="12">
+          <SearchArticleLocation
+            v-if="is_show"
+            @close-modal="is_show=false"
+            @goSetLocation="searchAddress"
+          ></SearchArticleLocation>
+        </v-col>
 
-    <SearchArticleLocation
-      v-if="is_show"
-      @close-modal="is_show=false"
-      @goSetLocation="searchAddress"
-      >
-    </SearchArticleLocation>
+        <v-col cols='12' >
+          <v-btn 
+            v-if="is_articles===false"
+            block 
+            @click='articleMarkers'
+            color="primary"
+          >게시물 받아오기</v-btn>          
+        </v-col>
+    </v-row>
 
-    <v-btn @click='articleMarkers'>게시물 받아오기</v-btn>
-
-    <v-row>
-
-      <v-col
-        col-2
-      >
-        <v-btn 
-          fab
-        > 
+    <v-row     
+      justify="space-around"
+    >
+      <v-col cols='4' align="center">
+        <v-btn icon color="black"> 
           <v-icon>
             mdi-cog-outline
           </v-icon>
         </v-btn>
       </v-col>
 
-      <v-col>
-        <v-btn 
-          @click="moveLocation"
-          fab
-          
-        > 
+      <v-col cols='4' align="center">
+        <v-btn icon color="primary" @click="moveLocation" > 
           <v-icon>
             mdi-apple-safari
           </v-icon>
         </v-btn>
       </v-col>
       
-      <v-col>
-        <v-btn 
-          @click="checkMemory"
-          fab  
-        > 
+      <v-col cols='4' align="center">
+        <v-btn icon color="black" @click="[checkMemory, loader='loading']"> 
           <v-icon>
             mdi-pin
           </v-icon>
         </v-btn>
       </v-col>
-
     </v-row>
 
-    <!-- <div> v-if="articles != ''"> -->
-      <div id="map" class="map"></div>
-    <!-- </div> -->
 
-    <div id="result"></div>
-    <v-btn @click="markerCheck(position)">기억 완료</v-btn>
+      <div 
+        id="map" 
+        class="map"
+        >
+      </div>
+
+    <v-btn 
+      v-if="markerInfo != ''" 
+      @click="markerCheck(position)"
+      block
+      color="primary"
+      >
+      기억 완료
+    </v-btn>
     <MemoryLocation
       v-if="is_Memoryshow"
       @close-Memorymodal="is_Memoryshow=false"
       @onMemory='saveMemory'
       >
-
     </MemoryLocation>
     
-
-
-
-
+      
+    </v-container>
   </div>
 </template>
 
@@ -107,6 +115,7 @@ export default {
       checkMemoryState: false,
       is_infowindow: false,
       articles: '',
+      is_articles: false,
     }
   },
   mounted() {
@@ -263,6 +272,7 @@ export default {
     },
     articleMarkers() {
       const self = this
+      self.is_articles = !self.is_articles
 
       const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
       const imageSize = new kakao.maps.Size(24, 35)
@@ -331,20 +341,6 @@ export default {
     goMemoryInfo: function () {
       this.moveMemory()
     },
-    // markers: function () {
-      
-    //   for (var i = 0; i < 3; i++) {
-        
-
-    //     // console.log(this.markers[i].Fb)
-    //     // var infowindow = new kakao.maps.InfoWindow({
-    //     // content: this.markers[i].Fb // 인포윈도우에 표시할 내용
-    //     // }
-    //     // this.markers[i].setMap(this.map)
-    //   }
-
-      
-    // }
   },
   computed: {
     getToken(){
@@ -364,6 +360,7 @@ export default {
 .map {
   width: 100%;
   height: 400px;
-  z-index: 0; 
+  z-index: 0;
+  /* position: absolute;  */
 }
 </style>
