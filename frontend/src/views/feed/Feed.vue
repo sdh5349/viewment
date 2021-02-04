@@ -1,55 +1,52 @@
 <template>
-  <v-container>
-  
-  <v-row
-    justify="center"
-    row wrap
-  > 
-    <v-tabs
-      fixed-tabs
-      color="cyan"
-    >
-      <v-tab
-        @click="goMap"
-      >
-        <v-icon>
-          mdi-map
-        </v-icon>
-      </v-tab>
-      <v-tab
-        @click="goFeed"
-      >
-        <v-icon>
-          mdi-post
-        </v-icon>
-      </v-tab>
-    </v-tabs>
+  <div>
+    <v-app>
+      <v-container>
 
-  </v-row>
-    <div v-if="view === 0">
-      <Map 
-        v-if="myMemories"
-        @onClick="onMemory"
-        :goMemoryInfo="goMemoryInfo"
-        :myMemories="myMemories"
-      />
-    </div>
-    <div v-if="view === 1">
-      <Feed />
-    </div>
+        <v-row>
+          
+          <v-tabs 
+            fixed-tabs
+            color="primary"
+          >
+            <v-col cols='6'>
+              <v-tab @click="goMap">
+                <v-icon>mdi-map</v-icon>
+              </v-tab>
+            </v-col>
+            
+            <v-col cols='6'>
+              <v-tab @click="goFeed">
+                  <v-icon>mdi-post</v-icon>
+              </v-tab>
+            </v-col>
+          </v-tabs>
+        
+          <v-col cols='12'>
+            <div v-if="view === 0">
+              <Map 
+                v-if="myMemories"
+                @onClick="onMemory"
+                :goMemoryInfo="goMemoryInfo"
+                :myMemories="myMemories"
+              />
+            </div>
+            <div v-if="view === 1">
+              <Feed />
+            </div>
+          </v-col>
 
-
-    <MemoryDrawer
-      @goToMemory="goToMemory"
-      @getMemories="getMemories"
-    >
-    </MemoryDrawer>
-
-
-
-
-
-</v-container>
+          <v-col cols='12'>
+            <MemoryDrawer
+              @goToMemory="goToMemory"
+              @getMemories="getMemories"
+            >
+            </MemoryDrawer>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-app>
+  </div>
 </template>
 
 <script>
