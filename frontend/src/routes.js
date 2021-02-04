@@ -112,6 +112,7 @@ export default [
         path : '/article/:articleId',
         name : 'DetailArticle',
         component : DetailArticle,
+        props: true,
     }, 
     {
         path : '/article/update/:articleId',

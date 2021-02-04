@@ -1,10 +1,16 @@
 <template>
-  <div v-if="loading" class="d-flex justify-center align-center">
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
     <v-progress-circular
       indeterminate
       color="primary"
     ></v-progress-circular>
-  </div>
+  </v-row>
   <v-virtual-scroll
     v-else
     :items="followers"
@@ -27,7 +33,7 @@
                   class="my-0"
                 >
                   <img
-                    src=""
+                    :src="imageServerPrefix + item.profileImage.path"
                   >
                 </v-list-item-avatar>
                 <v-icon
@@ -54,7 +60,7 @@
                 삭제
               </v-btn>
               <v-btn
-                v-else-if="item.followed"
+                v-else-if="item.followed && item.userId !== loginUserId"
                 small 
                 class="align-self-center px-0"
                 width="55"  
@@ -64,7 +70,7 @@
                 언팔로우
               </v-btn>
               <v-btn
-                v-else
+                v-else-if="item.userId !== loginUserId"
                 small 
                 class="align-self-center px-0"
                 width="55"
@@ -98,6 +104,7 @@ export default {
       loading: true,
       loginUserId: '',
       followers: [],
+      imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
       size: 200,
       last: false,
@@ -131,6 +138,8 @@ export default {
         this.followers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+      })
+      .then(() => {
         this.loading = false
       })
       .catch(err => {

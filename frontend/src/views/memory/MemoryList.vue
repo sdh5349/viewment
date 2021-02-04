@@ -1,5 +1,18 @@
 <template>
   <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </v-row>
+  <v-row
+    v-else
     justify="center"
   >
     <v-col
@@ -94,9 +107,7 @@ export default {
     }
   },
   created() {
-    // this.fetchData()
-    this.loginUserId = sessionStorage.getItem('uid')
-    console.log()
+    this.fetchData()
   },
   methods: {
     // 현재 프로필 사용자의 메모리 정보를 원하는 갯수 만큼 요청하는 메서드
@@ -108,6 +119,7 @@ export default {
         this.memories = res.data
       })
       .then(res => {
+        this.loginUserId = sessionStorage.getItem('uid')
         this.loading = false
       })
       .catch(err => {
@@ -137,7 +149,7 @@ export default {
       if (confirm("삭제하시겠습니까?")) {
         axios.delete(`${SERVER_URL}/memories/${targetMemory.memoryId}`, this.getToken)
         .then(() => {
-        const targetMemoryIdx = this.followers.indexOf(targetMemory)
+        const targetMemoryIdx = this.memories.indexOf(targetMemory)
         this.memories.splice(targetMemoryIdx, 1)
         })
         .catch(err => {

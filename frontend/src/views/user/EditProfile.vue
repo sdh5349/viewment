@@ -36,14 +36,12 @@
 
             <!-- 프로필 삭제 버튼 시작 -->
             <v-btn
-              class="no-background-color bottom-right-position"
-              x-small
-              fab 
-              elevation="0"
+              class="bottom-right-position"
+              icon
               @click="onDeleteProfileImageButton"
             >
               <v-icon
-              large
+              x-large
               color="primary"
               >
               mdi-delete-empty-outline
@@ -166,10 +164,11 @@ export default {
     }
   },
   created() {
-    this.dataFetch()
+    this.fetchData()
   },
   methods: {
-    dataFetch() {
+    // 데이터 초기화 메서드
+    fetchData() {
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
@@ -192,6 +191,7 @@ export default {
         // self.$router.push({ name: 'Error' })
       })
     },
+    // 프로필 변경사항 서버 전달 메서드
     submit () {
       this.$refs.observer.validate()
       
@@ -218,7 +218,6 @@ export default {
           if (this.profileUserInfo.profileImage) {
             axios.put(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.profileImageFile, config)
             .then(() => {
-              alert("put 완료")
             })
             .catch(err => {
               console.log(err)
@@ -227,7 +226,6 @@ export default {
           } else {
             axios.post(`${SERVER_URL}/images/profile/${this.profileUserId}`, this.profileImageFile, config)
             .then(() => {
-              alert("post 완료")
             })
             .catch(err => {
             })
@@ -238,31 +236,41 @@ export default {
           if (this.profileUserInfo.profileImage && this.profileImageUrl === null) {
             axios.delete(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
             .then(() => {
-              alert("delete 완료")
             })
             .catch(err => {
             })
           }
         }
       })
+      .then(() => {
+        // 정상적으로 사진까지 업로드가 완료 되었으면 프로필 화면으로 돌아간다.
+        this.$router.push({ 
+          name: 'Profile', 
+          params: { profileUserId : this.profileUserId }
+        })
+      })
       .catch(err => {
       })
     },
+    // 사진 파일을 불러오는 버튼
     onPickFile () {
-      console.log("동작하냐")
       this.$refs.fileInput.click()
     },
+    // 사진 파일을 불러오는 버튼
     onFilePicked (event) {
-      const imageFile = event.target.files[0]
-      console.log("동작하냐")
-      if (imageFile) {
+      const imageFile = event.target.files[0] 
+
+      if (imageFile && imageFile.size < 20971520) {
         this.profileImageUrl = URL.createObjectURL(imageFile)
-        console.log(imageFile)
         this.profileImageFile = new FormData()
         this.profileImageFile.append('profileImage', imageFile)
         this.isFileChanged = true
+      } else if (imageFile) {
+        alert("파일 크기는 20MB를 넘길 수 없습니다.")
       }
+
     },
+    // 프로필 이미지를 삭제하는 버튼
     onDeleteProfileImageButton () {
       if (confirm('프로필 이미지를 삭제하시겠습니까?')) {
         this.profileImageUrl = null
@@ -273,11 +281,6 @@ export default {
 </script>
 
 <style scoped>
-/* 배경을 사용하지 않는다 */
-  .no-background-color {
-    background-color: transparent !important;
-  }
-
 /* 프로필 이미지 삭제 버튼의 위치를 설정한다 */
   .bottom-right-position {
     position: absolute; 

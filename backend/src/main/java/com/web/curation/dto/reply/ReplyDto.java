@@ -1,6 +1,7 @@
 package com.web.curation.dto.reply;
 
 import com.web.curation.domain.reply.Reply;
+import com.web.curation.dto.user.SimpleUserInfoDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class ReplyDto {
     private String contents;
     private String wdate;
     private Long articleId;
+    private SimpleUserInfoDto user;
     private List<RereplyDto> child;
 
     public ReplyDto(Reply reply) {
@@ -29,6 +31,7 @@ public class ReplyDto {
         for (int i = 0; i < reply.getChild().size(); i++) {
             child.add(new RereplyDto(reply.getChild().get(i)));
         }
+        user = new SimpleUserInfoDto(reply.getUser());
     }
 
 }

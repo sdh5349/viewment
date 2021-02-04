@@ -46,6 +46,8 @@ import { required } from 'vee-validate/dist/rules'
 import { extend, setInteractionMode } from 'vee-validate'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+const request = axios.CancelToken.source()
 
 
 

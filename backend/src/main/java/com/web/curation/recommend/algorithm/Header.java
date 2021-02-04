@@ -1,19 +1,19 @@
-package com.web.curation.recommend;
+package com.web.curation.recommend.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Header {
-    public int support;
-    public int index;
-    public List<Node> link;
+    protected int support;
+    protected int index;
+    protected List<Node> link;
 
-    public Header(){
+    protected Header(){
         this.support = 1;
         this.index = 0;
     }
-    public Header(int support, int index){
+    protected Header(int support, int index){
         this.support = support;
         this.index = index;
         link = new ArrayList<>();
