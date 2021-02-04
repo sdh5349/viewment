@@ -14,12 +14,16 @@
       >
     </SearchArticleLocation>
 
-
+    <v-btn @click='articleMarkers'>게시물 받아오기</v-btn>
 
     <v-row>
 
-      <v-col>
-        <v-btn > 
+      <v-col
+        col-2
+      >
+        <v-btn 
+          fab
+        > 
           <v-icon>
             mdi-cog-outline
           </v-icon>
@@ -27,7 +31,11 @@
       </v-col>
 
       <v-col>
-        <v-btn @click="moveLocation"> 
+        <v-btn 
+          @click="moveLocation"
+          fab
+          
+        > 
           <v-icon>
             mdi-apple-safari
           </v-icon>
@@ -35,7 +43,10 @@
       </v-col>
       
       <v-col>
-        <v-btn @click="checkMemory"> 
+        <v-btn 
+          @click="checkMemory"
+          fab  
+        > 
           <v-icon>
             mdi-pin
           </v-icon>
@@ -44,8 +55,10 @@
 
     </v-row>
 
-    <!-- {{ addressName }} -->
-    <div id="map" class="map"></div>
+    <!-- <div> v-if="articles != ''"> -->
+      <div id="map" class="map"></div>
+    <!-- </div> -->
+
     <div id="result"></div>
     <v-btn @click="markerCheck(position)">기억 완료</v-btn>
     <MemoryLocation
@@ -66,6 +79,8 @@
 <script>
 import SearchArticleLocation from "../feed/SearchArticleLocation.vue" 
 import MemoryLocation from "./MemoryLocation.vue"
+import axios from 'axios'
+const SERVER_URL = process.env.VUE_APP_SERVER_URL 
 
 export default {
   props: [
@@ -91,7 +106,7 @@ export default {
       markers: [],
       checkMemoryState: false,
       is_infowindow: false,
-      
+      articles: '',
     }
   },
   mounted() {
@@ -226,6 +241,8 @@ export default {
         kakao.maps.event.addListener(marker, 'click', makeOverListener(self.map, marker, infowindow))
         
       }
+      
+
       function makeOverListener(map, marker, infowindow) {
             return function() {
               this.is_infowindow = !this.is_infowindow
@@ -238,6 +255,43 @@ export default {
             };
         }
     },
+    getArticle() {
+      axios.get(`${SERVER_URL}/pins`, this.getToken)
+      .then((res)=> {
+        this.articles = res.data
+      }) 
+    },
+    articleMarkers() {
+      const self = this
+
+      const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
+      const imageSize = new kakao.maps.Size(24, 35)
+      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+
+      for (var i = 0; i < self.articles.length; i ++) {
+        const position = new kakao.maps.LatLng(self.articles[i].lat, self.articles[i].lng)
+        var marker = new kakao.maps.Marker({
+            map: self.map, 
+            position: position,
+            title : self.articles[i].address_name,
+            image : markerImage
+        })
+        
+        const id = self.articles[i].pinId
+        kakao.maps.event.addListener(marker, 'click', articleMarkerClick(id))
+    
+      }
+      function articleMarkerClick(id) {
+        return function() {
+          self.$router.push({name: 'BindArticle', params: {
+            pinId: id,
+          }})
+        }
+      }
+    },
+    // articleMarkerClick(id) {
+    //   console.log(id)
+    // },
     searchLocationModal(res) {
       this.is_show = !this.is_show
     },
@@ -251,7 +305,7 @@ export default {
       const imageSize = new kakao.maps.Size(24, 35)
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
-      self.position = new kakao.maps.LatLng(res.lng, res.lat)
+      self.position = new kakao.maps.LatLng(res.lat, res.lng)
       var marker = new kakao.maps.Marker({
           map: self.map, 
           position: self.position,
@@ -269,7 +323,9 @@ export default {
         self.mapClick(mouseEvent)
       })
     },
-
+  },
+  created() {
+    this.getArticle()
   },
   watch: {
     goMemoryInfo: function () {
@@ -286,10 +342,21 @@ export default {
     //     // }
     //     // this.markers[i].setMap(this.map)
     //   }
-                
+
       
     // }
-  }
+  },
+  computed: {
+    getToken(){
+      const token = sessionStorage.getItem('jwt')
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    }
+  },
 }
 </script>
 
