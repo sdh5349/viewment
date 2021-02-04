@@ -33,7 +33,7 @@
           <keep-alive> 
           <component 
             :is="tabItem.content"
-            :profileUserId="profileUserId"
+            :profile-user-id="profileUserId"
           ></component>
           </keep-alive>
         </v-card>

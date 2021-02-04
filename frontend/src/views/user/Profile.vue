@@ -156,15 +156,11 @@
     <!-- 탭 선택에 따라 보여줄 컴포넌트 -->
     <v-tabs-items v-model="tab">
       <v-tab-item v-for="tabItem in tabItems" :key="tabItem.tabIcon">
-        <v-card flat>
-          <v-card-text>
-            <!-- keep-alive 태그를 통해 탭 컴포넌트를 바꿀 때마다 재 생성하는 것이 아닌 데이터를 캐시해두고 다시 볼수있도록 하는 태그 -->
-            <!-- TODO: 일단 없이 해보고 필요하다면 사용할 것임 -->
-            <!-- <keep-alive>  -->
-            <component v-bind:is="tabItem.content"></component>
-            <!-- </keep-alive> -->
-          </v-card-text>
-        </v-card>
+        <!-- keep-alive 태그를 통해 탭 컴포넌트를 바꿀 때마다 재 생성하는 것이 아닌 데이터를 캐시해두고 다시 볼수있도록 하는 태그 -->
+        <!-- TODO: 일단 없이 해보고 필요하다면 사용할 것임 -->
+        <!-- <keep-alive>  -->
+        <component class="mt-1 mx-0" v-bind:is="tabItem.content" :profile-user-id="profileUserId"></component>
+        <!-- </keep-alive> -->
       </v-tab-item>
     </v-tabs-items>
     <!-- 탭 선택에 따라 보여줄 컴포넌트 끝 -->
@@ -219,6 +215,7 @@ export default {
   },
   watch: {
     profileUserId: function() {
+      this.loading = true
       this.dataFetch()
     }
   },
@@ -226,6 +223,7 @@ export default {
     this.dataFetch()
   },
   methods: {
+    // 데이터 초기화 메서드
     dataFetch() {
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
@@ -235,6 +233,10 @@ export default {
         this.loginUserId = sessionStorage.getItem('uid')
         if (this.profileUserInfo.profileImage) {
           this.profileImageUrl = `${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`
+        } else {
+          // a 유저 프로필을 본후 b 유저 프로필로 이동한뒤 뒤로가기를 누르면 a유저 프로필 페이지 임에도 불구하고
+          // DOM에 b 유저 사진 데이터가 남아 있으므로 사진이 없는 경우 null 처리 해야함
+          this.profileImageUrl = null
         }
       })
       .then(() => {
@@ -262,7 +264,6 @@ export default {
         var params = {'targetUserId' : this.profileUserId }
         axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
-          console.log("??")
           this.profileUserInfo.countFollowers += 1
           this.profileUserInfo.followed = !this.profileUserInfo.followed
         })

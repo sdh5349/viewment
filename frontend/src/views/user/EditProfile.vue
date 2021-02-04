@@ -169,6 +169,7 @@ export default {
     this.dataFetch()
   },
   methods: {
+    // 데이터 초기화 메서드
     dataFetch() {
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
       .then(res => {
@@ -192,6 +193,7 @@ export default {
         // self.$router.push({ name: 'Error' })
       })
     },
+    // 프로필 변경사항 서버 전달 메서드
     submit () {
       this.$refs.observer.validate()
       
@@ -218,7 +220,6 @@ export default {
           if (this.profileUserInfo.profileImage) {
             axios.put(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.profileImageFile, config)
             .then(() => {
-              alert("put 완료")
             })
             .catch(err => {
               console.log(err)
@@ -227,7 +228,6 @@ export default {
           } else {
             axios.post(`${SERVER_URL}/images/profile/${this.profileUserId}`, this.profileImageFile, config)
             .then(() => {
-              alert("post 완료")
             })
             .catch(err => {
             })
@@ -238,31 +238,37 @@ export default {
           if (this.profileUserInfo.profileImage && this.profileImageUrl === null) {
             axios.delete(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
             .then(() => {
-              alert("delete 완료")
             })
             .catch(err => {
             })
           }
         }
       })
+      .then(() => {
+        // 정상적으로 사진까지 업로드가 완료 되었으면 프로필 화면으로 돌아간다.
+        this.$router.push({ 
+          name: 'Profile', 
+          params: { profileUserId : this.profileUserId }
+        })
+      })
       .catch(err => {
       })
     },
+    // 사진 파일을 불러오는 버튼
     onPickFile () {
-      console.log("동작하냐")
       this.$refs.fileInput.click()
     },
+    // 사진 파일을 불러오는 버튼
     onFilePicked (event) {
       const imageFile = event.target.files[0]
-      console.log("동작하냐")
       if (imageFile) {
         this.profileImageUrl = URL.createObjectURL(imageFile)
-        console.log(imageFile)
         this.profileImageFile = new FormData()
         this.profileImageFile.append('profileImage', imageFile)
         this.isFileChanged = true
       }
     },
+    // 프로필 이미지를 삭제하는 버튼
     onDeleteProfileImageButton () {
       if (confirm('프로필 이미지를 삭제하시겠습니까?')) {
         this.profileImageUrl = null

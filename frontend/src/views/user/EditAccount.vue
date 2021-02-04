@@ -93,10 +93,16 @@ export default {
       this.$router.push({ name: 'ChangePassword' })
     },
     onLogoutButton() {
-      sessionStorage.removeItem('jwt')
-      sessionStorage.removeItem('uid')
-      this.$emit('logout')
-      this.$router.push({ name: 'Login' })
+      const self = this
+
+      firebase.auth().signOut().then(function() {
+        sessionStorage.removeItem('jwt')
+        sessionStorage.removeItem('uid')
+        self.$emit('logout')
+        self.$router.push({ name: 'Login' })
+      }).catch(function(error) {
+        // An error happened.
+      });
     },
     onAccountDelete() {
       // TODO: firebase 재인증 후 회원탈퇴

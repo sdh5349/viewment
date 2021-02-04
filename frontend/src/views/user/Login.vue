@@ -109,42 +109,48 @@ export default {
   methods: {
     submit () {
       const self = this
-
-      firebase.auth().signInWithEmailAndPassword(self.email, self.password)
-      .then(res => {
-        
-        const user = res.user
-        const verifiedState = user.emailVerified
-
-        if (verifiedState){
-        
-          user.getIdToken()
-          .then(token => {
-            sessionStorage.setItem('jwt', token)
-            sessionStorage.setItem('uid', user.uid)
-            self.$emit('login')
-            self.$router.push({ name: 'Feed' })
-          })
-          .catch(err => {
-            alert("오류"); // TODO: 오류페이지로 변경
-            console.log('Error', err.message);
-          })}
-        else{
-          user.sendEmailVerification()
-          .then(() => {
-            alert('이메일 인증이 안되어있습니다. 이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요')
-          })
-          .catch((err) => {
-            alert('인증메일이 발송된지 얼마지나지 않았습니다. 이메일에서 인증메일을 확인해주세요')
-          })
-        } 
-
+      // 1시간 단위로 만료되는 토큰을 세션 종료 전(브라우저 창을 닫는 행위로)이나 직접 로그아웃을 할때 까지 유지
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        firebase.auth().signInWithEmailAndPassword(self.email, self.password)
+        .then(res => {
+          
+          const user = res.user
+          const verifiedState = user.emailVerified
+  
+          if (verifiedState){
+          
+            user.getIdToken()
+            .then(token => {
+              sessionStorage.setItem('jwt', token)
+              sessionStorage.setItem('uid', user.uid)
+              self.$emit('login')
+              self.$router.push({ name: 'Feed' })
+            })
+            .catch(err => {
+              alert("오류"); // TODO: 오류페이지로 변경
+              console.log('Error', err.message);
+            })}
+          else{
+            user.sendEmailVerification()
+            .then(() => {
+              alert('이메일 인증이 안되어있습니다. 이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요')
+            })
+            .catch((err) => {
+              alert('인증메일이 발송된지 얼마지나지 않았습니다. 이메일에서 인증메일을 확인해주세요')
+            })
+          } 
+  
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          this.status = 400
+          console.log('Error', err.message);
+        })  
       })
       .catch(err => {
-        alert("오류"); // TODO: 오류페이지로 변경
-        this.status = 400
-        console.log('Error', err.message);
-      })  
+
+      })
     },
     onResetPassword() {
       this.$router.push({ name: 'FindEmailConfirm' })
