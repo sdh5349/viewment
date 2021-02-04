@@ -71,8 +71,10 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'EditAccount',
-  props: {
-    profileUserId: String,
+  data() {
+    return {
+      profileUserId: sessionStorage.getItem('uid'),
+    }
   },
   computed: {
     getToken() {
@@ -91,16 +93,22 @@ export default {
       this.$router.push({ name: 'ChangePassword' })
     },
     onLogoutButton() {
-      sessionStorage.removeItem('jwt')
-      sessionStorage.removeItem('uid')
-      this.$emit('logout')
-      this.$router.push({ name: 'Login' })
+      const self = this
+
+      firebase.auth().signOut().then(function() {
+        sessionStorage.removeItem('jwt')
+        sessionStorage.removeItem('uid')
+        self.$emit('logout')
+        self.$router.push({ name: 'Login' })
+      }).catch(function(error) {
+        // An error happened.
+      });
     },
     onAccountDelete() {
       // TODO: firebase 재인증 후 회원탈퇴
       if (confirm("정말 회원탈퇴 하시겠습니까?")) {
         // 서버 DB에서 삭제
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/accounts/${this.profileUserId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`, this.getToken)
         .then(() => {
           var user = firebase.auth().currentUser;
           console.log(user)

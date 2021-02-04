@@ -10,17 +10,17 @@
       >
         <v-list-item-avatar>
           <v-img
-            :alt="`${user.nickname} avatar`"
-            :src="user.profileimg"
+            :alt="`${user.content.nickname} avatar`"
+            :src="user.content.profileImage"
           ></v-img>
         </v-list-item-avatar>
 
         <v-list-item-content>
-          <v-list-item-title v-text="user.nickname"></v-list-item-title>
+          <v-list-item-title v-text="user.content.nickname"></v-list-item-title>
         </v-list-item-content>
 
         <v-list-item-icon>
-          <v-icon :color="user.active ? 'deep-red accent-4' : 'grey'">
+          <v-icon :color="user.content.followed ? 'deep-red accent-4' : 'grey'">
             mdi-heart
           </v-icon>
         </v-list-item-icon>
@@ -37,12 +37,15 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   data() {
     return {
-      users: [],
+     users: [],
     }
   },
   props: {
     search : {
       type: String,
+    },
+    onTab : {
+      type: Number,
     }
   },
   computed: {
@@ -58,11 +61,12 @@ export default {
     }
   },
   methods: {
-    getUsers(users) {
-      console.log(this.getToken)
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1`, this.getToken)
+    getUsers() {
+      axios.get(`${SERVER_URL}/users/like/${this.search}`, this.getToken)
         .then((res) => {
-        console.log(res)        
+        console.log(res)     
+        console.log("성공")  
+        this.users = res.data
         })
         .catch((err)=> {
           alert('error'+err.message)
@@ -70,8 +74,19 @@ export default {
     },
   },
   watch: {
-    search: function(res) {
-      this.getUsers(res)
+    search: function() {
+      console.log("유저a")
+      if(this.onTab===3){
+        this.getUsers()
+        
+      }
+
+    },
+    onTab: function() {
+      console.log("유저b")
+      if(this.onTab===3){
+        this.getUsers()
+      }
     }
   },
 }

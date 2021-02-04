@@ -1,13 +1,16 @@
 package com.web.curation.domain;
 
 import com.web.curation.domain.article.Article;
+import com.web.curation.domain.connection.Likes;
+import com.web.curation.domain.reply.Reply;
 import com.web.curation.domain.connection.Follow;
-//import com.web.curation.domain.reply.Reply;
+import com.web.curation.domain.reply.Reply;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -21,6 +24,8 @@ import java.util.List;
  * @author  김종성
  *
  * @변경이력
+ * 21-02-02 replies 추가
+ * articles, memories CascadeType.ALL 로 변경 2021-02-01
  **/
 
 @Entity
@@ -54,22 +59,26 @@ public class User {
     /**
      * Memory
      */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Memory> memories = new ArrayList<>();
 
 
     /**
      * Article
      */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL)
     private List<Article> articles = new ArrayList<>();
 
 
     /**
      * Reply
      */
-//    @OneToMany(mappedBy = "user")
-//    private List<Reply> replies = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Reply> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Likes> likes = new ArrayList<>();
+
 
     @OneToOne
     @JoinColumn(name="IMAGE_ID")
@@ -82,8 +91,27 @@ public class User {
         this.memories.add(memory);
         memory.setUser(this);
     }
+
+    public void removeMemory(Memory memory){
+        this.memories.remove(memory);
+        memory.setUser(null);
+    }
+
+    public void addLike(Likes like){
+        this.likes.add(like);
+        like.setUser(this);
+    }
+
+    public void removeLike(Likes like){
+        this.likes.remove(like);
+        like.setUser(null);
+    }
     
     public void setProfileImage(Image image) {
         this.profileImage = image;
+    }
+
+    public void resetProfileImage() {
+        profileImage = null;
     }
 }

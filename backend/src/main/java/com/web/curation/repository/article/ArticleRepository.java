@@ -1,7 +1,12 @@
 package com.web.curation.repository.article;
 
 import com.web.curation.domain.article.Article;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,18 +17,18 @@ import java.util.Optional;
  * @author  이주희
  *
  * @변경이력
+ * 21-02-01 JPA repo를 상속 받는 것으로 변경
  **/
 
-public interface ArticleRepository {
-
-    void save(Article article);
-
-    void delete(Long articleId);
-
-    Optional<Article> findByArticleId(Long articleId);
+public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findByUserId(String userId);
 
-    List<Article> findByHashtag(String Hashtag);
+    @Query("SELECT a FROM Article a JOIN a.hashtags h WHERE UPPER(h.contents) = UPPER(:contents)")
+    List<Article> findByHashtag(@Param("contents") String contents);
+
+    List<Article> findByArticleIdIn(Collection<Long> articleIds);
+
+    List<Article> findByWdateAfter(Timestamp timestamp);
 
 }

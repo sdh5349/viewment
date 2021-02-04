@@ -13,8 +13,9 @@
       >
         <v-list>
           <v-list-item
-            v-for="hash in keyword.slice(0,9)"
-            :key="hash.content"
+            v-for="hash in hashtags.slice(0,9)"
+            :key="hash.contents"
+            @click="goGrid(hash)"
           >
             <v-list-item-avatar>
               <v-icon>
@@ -23,7 +24,7 @@
             </v-list-item-avatar>
 
             <v-list-item-content>
-              <v-list-item-title v-text="hash.content"></v-list-item-title>
+              <v-list-item-title v-text="hash.contents"></v-list-item-title>
             </v-list-item-content>
 
           </v-list-item>
@@ -41,13 +42,20 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   data() {
     return {
-      keyword: [],
+      hashtags: [],
+      Historys: [],
     }
   },
   props: {
     search : {
       type: String,
-    }
+    },
+    onTab : {
+      type: Number, 
+    },
+    limitMax: {
+      type: Number,
+    },
   },
   computed: {
     getToken() {
@@ -62,20 +70,65 @@ export default {
     }
   },
   methods: {
-    getHashtags(keyword) {
-      console.log(this.getToken)
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/hashtags/${keyword}`, this.getToken)
+    getHashtags() {
+      axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
         .then((res) => {
-        console.log(res)        
+        console.log(res) 
+        console.log(res.data)
+        this.hashtags = res.data      
         })
         .catch((err)=> {
           alert('error'+err.message)
         })
     },
+    goGrid(hash) {
+      console.log(hash.contents)
+      this.Historys = 
+        {
+          HistoryTitle: hash.contents,
+          HistoryContent: hash.hashtagId, 
+          HistoryIcon:"mdi-pound"
+        }
+      this.appendToStorage(this.Historys)
+    },
+    appendToStorage(Historys) {
+      var str = localStorage.getItem("Historys");
+      var obj = {};
+      var limitMax = 6;
+      try {
+        obj = JSON.parse(str);
+      } catch {
+        obj = {};
+      }
+      if(!obj){
+        obj = {};
+        obj["Historys"] = [];
+      }
+      obj["Historys"].push(Historys);
+      if (limitMax && limitMax < obj["Historys"].length) {
+        let tempList = [];
+        for(let i = obj["Historys"].length-limitMax; i < obj["Historys"].length; i++) {
+          tempList.push(obj["Historys"][i]);
+        }
+        obj["Historys"] = tempList;
+      }
+      localStorage.setItem("Historys", JSON.stringify(obj));
+    },
   },
   watch: {
-    search: function(res) {
-      this.getHashtags(res)
+    search: function() {
+      console.log("해쉬a")
+      if(this.onTab===2){
+        this.getHashtags()
+        
+      }
+
+    },
+    onTab: function() {
+      console.log("해쉬b")
+      if(this.onTab===2){
+        this.getHashtags()
+      }
     }
   },
 }

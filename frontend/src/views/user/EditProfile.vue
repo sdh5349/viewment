@@ -1,5 +1,13 @@
 <template>
+  <v-row v-if="loading">
+    <v-progress-circular
+      :width="3"
+      color="red"
+      indeterminate
+    ></v-progress-circular>
+  </v-row>
   <v-row
+    v-else
     justify="center"
   >
     <v-col
@@ -9,19 +17,38 @@
     > 
       <div class="d-flex justify-center">
         <div>
-          <v-avatar
-            v-if="true"
-            size="150"
-          >
-            <img
-              :src="previewUrl"
+          <v-card
+          elevation="0"
+          > 
+            <v-avatar
+              v-if="this.profileImageUrl"
+              size="150"
             >
-          </v-avatar>
-          <v-icon
-            v-else
-            color="primary"
-            size="160"
-          >mdi-account-circle</v-icon>
+              <img
+                :src="profileImageUrl"
+              >
+            </v-avatar>
+            <v-icon
+              v-else
+              color="primary"
+              size="160"
+            >mdi-account-circle</v-icon>
+
+            <!-- 프로필 삭제 버튼 시작 -->
+            <v-btn
+              class="bottom-right-position"
+              icon
+              @click="onDeleteProfileImageButton"
+            >
+              <v-icon
+              x-large
+              color="primary"
+              >
+              mdi-delete-empty-outline
+              </v-icon>
+            </v-btn>
+            <!-- 프로필 삭제 버튼 끝 -->
+          </v-card>
 
           <div class="d-flex justify-center my-4">
             <!-- <input type="file" ref="file" hidden>
@@ -81,8 +108,11 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { required, max } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
 setInteractionMode('eager') // 유효성 검사의 시기
@@ -110,15 +140,15 @@ export default {
     ValidationProvider,
     ValidationObserver,
   },
-  props: {
-    profileUserId: String,
-  },
   data() {
     return {
+      profileUserId: sessionStorage.getItem('uid'),
+      loading: true,
+      profileUserInfo: null,
       nickname: '',
       message: '',
-      imgFile: null,
-      previewUrl: null,
+      profileImageUrl: null,
+      isFileChanged: false,
     }
   },
   computed: {
@@ -134,38 +164,127 @@ export default {
     }
   },
   created() {
-    // this.dataFetch()
+    this.fetchData()
   },
   methods: {
-    dataFetch() {
-      
+    // 데이터 초기화 메서드
+    fetchData() {
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/page`, this.getToken)
+      .then(res => {
+        // 현재 보고있는 프로필 페이지 유저의 정보 초기화
+        this.profileUserInfo = res.data
+        this.nickname = this.profileUserInfo.nickname
+        this.message = this.profileUserInfo.message
+
+        // 현재 로그인한 유저의 uid 초기화
+        this.loginUserId = sessionStorage.getItem('uid')
+        if (this.profileUserInfo.profileImage) {
+          this.profileImageUrl = `${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`
+        }
+      })
+      .then(() => {
+        this.loading = false
+      })
+      .catch(err => {
+        alert("오류"); // TODO: 오류페이지로 변경
+        console.log('Error', err.message);
+        // self.$router.push({ name: 'Error' })
+      })
     },
+    // 프로필 변경사항 서버 전달 메서드
     submit () {
       this.$refs.observer.validate()
+      
+      // 닉네임과 메세지 변경사항
+      const params = {
+        'nickname': this.nickname,
+        'message': this.message
+      }
+
+      // 닉네임과 메세지 변경사항에 대한 부분먼저 보낸다
+      axios.patch(`${SERVER_URL}/accounts/${this.profileUserId}`, params, this.getToken)
+      .then(() => {
+        // 현재 페이지에 선택되어있는 사진이 있고
+        if (this.isFileChanged) {
+          // put, post 요청 시 필요한 헤더를 config 변수에 할당
+          const config = {
+            headers: {
+              'Content-type': 'multipart/form-data',
+              'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
+            },
+          }
+
+          // 기존에 프로필 이미지가 있었던 유저라면
+          if (this.profileUserInfo.profileImage) {
+            axios.put(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.profileImageFile, config)
+            .then(() => {
+            })
+            .catch(err => {
+              console.log(err)
+            })
+          // 기존에 프로필 이미지가 없었던 유저라면
+          } else {
+            axios.post(`${SERVER_URL}/images/profile/${this.profileUserId}`, this.profileImageFile, config)
+            .then(() => {
+            })
+            .catch(err => {
+            })
+          }
+        // 현재 페이지에 선택한 이미지가 없고
+        } else {
+          // 기존에 프로필 이미지가 있었던 유저라면
+          if (this.profileUserInfo.profileImage && this.profileImageUrl === null) {
+            axios.delete(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
+            .then(() => {
+            })
+            .catch(err => {
+            })
+          }
+        }
+      })
+      .then(() => {
+        // 정상적으로 사진까지 업로드가 완료 되었으면 프로필 화면으로 돌아간다.
+        this.$router.push({ 
+          name: 'Profile', 
+          params: { profileUserId : this.profileUserId }
+        })
+      })
+      .catch(err => {
+      })
     },
+    // 사진 파일을 불러오는 버튼
     onPickFile () {
       this.$refs.fileInput.click()
     },
+    // 사진 파일을 불러오는 버튼
     onFilePicked (event) {
-      this.imgFile = event.target.files[0]
+      const imageFile = event.target.files[0] 
 
-      if (this.imgFile) {
-        this.previewUrl = URL.createObjectURL(this.imgFile)
+      if (imageFile && imageFile.size < 20971520) {
+        this.profileImageUrl = URL.createObjectURL(imageFile)
+        this.profileImageFile = new FormData()
+        this.profileImageFile.append('profileImage', imageFile)
+        this.isFileChanged = true
+      } else if (imageFile) {
+        alert("파일 크기는 20MB를 넘길 수 없습니다.")
       }
-      
-      // let filename = files[0].name
-      // const fileReader = new FileReader()
-      // fileReader.addEventListener('load', () => {
-      //   this.imageUrl = fileReader.result
-      // })
-      // fileReader.readAsDataURL(files[0])
-      // this.image = files[0]
+
+    },
+    // 프로필 이미지를 삭제하는 버튼
+    onDeleteProfileImageButton () {
+      if (confirm('프로필 이미지를 삭제하시겠습니까?')) {
+        this.profileImageUrl = null
+      }
     }
   }
-
 }
 </script>
 
-<style>
-
+<style scoped>
+/* 프로필 이미지 삭제 버튼의 위치를 설정한다 */
+  .bottom-right-position {
+    position: absolute; 
+    bottom: 0px; 
+    right: 0px;
+  }
 </style>

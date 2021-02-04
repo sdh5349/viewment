@@ -1,16 +1,21 @@
 <template>
-  <div v-if="loading" class="d-flex justify-center align-center">
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
     <v-progress-circular
       indeterminate
       color="primary"
     ></v-progress-circular>
-  </div>
+  </v-row>
   <v-virtual-scroll
     v-else
     :items="followers"
     :item-height="50"
-    height="auto"
-    max-height="100vh"
+    class="scroll-container"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
@@ -28,7 +33,7 @@
                   class="my-0"
                 >
                   <img
-                    src=""
+                    :src="imageServerPrefix + item.profileImage.path"
                   >
                 </v-list-item-avatar>
                 <v-icon
@@ -55,7 +60,7 @@
                 삭제
               </v-btn>
               <v-btn
-                v-else-if="item.followed"
+                v-else-if="item.followed && item.userId !== loginUserId"
                 small 
                 class="align-self-center px-0"
                 width="55"  
@@ -65,7 +70,7 @@
                 언팔로우
               </v-btn>
               <v-btn
-                v-else
+                v-else-if="item.userId !== loginUserId"
                 small 
                 class="align-self-center px-0"
                 width="55"
@@ -99,6 +104,7 @@ export default {
       loading: true,
       loginUserId: '',
       followers: [],
+      imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
       size: 200,
       last: false,
@@ -127,11 +133,13 @@ export default {
       // 필요한 데이터 가져오기
       this.loading = true
 
-      axios.get(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`, this.getToken)
+      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
         this.followers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+      })
+      .then(() => {
         this.loading = false
       })
       .catch(err => {
@@ -159,7 +167,7 @@ export default {
     // 본인 팔로워 리스트일 경우 삭제를 희망하는 유저의 인덱스를 찾아 삭제하는 메서드
     onFollowerDeleteButton (targetUser) {
       if (confirm("삭제하시겠습니까?")) {
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
         .then(() => {
         const targetUserIdx = this.followers.indexOf(targetUser)
         this.followers.splice(targetUserIdx, 1)
@@ -176,7 +184,7 @@ export default {
       const targetUserIdx = this.followers.indexOf(targetUser)
       
       if (targetUser.followed) {
-        axios.delete(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
           this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed
         })
@@ -187,7 +195,7 @@ export default {
         })
       } else {
         var params = {'targetUserId' : targetUser.userId }
-        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/users/${this.loginUserId}/follow`, params, this.getToken)
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
           this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed 
         })
@@ -203,4 +211,11 @@ export default {
 </script>
 
 <style scoped>
+/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
+  .scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin-bottom: 50px;
+  }
 </style>

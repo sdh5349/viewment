@@ -2,7 +2,9 @@ package com.web.curation.domain.article;
 
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
+import com.web.curation.domain.connection.Likes;
 import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.domain.reply.Reply;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
@@ -19,6 +21,7 @@ import java.util.List;
  * @author  이주희
  *
  * @변경이력
+ * 21-02-02 replies 추가
  **/
 
 @Entity
@@ -47,6 +50,12 @@ public class Article {
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
     private List<Hashtag> hashtags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Reply> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Likes> likes = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contents;
@@ -79,11 +88,25 @@ public class Article {
         hashtag.getArticles().add(this);
     }
 
+    public void addLike(Likes like){
+        this.likes.add(like);
+        like.setArticle(this);
+    }
+
+    public void removeLike(Likes like){
+        this.likes.remove(like);
+        like.setArticle(null);
+    }
+
     public void resetPin() {
         pin = null;
     }
 
     public void resetHashtag() {
         hashtags.clear();
+    }
+
+    public void resetUser() {
+        user = null;
     }
 }

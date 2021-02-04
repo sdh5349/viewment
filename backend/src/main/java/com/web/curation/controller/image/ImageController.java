@@ -56,7 +56,7 @@ public class ImageController {
         return new ResponseEntity<>(imagearr, header, HttpStatus.OK);
     }
 
-    @GetMapping("/profile/{userId}")
+    @PutMapping("/profile/{userId}")
     public ResponseEntity<?> updateProfileImage(@PathVariable("userId") String userId, @RequestParam MultipartFile profileImage) throws Exception {
         imageService.updateProfileImage(profileImage, userId);
         return ResponseEntity.ok().build();

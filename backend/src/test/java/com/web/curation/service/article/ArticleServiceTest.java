@@ -6,7 +6,12 @@ import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.hashtag.Hashtag;
 import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.exceptions.ElementNotFoundException;
+import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
+import com.web.curation.repository.like.LikeRepository;
+import com.web.curation.repository.pin.PinRepository;
+import com.web.curation.service.user.AccountService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,10 +29,12 @@ import java.util.List;
 /**
  * com.web.curation.service.article
  * ArticleServiceTest.java
- * @date    2021-01-26 오후 5:34
- * @author  이주희
  *
+ * @author 이주희
+ * @date 2021-01-26 오후 5:34
  * @변경이력
+ * 김종성 - 좋아요 기능 테스트코드 추가
+ *
  **/
 
 @SpringBootTest
@@ -40,6 +47,14 @@ public class ArticleServiceTest {
     @Autowired
     ArticleRepository articleRepository;
 
+    @Autowired
+    PinRepository pinRepository;
+
+    @Autowired
+    LikeRepository likeRepository;
+
+    @Autowired
+    AccountService accountService;
 
     @PersistenceContext
     EntityManager em;
@@ -54,43 +69,33 @@ public class ArticleServiceTest {
 
         em.persist(user);
 
-        Pin pin = new Pin();
-        pin.setLocation(36.471289, 127.082326);
-        pin.setAddress("충청남도 공주시");
-
-        em.persist(pin);
-        em.persist(pin);
-
-        Image image1 = new Image();
-        image1.setPath("/asb");
-        Image image2 = new Image();
-        image2.setPath("/asbf");
-        Image image3 = new Image();
-        image3.setPath("/asbf");
-
-        em.persist(image1);
-        em.persist(image2);
-        em.persist(image3);
-
         Hashtag hashtag = new Hashtag();
         hashtag.setContents("tag1");
 
         em.persist(hashtag);
-
     }
 
 
     @Test
     public void 게시글_작성_pinId_있음() {
-        ArticleDto articleDto = setArticleData("aaa", 1L,"내용", "tag1", "tag2");
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        em.persist(pin);
+
+        ArticleDto articleDto = setArticleData("aaa", pin.getPinId(), "내용", "tag1", "tag2");
 
 
         Article savedArticle = articleService.write(articleDto);
 
-        em.flush();
+        Article findArticle = articleRepository.findById(savedArticle.getArticleId()).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
+                }
+        );
 
-        // TODO optional 체크
-        Assertions.assertEquals(articleRepository.findByArticleId(savedArticle.getArticleId()).get(),savedArticle);
+        Assertions.assertEquals(findArticle, savedArticle);
 
     }
 
@@ -98,24 +103,36 @@ public class ArticleServiceTest {
     public void 게시글_작성_pinId_없음() {
         ArticleDto articleDto = setArticleData("aaa", 0L, "내용", "tag1", "tag2");
         articleDto.setLat(36.471285);
-        articleDto.setLng( 127.082347);
+        articleDto.setLng(127.082347);
 
         Article savedArticle = articleService.write(articleDto);
 
-        em.flush();
+        Article findArticle = articleRepository.findById(savedArticle.getArticleId()).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
+                }
+        );
 
-        // TODO optional 체크
-        Assertions.assertEquals(articleRepository.findByArticleId(savedArticle.getArticleId()).get(),savedArticle);
-
+        Assertions.assertEquals(findArticle, savedArticle);
     }
 
     @Test
     public void 게시글_번호로_조회() {
-        ArticleDto articleDto = setArticleData("aaa", 1L, "내용", "tag1", "tag2");
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        em.persist(pin);
+
+        ArticleDto articleDto = setArticleData("aaa", pin.getPinId(), "내용", "tag1", "tag2");
 
         Article savedArticle = articleService.write(articleDto);
 
-        Article findArticle =  articleRepository.findByArticleId(savedArticle.getArticleId()).get();
+        Article findArticle = articleRepository.findById(savedArticle.getArticleId()).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
+                }
+        );
 
         Assertions.assertEquals(savedArticle, findArticle);
         Assertions.assertEquals(articleDto.getContents(), findArticle.getContents());
@@ -124,9 +141,15 @@ public class ArticleServiceTest {
 
     @Test
     public void 해시태그로_조회() {
-        ArticleDto articleDto1 = setArticleData("aaa", 1L, "내용1", "tag1", "tag2");
-        ArticleDto articleDto2 = setArticleData("aaa", 1L, "내용2", "tag1", "tag3");
-        ArticleDto articleDto3 = setArticleData("aaa", 1L, "내용3", "tag2", "tag3");
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        em.persist(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", pin.getPinId(), "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", pin.getPinId(), "내용3", "tag2", "tag3");
 
         articleService.write(articleDto1);
         articleService.write(articleDto2);
@@ -134,7 +157,7 @@ public class ArticleServiceTest {
 
         List<Article> findArticles = articleRepository.findByHashtag("tag1");
 
-        for (Article article:findArticles) {
+        for (Article article : findArticles) {
             System.out.println(article.getContents());
         }
         Assertions.assertEquals(findArticles.size(), 2);
@@ -143,22 +166,32 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_수정() {
-        ArticleDto articleDto1 = setArticleData("aaa", 1L,  "내용1", "tag1", "tag2");
-        ArticleDto articleDto2 = setArticleData("aaa", 1L,  "내용2", "tag1", "tag3");
-        ArticleDto articleDto3 = setArticleData("aaa", 1L,  "내용3", "tag2", "tag3");
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        em.persist(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", pin.getPinId(), "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", pin.getPinId(), "내용3", "tag2", "tag3");
 
         Article savedArticle = articleService.write(articleDto1);
         articleService.write(articleDto2);
         articleService.write(articleDto3);
 
-        ArticleDto articleDto = setArticleData("aaa", 1L,  "내용 수정", "tag5", "tag6", "tag4");
+        ArticleDto articleDto = setArticleData("aaa", pin.getPinId(), "내용 수정", "tag5", "tag6", "tag4");
         articleDto.setArticleId(savedArticle.getArticleId());
 
         articleService.modify(articleDto);
 
-        Article findArticle =  articleRepository.findByArticleId(savedArticle.getArticleId()).get();
+        Article findArticle = articleRepository.findById(savedArticle.getArticleId()).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("Article", articleDto.getArticleId().toString());
+                }
+        );
 
-        for (Hashtag hash:findArticle.getHashtags())
+        for (Hashtag hash : findArticle.getHashtags())
             System.out.println(hash.getContents());
 
         Assertions.assertEquals(findArticle.getContents(), "내용 수정");
@@ -168,9 +201,15 @@ public class ArticleServiceTest {
 
     @Test
     public void 게시글_삭제() {
-        ArticleDto articleDto1 = setArticleData("aaa", 1L,  "내용1", "tag1", "tag2");
-        ArticleDto articleDto2 = setArticleData("aaa", 1L,  "내용2", "tag1", "tag3");
-        ArticleDto articleDto3 = setArticleData("aaa", 1L, "내용3", "tag2", "tag3");
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        em.persist(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        ArticleDto articleDto2 = setArticleData("aaa", pin.getPinId(), "내용2", "tag1", "tag3");
+        ArticleDto articleDto3 = setArticleData("aaa", pin.getPinId(), "내용3", "tag2", "tag3");
 
         articleService.write(articleDto1);
         Article savedArticle = articleService.write(articleDto2);
@@ -182,10 +221,76 @@ public class ArticleServiceTest {
         articleService.delete(savedArticle.getArticleId());
 
         List<Article> findArticles = articleRepository.findByUserId("aaa");
-        for(Article article:findArticles)
+        for (Article article : findArticles)
             System.out.println(article.getContents());
 
         Assertions.assertEquals(findArticles.size(), 2);
+    }
+
+    @Test
+    void 게시글_좋아요() throws Exception{
+        //given
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        pinRepository.save(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        Article article = articleService.write(articleDto1);
+
+        //when
+        articleService.like("aaa", article.getArticleId());
+
+        //then
+        int n = likeRepository.countByArticle(article).intValue();
+
+        org.assertj.core.api.Assertions.assertThat(n).isEqualTo(1);
+    }
+
+    @Test
+    void 게시글_좋아요_취소() throws Exception{
+        //given
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        pinRepository.save(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        Article article = articleService.write(articleDto1);
+
+        //when
+        articleService.like("aaa", article.getArticleId());
+
+        articleService.unlike("aaa", article.getArticleId());
+        //then
+        int n = likeRepository.countByArticle(article).intValue();
+
+        org.assertj.core.api.Assertions.assertThat(n).isEqualTo(0);
+    }
+
+    @Test
+    void 유저_삭제시_좋아요_변경_여부() throws Exception{
+        //given
+        Pin pin = new Pin();
+        pin.setLocation(36.471289, 127.082326);
+        pin.setAddress("충청남도 공주시");
+
+        pinRepository.save(pin);
+
+        ArticleDto articleDto1 = setArticleData("aaa", pin.getPinId(), "내용1", "tag1", "tag2");
+        Article article = articleService.write(articleDto1);
+
+        //when
+        articleService.like("aaa", article.getArticleId());
+
+        accountService.delete("aaa");
+
+        //then
+        int n = likeRepository.countByArticle(article).intValue();
+
+        org.assertj.core.api.Assertions.assertThat(n).isEqualTo(0);
     }
 
     public static ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
@@ -196,7 +301,7 @@ public class ArticleServiceTest {
         articleDto.setPinId(pinId);
 
         List<String> hashtags = new ArrayList<>();
-        for (String h:hashtag) {
+        for (String h : hashtag) {
             hashtags.add(h);
         }
         articleDto.setHashtags(hashtags);

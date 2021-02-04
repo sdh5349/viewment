@@ -15,7 +15,7 @@ import EditAccount from './views/user/EditAccount.vue'
 import CreateArticle from './views/article/CreateArticle.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
 import UpdateArticle from './views/article/UpdateArticle.vue'
-
+import BindArticle from './views/article/BindArticle.vue'
 
 export default [
     {
@@ -63,7 +63,7 @@ export default [
         component : ActionUrlHandler,
     },
     {
-        path : '/user/profile/:profileUserId',
+        path : '/user/:profileUserId',
         name : 'Profile',
         component : Profile,
         props : true,
@@ -78,6 +78,7 @@ export default [
         path : '/memory/:profileUserId/memory-list',
         name : 'MemoryList',
         component : MemoryList,
+        props : true,
     },
     {
         path : '/user/profile/edit',
@@ -85,10 +86,9 @@ export default [
         component : EditProfile,
     },
     {
-        path : '/user/account/:profileUserId/edit',
+        path : '/user/account/edit',
         name : 'EditAccount',
         component : EditAccount,
-        props : true,
     },
     {
         path: '*',
@@ -109,10 +109,16 @@ export default [
         path : '/article/:articleId',
         name : 'DetailArticle',
         component : DetailArticle,
+        props: true,
     }, 
     {
         path : '/article/update/:articleId',
         name : 'UpdateArticle',
         component : UpdateArticle,
+    }, 
+    {
+        path : '/pin/:pinId',
+        name : 'BindArticle',
+        component : BindArticle,
     }, 
 ]

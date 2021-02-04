@@ -1,19 +1,38 @@
 <template>
   <div>
     <v-text-field 
-      @keypress.enter='searchAddress' 
+      @click='searchLocationModal' 
       v-model="address" 
       label='주소 검색'>
     </v-text-field>
+
+    <SearchArticleLocation 
+      v-if="is_show"
+      @close-modal="is_show=false"
+      @goSetLocation="searchAddress"
+      >
+    </SearchArticleLocation>
     
+    {{ addressName }}
+
+
+
     <div id="map" class="map"></div>
     <div id="result"></div>
-    <v-btn @click="markerCheck(position)">위치 지정</v-btn>
+    <v-btn @click="markerCheck()">위치 지정</v-btn>
   </div>
 </template>
 
 <script>
+import SearchArticleLocation from "./SearchArticleLocation.vue" 
+
+
+
+
 export default {
+  components: {
+    SearchArticleLocation,
+  },
   props: {
     visible: {
     type: Boolean,
@@ -24,11 +43,17 @@ export default {
   data() {
     return{
       myLocation: '',
+      addressName: '',
       address: '',
       markerInfo: '',
       container: '',
       options: '',
+      map: '',
       position: '',
+      marker: '',
+      coordinates: '',
+      message: '',
+      is_show: false,
     }
   },
   mounted() {
@@ -48,74 +73,90 @@ export default {
     },
     initMap() {
       const self = this
-      this.options = {
-        //지도를 생성할 때 필요한 기본 옵션
-        center: new kakao.maps.LatLng(36.3586873, 127.30278400), //지도의 중심좌표.
-        level: 3 //지도의 레벨(확대, 축소 정도)
+      self.options = {
+        
+        center: new kakao.maps.LatLng(36.3586873, 127.30278400),
+        level: 3 
       }
-      this.container = document.getElementById("map")
-      var map = new kakao.maps.Map(this.container, this.options) //지도 생성 및 객체 리턴
-      this.mapClick()
-    },
-    searchAddress() {
-      
-      const self = this
+      self.container = document.getElementById("map")
+      self.map = new kakao.maps.Map(self.container, self.options)
+
+      // 주소 넣기
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
-          // if (status === kakao.maps.services.Status.OK) {
-          //     console.log(result);
-          // }
-      }
-      
-      geocoder.addressSearch(self.address, function(result, status) {
-
-    // 정상적으로 검색이 완료됐으면 
-      if (status === kakao.maps.services.Status.OK) {
-        
-        var coords = new kakao.maps.LatLng(result[0].y, result[0].x)
-        
-        self.container = document.getElementById('map') // 지도를 표시할 div 
-            self.options = {
-                center: new kakao.maps.LatLng(coords.Ma, coords.La), // 지도의 중심좌표
-                level: 3 // 지도의 확대 레벨
+        if (status === kakao.maps.services.Status.OK) {
+            self.addressName = result[0].address_name + result[0].code
         }
-        self.mapClick()
-        } 
-      })    
+      }
+      geocoder.coord2RegionCode(127.30278400, 36.3586873, callback)
+
+
+      kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+      self.mapClick(mouseEvent)
+      })
+    },
+    searchAddress(res) {
+      const self = this
+      self.address = res.place_name
+      var places = new kakao.maps.services.Places()
+
+      self.coordinates = new kakao.maps.LatLng(res.y, res.x)
+      self.map.setCenter(new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La))
+      self.marker = new kakao.maps.Marker({
+        map: self.map,
+        position: self.coordinates
+      })
+      self.marker.setMap(self.map)
+      self.markerInfo = self.marker
+
+      // 주소 넣기
+      var geocoder = new kakao.maps.services.Geocoder()
+      var callback = function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+            self.addressName = result[0].address_name
+        }
+      }
+      geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
+
+
+      // 클릭 이벤트
+      kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+      self.mapClick(mouseEvent)
+      })
     },
     markerCheck() {
-      this.$emit('onClick', this.position)
+      const markers = {
+        Ma: this.coordinates.Ma,
+        La: this.coordinates.La,
+        addressName: this.addressName
+      }
+      this.$emit('onClick', markers)
     },
-    mapClick() {
-      
+    mapClick(mouseEvent) {
       const self = this
-      var map = new kakao.maps.Map(this.container, this.options); //지도 생성 및 객체 리턴
-      kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
-          // 클릭한 위도, 경도 정보를 가져옵니다 
-          var latlng = mouseEvent.latLng;
-          var message = '클릭한 위치의 위도는 ' + latlng.getLat() + ' 이고, '
-          message += '경도는 ' + latlng.getLng() + ' 입니다'
-          
-          var resultDiv = document.getElementById('result')
-          resultDiv.innerHTML = message
-          
-          self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
-          var marker = new kakao.maps.Marker({
-            map: map,
-            position: self.position
-          })
-          
-          // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
-          if (self.markerInfo==''){
-            marker.setMap(map)
-          } else {
-            self.markerInfo.setMap(null)
-            marker.setMap(map)
-          }
-          self.markerInfo = marker    
-          
+      if (self.markerInfo !=''){
+        self.markerInfo.setMap(null)
+      }
+      var latlng = mouseEvent.latLng
+      self.coordinates = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
+      self.marker = new kakao.maps.Marker({
+        map: self.map,
+        position: self.coordinates
       })
-    }
+      self.markerInfo = self.marker      
+      
+      // 주소 넣기
+      var geocoder = new kakao.maps.services.Geocoder()
+      var callback = function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+            self.addressName = result[0].address_name + result[0].code
+        }
+      }
+      geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
+    },
+    searchLocationModal() {
+      this.is_show = !this.is_show
+    },
   }
 }
 </script>
@@ -124,5 +165,6 @@ export default {
 .map {
   width: 100%;
   height: 400px;
+  z-index: 0;
 }
 </style>

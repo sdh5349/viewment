@@ -1,11 +1,13 @@
 package com.web.curation.service.user;
 
 import com.web.curation.domain.User;
-import com.web.curation.dto.user.UserDto;
+import com.web.curation.domain.UserRole;
+import com.web.curation.dto.user.AccountDto;
 import com.web.curation.exceptions.UserDuplicateException;
+import com.web.curation.exceptions.UserNotFoundException;
+import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +21,24 @@ public class AccountServiceImpl implements AccountService{
 
     private final UserRepository userRepository;
 
+    private User getUser(String userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()->{throw new UserNotFoundException();}
+        );
+        return user;
+    }
+
     @Override
-    public String join(UserDto userDto) {
+    public String join(AccountDto userDto) {
         validateDuplicateUser(userDto.getEmail());
 
         //ToDo modelMapper 적용
-        User newUser = userDto.convert();
+        User newUser = new User();
+        newUser.setId(userDto.getUserId());
+        newUser.setEmail(userDto.getEmail());
+        newUser.setNickname(userDto.getNickname());
+        newUser.setRole(UserRole.USER);
+        newUser.setMessage(userDto.getMessage());
 
         userRepository.save(newUser);
         return newUser.getId();
@@ -38,27 +52,20 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public String modify(UserDto userDto) {
-        User user = userRepository.findById(userDto.getUserId())
-                .orElseThrow(
-                        ()->{throw new UsernameNotFoundException(userDto.getEmail() + "은 등록되지 않은 사용자입니다.");});
-        userRepository.update(userDto.convert(user));
+    public String modify(AccountDto userDto) {
+        User user = getUser(userDto.getUserId());
+        user.setNickname(userDto.getNickname());
+        user.setMessage(userDto.getMessage());
+
+        userRepository.save(user);
         return userDto.getUserId();
     }
 
     @Override
-    public String delete(String id) {
-        userRepository.delete(id);
-        return id;
+    public void delete(String userId) {
+        User user = getUser(userId);
+        userRepository.deleteAssociatedFollow(user);
+        userRepository.delete(user);
     }
 
-    @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public Optional<User> findOne(String id) {
-        return userRepository.findById(id);
-    }
 }

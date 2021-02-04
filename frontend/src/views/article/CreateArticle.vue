@@ -6,6 +6,7 @@
         lg="4"
         md="4"
         sm="6"
+        style="margin-bottom: 50px;"
     >
       <h1>추억 기록하기</h1>
 
@@ -14,7 +15,7 @@
       
       
       <v-row justify="space-around">
-        <v-col cols="10" class="text-center">게시물에 추억추가</v-col>
+        <v-col cols="10" class="text-center my-5">게시물에 사진올리기</v-col>
 
         <v-col cols="2">
           <validation-provider rules="" v-slot="{ errors }">
@@ -59,6 +60,7 @@
           :key="index"
           :src="file.url"
         >   
+          <v-btn @click='imageDelete(index)'>X</v-btn>
         </v-carousel-item>
       </v-carousel>
 
@@ -66,7 +68,7 @@
 
     <div>
       <v-btn @click="handleClickButton">지도 열기</v-btn>
-      <hr>
+      
       <div v-if="visible">
         <SetLocation
           @onClick="onMarker"
@@ -140,8 +142,9 @@ import firebase from 'firebase/app'
 import { required } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
 import SetLocation from '@/components/article/SetLocation.vue'
-const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+const request = axios.CancelToken.source()
 
 
 
@@ -169,10 +172,9 @@ export default {
         userId: '',
         lat: '',
         lng: '',
-        // address: '',
+        addressName: '',
         contents: '',
         hashtags: '',
-        imgFormData: '',
       },
       articleImages: null,
       hash: '',
@@ -209,6 +211,7 @@ export default {
     onMarker(res) {
       this.position.lat = res.Ma
       this.position.lng = res.La
+      this.addressName = res.addressName
       
       },
     submit() {
@@ -218,7 +221,8 @@ export default {
       this.articleInfo.lng = this.position.lng
       this.articleInfo.contents = this.content
       this.articleInfo.hashtags = this.hash
-
+      this.articleInfo.addressName = this.addressName
+      
       var headers = {
         headers: {
           'Content-type': 'multipart/form-data',
@@ -230,14 +234,16 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/articles`, this.articleInfo, {
+      
+      axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
         headers: {
-            'X-Authorization-Firebase': sessionStorage.getItem('jwt')
+            'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
           }
       } )
       .then((res) => {
+        
         this.articleId = res.data
-        axios.post(`http://i4b105.p.ssafy.io:8080/api/v1/images/article/` + this.articleId, this.articleImages, headers)
+        axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
         .then((res) => {
           console.log(res)
           this.$router.push({name: 'DetailArticle', params: {
@@ -254,13 +260,16 @@ export default {
         alert(err)
       })
     },
+    imageDelete(index) {
+      this.preview.splice(index, 1)
+    }
   },
   computed: {
       getToken(){
         const token = sessionStorage.getItem('jwt')
         const config = {
           headers: {
-            'X-Authorization-Firebase': token
+            'X-Authorization-Firebase': token,
           }
         }
         return config

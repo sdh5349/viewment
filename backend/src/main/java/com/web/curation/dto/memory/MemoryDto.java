@@ -35,7 +35,7 @@ public class MemoryDto {
 
         this.pinId = memory.getPin().getPinId();
 
-        this.lng = memory.getPin().getLocation().getX();//경도
         this.lat = memory.getPin().getLocation().getY();//위도
+        this.lng = memory.getPin().getLocation().getX();//경도
     }
 }

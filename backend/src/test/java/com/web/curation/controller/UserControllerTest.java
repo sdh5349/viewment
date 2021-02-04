@@ -1,35 +1,37 @@
 package com.web.curation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.web.curation.config.FirebaseConfig;
 import com.web.curation.domain.User;
+import com.web.curation.dto.user.AccountDto;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.service.user.AccountService;
+import com.web.curation.service.user.FollowService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.servlet.function.RequestPredicates.contentType;
+
+/**
+ * com.web.curation.controller
+ * UserControllerTest.java
+ * @date    2021-02-01 오후 4:12
+ * @author  김종성
+ *
+ * @변경이력
+ **/
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,129 +42,128 @@ public class UserControllerTest {
     MockMvc mockMvc;
 
     @Autowired
-    FollowRepository followRepository;
+    UserRepository userRepository;
 
     @Autowired
-    UserRepository userRepository;
+    AccountService accountService;
 
     @Autowired
     ObjectMapper mapper;
 
     @BeforeEach
     void setUp(){
-        User user1 = new User();
-        user1.setId("a");
-        user1.setNickname("aaa");
-        user1.setEmail("aaa@aaa");
-        userRepository.save(user1);
+        AccountDto accountDto = new AccountDto();
+        accountDto.setUserId("a");
+        accountDto.setEmail("a");
+        accountDto.setNickname("nickname");
 
-        User user2 = new User();
-        user2.setId("b");
-        user2.setNickname("bbb");
-        user2.setEmail("bbb@bbb");
-        userRepository.save(user2);
-
-        followRepository.follow("a", "b");
+        accountService.join(accountDto);
     }
 
     @Test
-    @WithMockUser(username = "userId", password = "")
-    void 팔로우_성공() throws Exception{
+    void 회원가입() throws Exception{
         //given
-        String userId = "b";
-        String targetUserId = "a";
+        AccountDto accountDto = new AccountDto();
+        accountDto.setUserId("aaa");
+        accountDto.setEmail("aaa@aaa");
+        accountDto.setNickname("nickname");
 
-        Map<String, String> input = new HashMap<>();
-        input.put("targetUserId", targetUserId);
-
-        String content = mapper.writeValueAsString(input);
+        String content = mapper.writeValueAsString(accountDto);
 
         //when
-        ResultActions resultActions =  mockMvc.perform(post("/api/v1/users" +
-                "/" + userId +
-                "/follow")
+        ResultActions result = mockMvc.perform(post("/api/v1/accounts")
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON));
 
         //then
-        resultActions
-                .andExpect(status().isOk());
-
-        Assertions.assertThat(followRepository.isFollowed(userId, targetUserId)).isTrue();
+        result.andExpect(status().isCreated());
     }
 
     @Test
-    @WithMockUser(username = "userId", password = "")
-    void 언팔로우_성공() throws Exception{
+    void 중복이메일_회원가입_실패() throws Exception{
+        //given
+        AccountDto accountDto = new AccountDto();
+        accountDto.setUserId("aaa");
+        accountDto.setEmail("a");
+        accountDto.setNickname("nickname");
+
+        String content = mapper.writeValueAsString(accountDto);
+
+        //when
+
+        ResultActions result = mockMvc.perform(post("/api/v1/accounts")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        result.andExpect(status().isBadRequest());
+    }
+
+
+    @WithMockUser(username = "a", password = "")
+    @Test
+    void 유저페이지_가져오기() throws Exception{
         //given
         String userId = "a";
-        String targetUserId = "b";
         //when
-        ResultActions resultActions =  mockMvc.perform(delete("/api/v1/users" +
+        ResultActions resultActions =  mockMvc.perform(get("/api/v1/users" +
                 "/" + userId +
-                "/followings" +
-                "/" + targetUserId));
+                "/page"));
         //then
         resultActions
-                .andExpect(status().isOk());
-        Assertions.assertThat(followRepository.isFollowed(userId, targetUserId)).isFalse();
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
-    @Test
-    @WithMockUser(username = "userId", password = "")
-    void 팔로워_삭제_성공() throws Exception{
-        //given
-        String userId = "b";
-        String targetUserId = "a";
-        //when
-        ResultActions resultActions =  mockMvc.perform(delete("/api/v1/users" +
-                "/" + userId +
-                "/followers" +
-                "/" + targetUserId));
-        //then
-        resultActions
-                .andExpect(status().isOk());
-
-        Assertions.assertThat(followRepository.isFollowed(targetUserId, userId)).isFalse();
-    }
-
-    @Test
     @WithMockUser(username = "a", password = "")
-    void 팔로우_목록_가져오기() throws Exception{
+    @Test
+    void 회원정보_수정() throws Exception{
         //given
-        MultiValueMap<String, String> pageable = new LinkedMultiValueMap<>();
-        pageable.add("size", "10");
-        pageable.add("page", "0");
+        AccountDto accountDto = new AccountDto();
+        accountDto.setUserId("a");
+        accountDto.setNickname("nickname");
+        accountDto.setMessage("message");
+
+        String content = mapper.writeValueAsString(accountDto);
 
         //when
-        ResultActions resultActions =  mockMvc.perform(get("/api/v1/users" +
-                "/" + "a"+
-                "/followings")
-                .queryParams(pageable));
+        ResultActions result = mockMvc.perform(patch("/api/v1/accounts" +
+                "/" + "a")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON));
+
         //then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-                .andDo(print());
+        result.andExpect(status().isOk());
+
+        User findUser = userRepository.findById(accountDto.getUserId()).get();
+        Assertions.assertThat(findUser.getMessage()).isEqualTo(accountDto.getMessage());
+    }
+
+    @WithMockUser(username = "a", password = "")
+    @Test
+    void 회원탈퇴() throws Exception{
+        //given
+        String userId = "a";
+        //when
+        ResultActions result = mockMvc.perform(delete("/api/v1/accounts" +
+                        "/" + "a"));
+
+        //then
+        result.andExpect(status().isOk());
+
+        User findUser = userRepository.findById("a").orElse(null);
+        Assertions.assertThat(findUser).isNull();
     }
 
     @Test
-    @WithMockUser(username = "b", password = "")
-    void 팔로워_목록_가져오기() throws Exception{
+    void 토큰_인증_실패() throws Exception{
         //given
-        MultiValueMap<String, String> pageable = new LinkedMultiValueMap<>();
-        pageable.add("size", "10");
-        pageable.add("page", "0");
 
         //when
-        ResultActions resultActions =  mockMvc.perform(get("/api/v1/users" +
-                "/" + "b"+
-                "/followers")
-                .queryParams(pageable));
+        ResultActions result = mockMvc.perform(get("/api/v1/users/a/page")
+                .header("X-Authorization-Firebase", "sdadsadasd"));
         //then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-                .andDo(print());
+        result.andExpect(status().isUnauthorized());
     }
+
 }
