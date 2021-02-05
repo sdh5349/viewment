@@ -87,7 +87,8 @@ export default {
         {
           HistoryTitle: hash.contents,
           HistoryContent: hash.hashtagId, 
-          HistoryIcon:"mdi-pound"
+          HistoryIcon:"mdi-pound",
+          HistoryProperty: "Hashtag",
         }
       this.appendToStorage(this.Historys)
     },

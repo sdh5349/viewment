@@ -34,6 +34,7 @@
 </template>
 
 <script>
+// import { params } from 'vee-validate/dist/types/rules/alpha';
 export default {
   data() {
     return {
@@ -100,11 +101,14 @@ export default {
       this.Historys = 
         {
           HistoryTitle: searchedLocation.place_name,
-          HistoryContent: searchedLocation.address_name, 
-          HistoryIcon:"mdi-map-marker"
+          HistoryContent: searchedLocation.x, 
+          HistoryContent2: searchedLocation.y, 
+          HistoryIcon:"mdi-map-marker",
+          HistoryProperty: "Map",
         }
-      
-      this.$router.push({ name: 'Feed', params: {id: searchedLocation} })
+      console.log(searchedLocation.x)
+      console.log(searchedLocation.y)
+      this.$router.push({ name: 'Feed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
       this.appendToStorage(this.Historys)
     }
   },
