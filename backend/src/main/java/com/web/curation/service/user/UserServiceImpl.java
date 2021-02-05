@@ -46,12 +46,10 @@ public class UserServiceImpl implements UserService{
 
         boolean isFollowed = follow==null?false:true;
 
-
-        //ToDo 카운트 쿼리로 수정
-        int countFollowings = followRepository.findByFrom(user).size();
-        int countFollowers = followRepository.findByTo(user).size();
-        int countMemories = memoryRepository.findByUser(user).size();
-        int countArticles = articleRepository.findByUserId(user.getId()).size();
+        int countFollowings = followRepository.countByFrom(user).intValue();
+        int countFollowers = followRepository.countByTo(user).intValue();
+        int countMemories = memoryRepository.countByUser(user).intValue();
+        int countArticles = articleRepository.countByUser(user).intValue();
 
         return new UserPageDto(user, countFollowers, countFollowings, countMemories, countArticles, isFollowed);
     }

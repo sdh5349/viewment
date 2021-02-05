@@ -32,4 +32,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     @Query("select f from Follow f where f.from.id = :userId and f.to.id = :targetUserId")
     public Optional<Follow> findByUserIdAndTargetUserId(@Param("userId") String userId, @Param("targetUserId") String targetUserId);
 
+    Long countByFrom(User from);
+    Long countByTo(User to);
 }
