@@ -111,6 +111,7 @@ export default [
     {
         path : '/article/:articleId',
         name : 'DetailArticle',
+        meta : { title: '게시글 수정'},
         component : DetailArticle,
         props: true,
     }, 

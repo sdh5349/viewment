@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container>
+    <v-container class="py-0">
       <v-row >
         <v-col cols='12'>
           <v-text-field 
@@ -12,11 +12,11 @@
         </v-col>
         
         <v-col cols="12">
-          <SearchArticleLocation
+          <SearchFeedLocation
             v-if="is_show"
             @close-modal="is_show=false"
             @goSetLocation="searchAddress"
-          ></SearchArticleLocation>
+          ></SearchFeedLocation>
         </v-col>
 
         <v-col cols='12' >
@@ -49,7 +49,7 @@
       </v-col>
       
       <v-col cols='4' align="center">
-        <v-btn icon color="black" @click="[checkMemory, loader='loading']"> 
+        <v-btn icon color="black" @click="checkMemory"> 
           <v-icon>
             mdi-pin
           </v-icon>
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import SearchArticleLocation from "../feed/SearchArticleLocation.vue" 
+import SearchFeedLocation from "../feed/SearchFeedLocation.vue" 
 import MemoryLocation from "./MemoryLocation.vue"
 import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL 
@@ -96,7 +96,7 @@ export default {
     'myMemories'
   ],
   components: {
-    SearchArticleLocation,
+    SearchFeedLocation,
     MemoryLocation
   },
   data() {
@@ -136,7 +136,7 @@ export default {
       const self = this
       self.options = { 
           center: new kakao.maps.LatLng(36.3586873, 127.30278400),
-          level: 3 
+          level: 5 
       }
       self.container = document.getElementById("map")
       self.map = new kakao.maps.Map(self.container, self.options)
@@ -147,7 +147,7 @@ export default {
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name + result[0].code
+            self.addressName = result[0].address_name
         }
       }
       geocoder.coord2RegionCode(127.30278400, 36.3586873, callback)
@@ -174,7 +174,7 @@ export default {
       geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
 
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
-      self.mapClick(mouseEvent)
+        self.mapClick(mouseEvent)
       })
 
     },

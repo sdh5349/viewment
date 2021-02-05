@@ -2,9 +2,7 @@
   <div>
     <v-app>
       <v-container>
-
-        <v-row>
-          
+        <v-row>   
           <v-tabs 
             fixed-tabs
             color="primary"
