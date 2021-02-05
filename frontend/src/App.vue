@@ -52,7 +52,7 @@
           </v-container>
         <!-- </v-sheet> -->
       <!-- </v-card> -->
-       <v-bottom-navigation fixed>
+       <v-bottom-navigation grow fixed>
         <v-btn
           @click="goFeed"
         >

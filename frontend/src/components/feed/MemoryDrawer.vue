@@ -4,7 +4,8 @@
       <v-row>
         <v-col>
           <v-sheet
-            absolute
+            fixed
+            class="mb-5"
             height="100"
           >
             <v-btn
@@ -19,6 +20,7 @@
               bottom
               class="memoryDrawer"
               height="400px"
+              min-height="400px"
               hide-overlay
             >
               <v-list dense>
@@ -91,10 +93,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .memoryDrawer{
   z-index: 10;
   position: relative;
-  
 }
 </style>

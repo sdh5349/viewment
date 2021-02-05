@@ -26,9 +26,10 @@
       >
         <v-list-item-content>
           <v-list-item-title>
-            <div class="d-flex justify-space-between">
+            <div class="d-flex justify-space-between"
+            >
               <!-- 사용자 아이콘, 닉네임 시작 -->
-              <div class="text-h6">
+              <div class="text-h6 mouse-hover" @click="onProfileImage">
                 <v-list-item-avatar
                   v-if="articleInfo.user.profileImage"
                   size="36"
@@ -276,6 +277,17 @@ export default {
       this.$router.push({name: 'Search', params: {
         clickedHash: res
       }})
+    },
+    onProfileImage() {
+      this.$router.push({ 
+        name: 'Profile', 
+        params: { profileUserId : this.articleInfo.user.userId }
+      })
+      .catch (err=>{
+        if(err.name === "NavigationDuplicated" ){
+          location.reload();
+        }
+      })
     }
   },
 }
@@ -314,6 +326,10 @@ export default {
   left: 0;
   background: white;
   width: 100%;
-  z-index: 5;
+  z-index: 4;
+}
+
+.mouse-hover:hover {
+  cursor: pointer;
 }
 </style>

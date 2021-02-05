@@ -1,23 +1,27 @@
 <template>
-  <div>
-    <v-container>
-      <v-row>
-      
-        <v-col cols="10" align="center" class="my-5">사진올리기</v-col>
-
-        <v-col cols="2">
-            <v-file-input
-              v-if="preview.length === 0"
-              accept="image/*"
-              v-model="files"
-              multiple 
-              prepend-icon="mdi-camera"
-              @change="previewImg"
-              hide-input     
-              >
-            </v-file-input>
-        </v-col>
-    
+  <v-row
+    justify="center"
+  >
+    <v-col
+      lg="4"
+      md="4"
+      sm="6"
+    >
+      <div>
+        <v-row>
+          <v-col cols="10" align="center" class="my-5">사진올리기</v-col>
+          <v-col cols="2">
+              <v-file-input
+                accept="image/*"
+                v-model="files"
+                multiple 
+                prepend-icon="mdi-camera"
+                @change="previewImg"
+                hide-input     
+                >
+              </v-file-input>
+          </v-col>
+        </v-row>
         <v-carousel
           :show-arrows="false"
           hide-delimiter-background
@@ -35,9 +39,9 @@
         </v-carousel>
 
         <v-btn block @click="onNext" color="primary">다음</v-btn>
-      </v-row>      
-    </v-container>
-  </div>
+      </div>
+     </v-col>
+  </v-row>
 </template>
 
 <script>

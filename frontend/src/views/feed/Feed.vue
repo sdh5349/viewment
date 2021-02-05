@@ -1,7 +1,12 @@
 <template>
-  <div>
-    <v-app>
-      <v-container>
+  <v-row
+      justify="center"
+    >
+      <v-col
+        lg="4"
+        md="4"
+        sm="6"
+      >
         <v-row>   
           <v-tabs 
             fixed-tabs
@@ -42,9 +47,8 @@
             </MemoryDrawer>
           </v-col>
         </v-row>
-      </v-container>
-    </v-app>
-  </div>
+   </v-col>
+ </v-row>
 </template>
 
 <script>
