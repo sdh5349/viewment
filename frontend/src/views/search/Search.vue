@@ -87,6 +87,9 @@ export default {
   watch: {
     onTab: function() {
       console.log(this.onTab)
+      // if (this.search === '' || this.search === null || this.search.value === 0){
+      //       console.log("gg")
+      //   }
     }
   }
 }

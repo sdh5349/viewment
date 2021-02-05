@@ -15,6 +15,7 @@
           <v-list-item
             v-for="(History,i) in Historys"
             :key="i"
+            @click="goPage(History)"
           >
             <v-list-item-avatar>
               <v-icon>
@@ -42,6 +43,7 @@
 </template>
 
 <script>
+// import { params } from 'vee-validate/dist/types/rules/alpha';
 export default {
   data() {
     return {
@@ -95,6 +97,17 @@ export default {
       console.log(JSON.parse(localStorage.getItem("Historys")))
       
       // this.getSearchedlog(this.Historys)
+    },
+    goPage(History) {
+      if (History.HistoryProperty === "User") {
+        this.$router.push({ name: 'Profile', params: { profileUserId : History.HistoryContent }})
+      }
+      else if (History.HistoryProperty === "Map") {
+        this.$router.push({ name: 'Feed', params: {lng: History.HistoryContent, lat: History.HistoryContent2} })
+      }
+      else if (History.HistoryProperty === "Hashtag") {
+        console.log("상세페이지")
+      }
     }
   },
   created() {
