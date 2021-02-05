@@ -1,37 +1,41 @@
 <template>
   <div class="modal">
-    <div class="overlay" @click="$emit('close-modal')" ></div>
-    <div class="modal-card">
-
-      <v-text-field 
-        v-model="address" 
-        label='주소 검색'
-        >
-     </v-text-field>
-
-      <v-card
-        class="mx-auto mt-5"
-        flat
-      >
-        <v-list>
-          <v-list-item
-            v-for="(searchedLocation, i) in searchedLocations.slice(0,9)"
-            :key="i"
-            @click="goSetLocation(searchedLocation)"
-          >
-            <v-list-item-avatar>
-              <v-icon>
-                mdi-map-marker
-              </v-icon>
-            </v-list-item-avatar>    
-            <v-list-item-content>
-              <v-list-item-title >{{searchedLocation.place_name}}</v-list-item-title>
-              <v-list-item-title >{{searchedLocation.address_name}}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-card>
-    </div>
+    <v-container class="py-0">
+      <v-row>
+        <v-col cols='12'>
+          <div class="overlay" @click="$emit('close-modal')" ></div>
+        </v-col>
+    
+        <v-col cols='12'>
+          <div class="modal-card">
+            <v-text-field 
+              v-model="address" 
+              label='주소 검색'
+            ></v-text-field> 
+            <v-card
+              class="mx-auto mt-5"
+              flat
+            >
+              <v-list>
+                <v-list-item
+                  v-for="(searchedLocation, i) in searchedLocations.slice(0,9)"
+                  :key="i"
+                  @click="goSetLocation(searchedLocation)"
+                >
+                <v-list-item-avatar>
+                  <v-icon>mdi-map-marker</v-icon>
+                </v-list-item-avatar>    
+                <v-list-item-content>
+                  <v-list-item-title >{{searchedLocation.place_name}}</v-list-item-title>
+                  <v-list-item-title >{{searchedLocation.address_name}}</v-list-item-title>
+                </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 

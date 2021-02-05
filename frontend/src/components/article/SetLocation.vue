@@ -1,25 +1,32 @@
 <template>
   <div>
-    <v-text-field 
-      @click='searchLocationModal' 
-      v-model="address" 
-      label='주소 검색'>
-    </v-text-field>
+    <v-container class="py-0">
+      <v-row >
+        <v-col cols='12'>
+          <v-text-field 
+            @click='searchLocationModal' 
+            v-model="address" 
+            label='주소 검색'>
+          </v-text-field>
+        </v-col>
 
-    <SearchArticleLocation 
-      v-if="is_show"
-      @close-modal="is_show=false"
-      @goSetLocation="searchAddress"
-      >
-    </SearchArticleLocation>
+        <v-col cols='12'>
+          <SearchArticleLocation 
+            v-if="is_show"
+            @close-modal="is_show=false"
+            @goSetLocation="searchAddress"
+            >
+          </SearchArticleLocation>
+        </v-col>
+
+        <v-col cols='12'>{{ addressName }}</v-col>
+  
+        <v-col cols='12'>
+          <div id="map" class="map"></div>
+        </v-col>
     
-    {{ addressName }}
-
-
-
-    <div id="map" class="map"></div>
-    <div id="result"></div>
-    <v-btn @click="markerCheck()">위치 지정</v-btn>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -76,16 +83,16 @@ export default {
       self.options = {
         
         center: new kakao.maps.LatLng(36.3586873, 127.30278400),
-        level: 3 
+        level: 5
       }
       self.container = document.getElementById("map")
       self.map = new kakao.maps.Map(self.container, self.options)
 
-      // 주소 넣기
+      
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name + result[0].code
+            self.addressName = result[0].address_name
         }
       }
       geocoder.coord2RegionCode(127.30278400, 36.3586873, callback)
@@ -102,12 +109,6 @@ export default {
 
       self.coordinates = new kakao.maps.LatLng(res.y, res.x)
       self.map.setCenter(new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La))
-      self.marker = new kakao.maps.Marker({
-        map: self.map,
-        position: self.coordinates
-      })
-      self.marker.setMap(self.map)
-      self.markerInfo = self.marker
 
       // 주소 넣기
       var geocoder = new kakao.maps.services.Geocoder()
@@ -123,14 +124,6 @@ export default {
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
       self.mapClick(mouseEvent)
       })
-    },
-    markerCheck() {
-      const markers = {
-        Ma: this.coordinates.Ma,
-        La: this.coordinates.La,
-        addressName: this.addressName
-      }
-      this.$emit('onClick', markers)
     },
     mapClick(mouseEvent) {
       const self = this
@@ -149,10 +142,17 @@ export default {
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name + result[0].code
+            self.addressName = result[0].address_name
         }
       }
       geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
+
+      const markers = {
+        Ma: this.coordinates.Ma,
+        La: this.coordinates.La,
+        addressName: this.addressName
+      }
+      this.$emit('onClick', markers)
     },
     searchLocationModal() {
       this.is_show = !this.is_show
@@ -164,7 +164,7 @@ export default {
 <style>
 .map {
   width: 100%;
-  height: 400px;
+  height: 300px;
   z-index: 0;
 }
 </style>
