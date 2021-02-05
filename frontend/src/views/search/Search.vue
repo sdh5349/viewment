@@ -1,7 +1,13 @@
 <template>
-<v-container>
+<v-row
+    justify="center"
+  >
+    <v-col
+      lg="4"
+      md="4"
+      sm="6"
+    >
 
-  <v-row>
     <v-text-field
     class="mx-2 mt-5"
     rows="1"
@@ -16,9 +22,11 @@
       </template>
 
     </v-text-field>
-  </v-row>
   <!-- 탭 -->
+  <v-row>
+
     <v-tabs
+      style="z-index: 10;"
       v-model="onTab"
       grow
     >
@@ -29,27 +37,30 @@
         <v-icon>{{ tabItem.icon }}</v-icon>
       </v-tab>
     </v-tabs>
+  </v-row>
   <!-- 탭 -->
 
   <!-- 탭-컴포넌트 -->
-    <v-tabs-items
-      v-model="onTab"
+  <v-tabs-items
+    v-model="onTab"
+  >
+    <v-tab-item
+      v-for="tabItem in tabItems"
+      :key="tabItem.tabId"
     >
-      <v-tab-item
-        v-for="tabItem in tabItems"
-        :key="tabItem.tabId"
-      >
-        <v-card flat>
-          <component 
-            v-bind:is="tabItem.content"
-            :search="search"
-            :onTab="onTab"
-          ></component>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
+      <v-card flat>
+        <component 
+          v-bind:is="tabItem.content"
+          :search="search"
+          :onTab="onTab"
+        ></component>
+      </v-card>
+    </v-tab-item>
+  </v-tabs-items>
     <!-- 탭-컴포넌트 -->
-</v-container>
+
+   </v-col>
+ </v-row>
 </template>
 
 <script>

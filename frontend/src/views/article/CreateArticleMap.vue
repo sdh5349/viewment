@@ -1,21 +1,20 @@
 <template>
-  <div >
-    <v-container class="py-0">
-      <v-row class="py-0">
-        <v-col cols='12' >
-          <SetLocation
-            @onClick="savePosition"
-          ></SetLocation>
-          
-        </v-col>
-        
-        <v-col cols="12">
-          <v-btn block @click="onSumbit" color="primary">추억 공유</v-btn>
-        </v-col>
+<v-row justify="center">
+  <v-col lg="4" md="4" sm="6">
+    <v-row class="py-0">
 
-      </v-row>
-    </v-container>
-  </div>
+      <v-col cols='12'>
+        <SetLocation @onClick="savePosition"></SetLocation>
+
+      </v-col>
+
+      <v-col cols="12">
+        <v-btn block @click="onSumbit" color="primary">추억 공유</v-btn>
+      </v-col>
+
+    </v-row>
+  </v-col>
+</v-row>
 </template>
 
 <script>

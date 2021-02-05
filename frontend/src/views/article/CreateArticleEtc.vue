@@ -1,83 +1,45 @@
 <template>
-  <div>
-    <v-container>
-      <v-row>      
+  <v-row justify="center">
+    <v-col lg="4" md="4" sm="6">
+      <v-row>
         <v-col cols='12'>
-          <validation-provider rules="required" v-slot="{ errors }" >
-            <v-textarea
-              placeholder="추억을 적어주세요!"
-              type="text"
-              label="게시 글 입력"
-              v-model="contents"
-              :error-messages="errors"
-              outlined 
-            ></v-textarea>
+          <validation-provider rules="required" v-slot="{ errors }">
+            <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" :error-messages="errors"
+              outlined></v-textarea>
           </validation-provider>
         </v-col>
-
+  
         <v-col cols='12'>
-          <v-combobox
-            v-model="hashtags"
-            :items="items"
-            label="해시태그"
-            multiple
-            chips
-            >
-        
+          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips>
+  
             <template v-slot:selection="data">
-              <v-chip
-                :key="JSON.stringify(data.item)"
-                v-bind="data.attrs"
-                :input-value="data.selected"
-                :disabled="data.disabled"
-                @click:close="data.parent.selectItem(data.item)"
-              >
-                <v-avatar
-                  class="accent white--text"
-                  left
-                  v-text="'#'"
-                ></v-avatar>
+              <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
+                :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
+                <v-avatar class="accent white--text" left v-text="'#'"></v-avatar>
                 {{ data.item }}
               </v-chip>
             </template>
           </v-combobox>
         </v-col>
-
+  
         <v-col cols='12'>
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
+          <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y
+            min-width="auto">
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="date"
-                label="날짜 입력"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="date" label="날짜 입력" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on">
+              </v-text-field>
             </template>
-            <v-date-picker
-              ref="picker"
-              v-model="date"
-              :max="new Date().toISOString().substr(0, 10)"
-              min="1950-01-01"
-              @change="save"
-            ></v-date-picker>
+            <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)" min="1950-01-01"
+              @change="save"></v-date-picker>
           </v-menu>
         </v-col>
-
+  
         <v-col cols="12">
           <v-btn block @click="onNext" color="primary">다음</v-btn>
         </v-col>
-      </v-row>      
-    </v-container>
-  </div>
+      </v-row>
+    </v-col>
+  </v-row>
 </template>
 
 <script>

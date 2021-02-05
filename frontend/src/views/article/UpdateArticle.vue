@@ -1,62 +1,40 @@
 <template>
-  <div>
-    <v-container>
+  <v-row justify="center">
+    <v-col lg="4" md="4" sm="6">
       <v-row justify="center">
         <v-col cols="12">
           <h4>게시글에서 사진과 위치는 수정할수 없습니다.</h4>
         </v-col>
 
         <!-- <v-col cols="12">
-          <v-carousel
-            :show-arrows="false"
-            hide-delimiter-background
-            delimiter-icon="mdi-minus"
-            height="50px"
-            mouse-drag = true
-          >
-            <v-carousel-item
-              v-for="(image, i) in preview"
-              :key="i"
-              :src="SERVER+ '/images/'+ image.path"
-            ></v-carousel-item>
-          </v-carousel>
-        </v-col>  -->
+            <v-carousel
+              :show-arrows="false"
+              hide-delimiter-background
+              delimiter-icon="mdi-minus"
+              height="50px"
+              mouse-drag = true
+            >
+              <v-carousel-item
+                v-for="(image, i) in preview"
+                :key="i"
+                :src="SERVER+ '/images/'+ image.path"
+              ></v-carousel-item>
+            </v-carousel>
+          </v-col>  -->
 
         <v-col cols="12">
-          <validation-provider rules="required" v-slot="{ errors }" >
-            <v-textarea
-              placeholder="추억을 적어주세요!"
-              type="text"
-              label="게시글"
-              v-model="contents"
-              :error-messages="errors"
-              outlined
-              ></v-textarea>
+          <validation-provider rules="required" v-slot="{ errors }">
+            <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시글" v-model="contents" :error-messages="errors"
+              outlined></v-textarea>
           </validation-provider>
         </v-col>
 
         <v-col cols="12">
-          <v-combobox
-            v-model="hashtags"
-            :items="items"
-            label="해시태그"
-            multiple
-            chips
-            @change="writeHash"
-            >
+          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @change="writeHash">
             <template v-slot:selection="data">
-              <v-chip
-                :key="JSON.stringify(data.item)"
-                v-bind="data.attrs"
-                :input-value="data.selected"
-                :disabled="data.disabled"
-                @click:close="data.parent.selectItem(data.item)"
-              >
-                <v-avatar
-                  class="accent white--text"
-                  left
-                  v-text="'#'"
-                ></v-avatar>
+              <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
+                :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
+                <v-avatar class="accent white--text" left v-text="'#'"></v-avatar>
                 {{ data.item }}
               </v-chip>
             </template>
@@ -65,48 +43,27 @@
 
 
         <v-col cols='12'>
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
+          <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y
+            min-width="auto">
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="date"
-                label="날짜 입력"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="date" label="날짜 입력" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on">
+              </v-text-field>
             </template>
-            <v-date-picker
-              ref="picker"
-              v-model="date"
-              :max="new Date().toISOString().substr(0, 10)"
-              min="1950-01-01"
-              @change="save"
-            ></v-date-picker>
+            <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)" min="1950-01-01"
+              @change="save"></v-date-picker>
           </v-menu>
         </v-col>
 
 
 
 
-        <v-btn
-          class="mr-4"
-          color="primary"
-          block
-          @click="onUpdate"
-        >
+        <v-btn class="mr-4" color="primary" block @click="onUpdate">
           게시물 수정
         </v-btn>
       </v-row>
-    </v-container>
-  </div>
+
+    </v-col>
+  </v-row>
 </template>
 
 <script>

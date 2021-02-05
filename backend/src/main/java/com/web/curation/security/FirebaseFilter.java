@@ -44,7 +44,7 @@ public class FirebaseFilter extends OncePerRequestFilter {
         try{
             decodedToken = firebaseAccountService.verifyToken(token);
         }catch (FirebaseInvalidTokenException e){
-            logger.info(String.format("%s >> %s ", "Invalid FirebaseToken", token));
+            logger.info(String.format("%s >> %s... ", "Invalid FirebaseToken", token.substring(0, 10)));
         }
 
 
