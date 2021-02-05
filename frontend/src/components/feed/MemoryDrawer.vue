@@ -1,61 +1,52 @@
 <template>
-  
-  <v-sheet
-    absolute
-    height="100"
-  >
-    <v-container
-    
-    >
-      <v-row
-        align="center"
-        justify="center"
-      >
-        <v-btn
-          color="pink"
-          dark
-          @click.stop="drawer = !drawer"
-          block
-        >
-          ^
-        </v-btn>
+  <div>
+    <v-container class="py-0">
+      <v-row>
+        <v-col>
+          <v-sheet
+            absolute
+            height="100"
+          >
+            <v-btn
+              color="pink"
+              dark
+              @click.stop="drawer = !drawer"
+              block
+            >^</v-btn>
+        
+            <v-navigation-drawer
+              v-model="drawer"
+              bottom
+              class="memoryDrawer"
+              height="400px"
+              hide-overlay
+            >
+              <v-list dense>
+                <v-list-item
+                  v-for="memory in memories"
+                  :key="memory.memoryId"
+                >
+                  <v-list-item-icon>
+                    <v-icon>
+                      mdi-map-marker
+                    </v-icon>
+                  </v-list-item-icon>
+
+                  
+                  <v-list-item-content>
+                    <v-btn @click='goMemory(memory)'>
+                      <v-list-item-title>{{ memory.name }}</v-list-item-title>
+                    </v-btn>
+                  </v-list-item-content>
+                  
+                </v-list-item>
+              </v-list>
+            </v-navigation-drawer>
+          </v-sheet>
+        </v-col>
       </v-row>
     </v-container>
-
-    <v-navigation-drawer
-      v-model="drawer"
-      bottom
-      class="memoryDrawer"
-      height="400px"
-      hide-overlay
-    >
-
-
-      <v-divider></v-divider>
-
-      <v-list dense>
-        <v-list-item
-          v-for="memory in memories"
-          :key="memory.memoryId"
-        >
-          <v-list-item-icon>
-            <v-icon>
-              mdi-map-marker
-            </v-icon>
-          </v-list-item-icon>
-
-          
-          <v-list-item-content>
-            <v-btn @click='goMemory(memory)'>
-              <v-list-item-title>{{ memory.name }}</v-list-item-title>
-            </v-btn>
-          </v-list-item-content>
-          
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    
-  </v-sheet>
+  </div>
 </template>
 
 <script>
@@ -103,7 +94,7 @@ export default {
 <style>
 .memoryDrawer{
   z-index: 10;
-  position: absolute;
+  position: relative;
   
 }
 </style>

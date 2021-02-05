@@ -109,12 +109,6 @@ export default {
 
       self.coordinates = new kakao.maps.LatLng(res.y, res.x)
       self.map.setCenter(new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La))
-      self.marker = new kakao.maps.Marker({
-        map: self.map,
-        position: self.coordinates
-      })
-      self.marker.setMap(self.map)
-      self.markerInfo = self.marker
 
       // 주소 넣기
       var geocoder = new kakao.maps.services.Geocoder()
