@@ -173,12 +173,18 @@
         v-model="commentInput"
         class="bottom-comment-input ma-0 pa-0"
         label="댓글 달기"
+        append-icon="mdi-pencil"
         outlined
         hide-details
+        @click:append="onCreateReply"
+        @keypress.enter="onCreateReply"
       ></v-text-field>
-      <div v-if="false">
-       <ReplyList />
-      </div>
+      <ReplyList 
+        :replies="articleInfo.replies"
+        :profileUserId="articleInfo.user.userId"
+        :loginUserId="loginUserId"
+        replyType="reply"
+      />
     </v-col>
   </v-row>
 </template>
@@ -216,6 +222,7 @@ export default {
       imageServerPrefix: `${SERVER_URL}/images/`,
       commentInput: '',
       articleInfo: '',
+      loginUserId: '',
     }
   },
   computed: {
@@ -231,6 +238,7 @@ export default {
   },
   created() {
     this.fetchData()
+    this.loginUserId = sessionStorage.getItem('uid')
   },
   methods: {
     fetchData() {
@@ -268,6 +276,26 @@ export default {
       this.$router.push({name: 'Search', params: {
         clickedHash: res
       }})
+    },
+    onCreateReply() {
+      if (this.commentInput) {
+        console.log(this.articleInfo.articleId)
+        const params = {
+          'articleId': this.articleInfo.articleId, 
+          'contents': this.commentInput, 
+          'userId': this.loginUserId
+        }
+  
+        axios.post(`${SERVER_URL}/replies`, params, this.getToken)
+        .then(()=> {
+          this.fetchData()
+        })
+        .then(() => {
+          this.commentInput = ''
+        })
+        .catch(() => {
+        })
+      }
     }
   },
 }

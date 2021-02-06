@@ -4,7 +4,6 @@
       v-if="isUpdating"
       space-between
     >
-
       <v-col>
         <!-- 유저 프로필 이미지 or 아이콘 / 유저 닉네임 시작 -->
         <UserProfileImage 
@@ -55,11 +54,13 @@
             :profile-image="replyInfo.user.ProfileImage"
           />
           <v-btn 
-            v-if="this.replyType === 'reply'" 
+            v-if="this.replyType === 'reply'"
             fab 
             bottom
-            @click="onCreateRereply"
+            @click="showRereply = !showRereply"
           >대댓글</v-btn>
+          <h1 v-if="showRereply">여기 이제 대댓글 쓰는 란!</h1>
+          
         </v-card>
         <!-- 유저 프로필 이미지 or 아이콘 / 유저 닉네임 끝 -->
 
@@ -90,7 +91,18 @@
       </v-col>
     </v-row>
     <!-- child라는 프로퍼티가 있고 이 것이 빈값이 아니라면 -->
-    <v-row v-if="typeof replyInfo.child !== 'undefined' && replyInfo.child">
+    <v-row v-if="(typeof replyInfo.child) !== 'undefined' && replyInfo.child">
+      <v-col
+        cols="10"
+        offset="2"
+      >
+      <ReplyList 
+        :replies="replyInfo.child"
+        :profileUserId="articleInfo.user.userId"
+        :loginUserId="loginUserId"
+        replyType="rereply"
+      />
+      </v-col>
     </v-row>
   </v-list-item>
 </template>
@@ -98,13 +110,15 @@
 <script>
 import axios from 'axios'
 import UserProfileImage from '@/components/user/UserProfileImage'
+import ReplyList from '@/components/reply/ReplyList'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'Reply',
   components: {
-    UserProfileImage
+    UserProfileImage,
+    ReplyList
   },
   filters: {
     dateFormat(date) {
@@ -117,16 +131,12 @@ export default {
     profileUserId: String,
     loginUserId: String,
     replyType: String,
-    // request_user: {
-    //   type: String
-    // },
-    // articleId: [String, Number]
   },
   data: () => ({
       replyInfo: null,
-      loginUserId: '',
       isUpdating: false,
-      updateContent: ''
+      updateContent: '',
+      showRereply: false,
     }),
   computed: {
     getToken(){
@@ -196,35 +206,6 @@ export default {
         alert(err)
       })
     },
-    // deleteComment() {
-    //   const config = this.setToken()
-    //   axios.delete(`${SERVER_URL}/community/articles/${this.articleId}/comment_update_delete/${this.comment.id}/`, this.getToken)
-    //   .then(
-    //     this.deleted_comment = true,
-    //     this.$emit('delete-comment')
-    //   )
-    // },
-    // openupdateComment() {
-    //   this.updated_comment = !this.updated_comment
-    // },
-    // updateComment() {
-    //   const params = { commentContent : this.commentContent }
-    //   axios.put(`${SERVER_URL}/community/articles/${this.articleId}/comment_update_delete/${this.comment.id}/`, params, this.getToken)
-    //   .then(res => {
-    //     console.log(res.data)
-    //     this.comment = comment
-    //     this.hashtagComment()
-    //     this.content = ''
-    //     this.updated_comment = false
-    //     this.$emit('update-comment')
-    //   })
-    //   .catch()
-    // },
-    // hashtagComment() {
-    //   const content = this.comment.content
-    //   this.splited_content = content.split(' ')
-    //   console.log(this.splited_content)
-    // }
   },
 }
 </script>

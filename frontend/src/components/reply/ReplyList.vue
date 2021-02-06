@@ -1,7 +1,14 @@
 <template>
   <v-container>
     <v-card-text>
-      <Reply v-for="comment in comments" :key="comment.id" :comment="comment" :request_user="request_user" :articleId="articleId" @update-comment="changeComments" @delete-comment="changeComments" />
+      <Reply 
+        v-for="reply in replies" 
+        :key="reply.replyId" 
+        :reply="reply" 
+        :profileUserId="profileUserId"
+        :loginUserId="loginUserId"
+        :replyType="replyType" 
+      />
     </v-card-text>
   </v-container>
 </template>
@@ -15,9 +22,10 @@ export default {
     Reply
   },
   props: {
-    // comments: {
-    //   type: Array
-    // },
+    replies: Array,
+    profileUserId: String,
+    loginUserId: String,
+    replyType: String,
     // articleId: {
     //   type: Number
     // },
@@ -26,11 +34,10 @@ export default {
     // }
   },
   methods: {
-    changeComments() {
-      this.$emit('create-comment')
-    },
+    // changeComments() {
+    //   this.$emit('create-comment')
+    // },
   }
-
 }
 </script>
 
