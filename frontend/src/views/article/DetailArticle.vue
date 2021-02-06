@@ -134,14 +134,17 @@
           <v-btn 
             icon
             class="bottom-left-position"
+            @click="onLikeButton"
           >        
-            <v-icon v-if="true" x-large>mdi-heart-outline</v-icon>
+            <v-icon v-if="articleInfo.liked" x-large>mdi-heart-outline</v-icon>
             <v-icon v-else x-large color="error">mdi-heart</v-icon>
           </v-btn>
           <!-- 좋아요 버튼 시작 -->
+
         </div>
         <!-- 캐러셀 + 좋아요 버튼 끝 -->
-  
+
+        <!-- 해시태그 시작 -->
         <v-card-actions>
           <v-row>
             <v-col class="x-overflow-container" >
@@ -158,14 +161,48 @@
             </v-col>
           </v-row>
         </v-card-actions>
+        <!-- 해시태그 끝 -->
 
+        <!-- 게시글 내용 시작 -->
         <v-card-text class="pa-2">
           {{articleInfo.contents}}
         </v-card-text>
+        <!-- 게시글 내용 끝 -->
 
-        <v-card-text class="pa-1 text-caption">
-          좋아요 <span> {{0}}</span>개  스크랩 <span> {{0}}</span>개
-        </v-card-text>
+        <!-- 게시글 좋아요 수, 스크랩 수 -->
+        <v-card-actions class="pa-1">
+
+            <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 시작 -->
+            <v-dialog
+              v-model="dialog"
+              scrollable
+              width="70vh"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <!-- 좋아요가 하나도 없으면 버튼이 활성화되지 않는다 -->
+                <v-btn
+                  small
+                  :class="{ 'disable-events': !articleInfo.likes }"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  좋아요 {{articleInfo.likes}} 개
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-text style="height: 70vh;">  
+                  <ArticleLikeUserList 
+                    :article-id="articleId"
+                  />
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+            <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 끝 -->
+
+          <v-btn small text class="text-caption">스크랩 {{0}} 개</v-btn> 
+        </v-card-actions>
+        <!-- 게시글 좋아요 수, 스크랩 수 -->
 
       <v-divider class="pb-2"></v-divider>
       </v-card>
@@ -188,11 +225,15 @@
   } from '@mdi/js'
   import axios from 'axios'
   import UpdateArticleVue from './UpdateArticle.vue'
+  import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
 
   const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'DatailArticle',
+  components: {
+    ArticleLikeUserList,
+  },
   filters: {
     truncate(text, length, suffix) {
       if (text.length > length) {
@@ -211,6 +252,8 @@ export default {
   },
   data() {
     return{
+      dialog: false,
+      commentInput: '',
       loading: true,
       imageServerPrefix: `${SERVER_URL}/images/`,
       icons: {
@@ -288,6 +331,27 @@ export default {
           location.reload();
         }
       })
+    },
+    onLikeButton() {
+      if (this.articleInfo.liked) {
+        axios.delete(`${SERVER_URL}/articles/${this.articleId}/unlike`, this.getToken )
+        .then(res => {
+          this.articleInfo.liked = !this.articleInfo.liked
+          this.articleInfo.likes -= 1 
+        })
+        .catch(err => {
+          
+        })
+      } else {
+        axios.post(`${SERVER_URL}/articles/${this.articleId}/like`, this.getToken )
+        .then(res => {
+          this.articleInfo.liked = !this.articleInfo.liked
+          this.articleInfo.likes += 1 
+        })
+        .catch(err => {
+          
+        })
+      }
     }
   },
 }
@@ -331,5 +395,10 @@ export default {
 
 .mouse-hover:hover {
   cursor: pointer;
+}
+
+/* 마우스를 버튼에 올려도 마우스 커서가 활성화 되지 않는다 */
+.disable-events {
+  pointer-events: none
 }
 </style>
