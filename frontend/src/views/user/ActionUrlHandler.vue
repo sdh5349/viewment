@@ -1,12 +1,16 @@
 <template>
-  <div>
-    <div v-if="mode === 'resetPassword'">
-      <ResetPassword />
-    </div>
-    <div v-else-if="mode === 'verifyEmail'">
-      <JoinComplete />
-    </div>
-  </div>
+  <v-row
+    v-if="mode === 'resetPassword'"
+    justify="center"
+  >
+    <ResetPassword />
+  </v-row>
+   <v-row
+    v-else-if="mode === 'verifyEmail'"
+    justify="center"
+  >
+    <JoinComplete />
+  </v-row>
 </template>
 <script>
 import firebase from 'firebase/app'

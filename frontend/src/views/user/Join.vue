@@ -32,9 +32,10 @@
           </validation-provider>
 
           <validation-provider 
-            v-slot="{ errors }" 
+            mode="aggressive"
             rules="required|min:8" 
             name="password"
+            v-slot="{ errors }" 
           >
             <v-text-field
               v-model="password"
@@ -48,6 +49,7 @@
           </validation-provider>
 
           <validation-provider 
+            mode="aggressive"
             rules="required|min:8|password:@password" 
             v-slot="{ errors }">
             <v-text-field
@@ -69,6 +71,7 @@
           <v-btn
             class="mr-4"
             type="submit"
+            @keypress.enter="submit"
             :disabled="invalid"
             block
           >
@@ -84,12 +87,9 @@
 import axios from 'axios'
 import firebase from 'firebase/app'
 import { required, email, min, max } from 'vee-validate/dist/rules'
-import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
-
-// https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-setInteractionMode('eager') // 유효성 검사의 시기
 
 extend('password', { // 비밀번호, 비밀번호 확인 입력 값 일치 검사
   params: ['target'],
