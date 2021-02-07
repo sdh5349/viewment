@@ -169,6 +169,7 @@ public class ArticleService {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             newPin.setAddress(articleDto.getAddressName());
+            newPin.setType('a');
             Long savedPinId = pinRepository.save(newPin).getPinId();
             pin = getPin(savedPinId);
         }

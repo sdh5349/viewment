@@ -31,4 +31,6 @@ public interface PinRepository extends JpaRepository<Pin, Long> {
 
     @Query("SELECT p FROM Article a JOIN a.pin p WHERE a.user = (SELECT u FROM User u WHERE u.id = :userId)")
     List<Pin> findByUserId(String userId);
+
+    List<Pin> findByType(char type);
 }
