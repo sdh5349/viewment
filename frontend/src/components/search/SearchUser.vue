@@ -65,17 +65,17 @@ export default {
   },
   methods: {
     getUsers() {
-      console.log(this.getToken.headers)
       var params = {page:0, size:10}
-      axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
-        .then((res) => {
-        console.log(res)     
-        console.log("성공")  
-        this.users = res.data
-        })
-        .catch((err)=> {
-          alert('error'+err.message)
-        })
+        if(this.search){
+          axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
+            .then((res) => {
+            console.log(res)     
+            this.users = res.data
+            })
+            .catch((err)=> {
+              alert('error'+err.message)
+            })
+        }
     },
     goProfile(user) {
       this.$router.push({ name: 'Profile', params: { profileUserId : user.userId }})
@@ -113,20 +113,20 @@ export default {
     },
   },
   watch: {
-    search: function() {
-      console.log("유저a")
-      if(this.onTab===3){
-        this.getUsers()
-        
+    onTab: {
+      immediate: true,
+      handler(onTab) {
+        fetch(`/${onTab}`).then((data) => {
+          this.getUsers()
+        })
       }
-
     },
-    onTab: function() {
-      console.log("유저b")
+    search: function() {
       if(this.onTab===3){
-        this.getUsers()
+        console.log("유저a")
+        this.getUsers()  
       }
-    }
+    },
   },
 }
 </script>

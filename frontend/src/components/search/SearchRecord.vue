@@ -24,8 +24,8 @@
             </v-list-item-avatar>    
             <v-list-item-content>
               <v-list-item-title >{{History.HistoryTitle}}</v-list-item-title>
-              <v-list-item-title >{{History.HistoryContent}}</v-list-item-title>
-              <v-list-item-title >{{i}}</v-list-item-title>
+              <!-- <v-list-item-title >{{History.HistoryContent}}</v-list-item-title> -->
+              <!-- <v-list-item-title >{{i}}</v-list-item-title> -->
             </v-list-item-content>
 
             <v-list-item-icon>
@@ -62,39 +62,39 @@ export default {
   methods: {
     getSearchedlog() {
       var str = localStorage.getItem("Historys");
-      console.log(str)
+      // console.log(str)
       var obj = {};
-      console.log(obj)
+      // console.log(obj)
       try {
         obj = JSON.parse(str);
-        console.log(obj)
+        // console.log(obj)
       } catch {
         obj = {};
-        console.log(obj)
+        // console.log(obj)
       }
       if(!obj){
         obj = {};
-        console.log(obj)
+        // console.log(obj)
         obj["Historys"] = [];
-        console.log(obj)
+        // console.log(obj)
       }
-      this.Historys = obj["Historys"]
-      console.log(this.Historys)
-      console.log(typeof(this.Historys))
+      this.Historys = obj["Historys"].reverse()
+      // console.log(this.Historys)
+      // console.log(typeof(this.Historys))
     },
     removeHistory() {
       // var getLocalStorage = localStorage.getItem("Historys")
-      console.log(this.Historys)
-      console.log(typeof(this.Historys))
+      // console.log(this.Historys)
+      // console.log(typeof(this.Historys))
       // const delHistorys = this.Historys
       this.Historys.splice(History, 1)
       // this.obj = delete delHistorys.History
-      console.log(this.Historys)
-      console.log(typeof(this.Historys))
+      // console.log(this.Historys)
+      // console.log(typeof(this.Historys))
       
       // getLocalStorage.Historys.splice(History,1)
       localStorage.setItem("Historys", (JSON.stringify(this.Historys)))
-      console.log(JSON.parse(localStorage.getItem("Historys")))
+      // console.log(JSON.parse(localStorage.getItem("Historys")))
       
       // this.getSearchedlog(this.Historys)
     },
@@ -114,15 +114,20 @@ export default {
     this.getSearchedlog()
   },
   watch: {
-    search: function() {
-      console.log("기록a")
-      if(this.onTab===0){
-        this.getSearchedlog()
+    // search: function() {
+    //   if (this.onTab===0){
+    //     console.log("맵a")
+    //     this.getSearchedlog()  
+    //   }          
+    // },
+    // search: function() {
+    //   console.log("기록a")
+    //   if(this.onTab===0){
+    //     this.getSearchedlog()
         
-      }
-    },
+    //   }
+    // },
     onTab: function() {
-      console.log("기록b")
       if(this.onTab===0){
         this.getSearchedlog()
       }
