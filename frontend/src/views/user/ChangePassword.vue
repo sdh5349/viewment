@@ -13,8 +13,9 @@
       >
         <form @submit.prevent="submit">
           <validation-provider
-            v-slot="{ errors }"
+            mode="lazy"
             rules="required|currentPassword"
+            v-slot="{ errors }"
           >
             <v-text-field
               v-model="currentPassword"
@@ -26,9 +27,10 @@
             ></v-text-field>
           </validation-provider>
           <validation-provider
-            v-slot="{ errors }"
-            rules="required|min:8"
+            mode="aggressive"
             name="password"
+            rules="required|min:8"
+            v-slot="{ errors }"
           >
             <v-text-field
               v-model="password"
@@ -39,6 +41,7 @@
             ></v-text-field>
           </validation-provider>
           <validation-provider
+            mode="aggressive"
             rules="required|min:8|password:@password"
             v-slot="{ errors }"
           >
@@ -67,10 +70,8 @@
 <script>
   import firebase from 'firebase/app'
   import { required, min } from 'vee-validate/dist/rules'
-  import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+  import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 
-  // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-  setInteractionMode('eager') // 유효성 검사의 시기
 
   // 유효성 검사 규칙 커스터마이징
   extend('currentPassword', { // 비밀번호 변경을 위해 로그인한 유저의 재인증을 위한 현재 비밀번호 검사
@@ -79,7 +80,7 @@
       var flag = false
 
       if (user) {
-        // 현재 유저가 로그인상태이고 해당 유저의 이메일과 입력값으로 받은 현재 비밀번호가 일치하면        
+        // 재인증을 위한 인증 param, 현재 유저가 로그인상태이고 해당 유저의 이메일과 입력값으로 받은 현재 비밀번호가 일치하면        
         const credential = firebase.auth.EmailAuthProvider.credential(
             user.email, 
             value
@@ -90,6 +91,7 @@
           flag = true
         })
         .catch(err => {
+          console.log(err)
         })
       }
 

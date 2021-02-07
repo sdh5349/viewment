@@ -169,6 +169,7 @@
         </v-card-text>
         <!-- 게시글 내용 끝 -->
 
+<<<<<<< frontend/src/views/article/DetailArticle.vue
         <!-- 게시글 좋아요 수, 스크랩 수 -->
         <v-card-actions class="pa-1">
 
@@ -203,6 +204,11 @@
           <v-btn small text class="text-caption">스크랩 {{0}} 개</v-btn> 
         </v-card-actions>
         <!-- 게시글 좋아요 수, 스크랩 수 -->
+=======
+        <v-card-text class="pa-1 text-caption">
+          좋아요 <span> {{articleInfo.likes}}</span>개  스크랩 <span> {{0}}</span>개
+        </v-card-text>
+>>>>>>> frontend/src/views/article/DetailArticle.vue
 
       <v-divider class="pb-2"></v-divider>
       </v-card>
@@ -211,9 +217,18 @@
         v-model="commentInput"
         class="bottom-comment-input ma-0 pa-0"
         label="댓글 달기"
+        append-icon="mdi-pencil"
         outlined
         hide-details
+        @click:append="onCreateReply"
+        @keypress.enter="onCreateReply"
       ></v-text-field>
+      <ReplyList 
+        :replies="articleInfo.replies"
+        :profileUserId="articleInfo.user.userId"
+        :loginUserId="loginUserId"
+        replyType="reply"
+      />
     </v-col>
   </v-row>
 </template>
@@ -226,13 +241,15 @@
   import axios from 'axios'
   import UpdateArticleVue from './UpdateArticle.vue'
   import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
+  import ReplyList from '@/components/reply/ReplyList'
 
-  const SERVER_URL = process.env.VUE_APP_SERVER_URL
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'DatailArticle',
   components: {
     ArticleLikeUserList,
+    ReplyList
   },
   filters: {
     truncate(text, length, suffix) {
@@ -256,14 +273,9 @@ export default {
       commentInput: '',
       loading: true,
       imageServerPrefix: `${SERVER_URL}/images/`,
-      icons: {
-        mdiAccount,
-        mdiHeart,
-      },
-      drawer: false,
-      group: null,
-      // articleId: this.$route.params.articleId,
+      commentInput: '',
       articleInfo: '',
+      loginUserId: '',
     }
   },
   computed: {
@@ -277,13 +289,9 @@ export default {
       return config
     }
   },
-  watch: {
-    group () {
-      this.drawer = false
-    },
-  },
   created() {
     this.fetchData()
+    this.loginUserId = sessionStorage.getItem('uid')
   },
   methods: {
     fetchData() {
@@ -291,6 +299,7 @@ export default {
       .then(res => {
         this.articleInfo = res.data
         console.log(this.articleInfo)
+        // TODO: 지금 접속한 유저의 정보를 불러와 해당 유저가 이 게시물을 좋아요 하는지 알아내야함
       })
       .then(() => {
         this.loading = false
@@ -321,6 +330,25 @@ export default {
         clickedHash: res
       }})
     },
+    onCreateReply() {
+      if (this.commentInput) {
+        console.log(this.articleInfo.articleId)
+        const params = {
+          'articleId': this.articleInfo.articleId, 
+          'contents': this.commentInput, 
+          'userId': this.loginUserId
+        }
+  
+        axios.post(`${SERVER_URL}/replies`, params, this.getToken)
+        .then(()=> {
+          this.fetchData()
+        })
+        .then(() => {
+          this.commentInput = ''
+        })
+        .catch(() => {
+        })
+      },
     onProfileImage() {
       this.$router.push({ 
         name: 'Profile', 
