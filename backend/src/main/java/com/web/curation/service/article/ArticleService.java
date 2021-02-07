@@ -128,11 +128,11 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds) {
+    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds, String start, String end) {
         List<Article> articles = new ArrayList<>();
         for (int i = 0; i < pinIds.length; i++) {
             Pin pin = getPin(pinIds[i]);
-            articles.addAll(pin.getArticles());
+            articles.addAll(articleRepository.findByPinAndDateBetween(pin, start, end));
         }
 
         List<ArticleSimpleDto> result = articles.stream()
