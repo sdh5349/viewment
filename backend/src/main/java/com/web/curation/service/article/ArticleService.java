@@ -189,6 +189,8 @@ public class ArticleService {
                 }
             }
         }
+
+        article.setDate(articleDto.getDate());
     }
 
     /***
