@@ -1,4 +1,12 @@
 <template>
+<v-row
+    justify="center"
+  >
+    <v-col
+      lg="4"
+      md="4"
+      sm="6"
+    >
   <div v-if="pickArticle">
     <v-row class="mt-5">
       <v-col
@@ -10,7 +18,7 @@
       <v-col 
         cols='5'
       >
-        장소 동이름
+        {{pickArticle.pin.addressName}}
       </v-col>
 
       <v-col 
@@ -22,9 +30,8 @@
 
     <v-row>
       <v-col 
-        cols='4'
       >
-        년도 설정  
+        {{pickArticle.wdate | dateFormat()}}
       </v-col>
       
     </v-row>
@@ -92,7 +99,7 @@
           <!-- 이름 -->
           <v-list-item-title >{{pickArticle.user.nickname}}</v-list-item-title>
           <!-- 날짜 -->
-          <v-list-item-subtitle>{{pickArticle.wdate}}</v-list-item-subtitle>
+          <v-list-item-subtitle>{{pickArticle.wdate | dateFormat()}}</v-list-item-subtitle>
           <!-- 해시태그 -->
           <v-list-item-subtitle
             v-for="(hashtag, i) in pickArticle.hashtags"
@@ -147,6 +154,8 @@
 
 
   </div>
+  </v-col>
+</v-row>
 </template>
 
 <script>
@@ -155,6 +164,13 @@ import Bind from '@/components/article/Bind'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
+  name: 'BindArticle',
+  filters: {
+    dateFormat(date) {
+      const dateArray = date.split(' ')[0].split('-')
+      return dateArray[0]+'년 '+dateArray[1]+'월 '+ dateArray[2]+'일'
+    },
+  },
   components: {
     Bind
   },
@@ -218,6 +234,7 @@ export default {
   },
   created() {
     this.getArticles()
+  
   },
   computed: {
     getToken(){

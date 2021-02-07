@@ -1,7 +1,13 @@
 <template>
-<v-container>
+<v-row
+    justify="center"
+  >
+    <v-col
+      lg="4"
+      md="4"
+      sm="6"
+    >
 
-  <v-row>
     <v-text-field
     class="mx-2 mt-5"
     rows="1"
@@ -14,10 +20,13 @@
       >
         {{searchLabel}}
       </template>
+
     </v-text-field>
-  </v-row>
   <!-- 탭 -->
+  <v-row>
+
     <v-tabs
+      style="z-index: 10;"
       v-model="onTab"
       grow
     >
@@ -28,29 +37,30 @@
         <v-icon>{{ tabItem.icon }}</v-icon>
       </v-tab>
     </v-tabs>
+  </v-row>
   <!-- 탭 -->
 
   <!-- 탭-컴포넌트 -->
-    <v-tabs-items
-      v-model="onTab"
-      continuous
-      default
+  <v-tabs-items
+    v-model="onTab"
+  >
+    <v-tab-item
+      v-for="tabItem in tabItems"
+      :key="tabItem.tabId"
     >
-      <v-tab-item
-        v-for="tabItem in tabItems"
-        :key="tabItem.tabId"
-        disabled
-      >
-        <v-card flat>
-          <component 
-            v-bind:is="tabItem.content"
-            :search=search
-          ></component>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
+      <v-card flat>
+        <component 
+          v-bind:is="tabItem.content"
+          :search="search"
+          :onTab="onTab"
+        ></component>
+      </v-card>
+    </v-tab-item>
+  </v-tabs-items>
     <!-- 탭-컴포넌트 -->
-</v-container>
+
+   </v-col>
+ </v-row>
 </template>
 
 <script>
@@ -73,16 +83,24 @@ export default {
       search: null,
       onTab: null,
       tabItems: [
-        { tabId: 0, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
-        { tabId: 1, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
-        { tabId: 2, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
+        { tabId: 0, tabName: 'record', icon: 'mdi-heart', content: 'SearchRecord', searchLabel: "Search"},
+        { tabId: 1, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
+        { tabId: 2, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
+        { tabId: 3, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
       ],
     }
   },
   methods: {
     onSearch(res) {
-      this.search = res
-      // console.log(this.search)
+        this.search = res
+    }
+  },
+  watch: {
+    onTab: function() {
+      console.log(this.onTab)
+      // if (this.search === '' || this.search === null || this.search.value === 0){
+      //       console.log("gg")
+      //   }
     }
   }
 }

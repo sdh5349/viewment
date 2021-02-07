@@ -15,7 +15,7 @@
           <v-list-item
             v-for="(searchedLocation, i) in searchedLocations.slice(0,9)"
             :key="i"
-            @click="goMap(searchedLocation)"
+            @click="goMap(searchedLocation,searchedLocation.address_name,searchedLocation.place_name)"
           >
             <v-list-item-avatar>
               <v-icon>
@@ -34,10 +34,12 @@
 </template>
 
 <script>
+// import { params } from 'vee-validate/dist/types/rules/alpha';
 export default {
   data() {
     return {
       searchedLocations: "",
+      Historys: [],
     }
   },
   mounted() {
@@ -47,7 +49,10 @@ export default {
   props: {
     search : {
       type: String,
-    }
+    },
+    onTab : {
+      type: Number,
+    },
   },
   methods: {
       addKakaoMapScript() {
@@ -65,21 +70,64 @@ export default {
       var callback = function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
           self.searchedLocations = result
-          console.log(result);
         }
       };
       places.keywordSearch(this.search, callback);
     },
+    appendToStorage(Historys) {
+      var str = localStorage.getItem("Historys");
+      var obj = {};
+      var limitMax = 6;
+      try {
+        obj = JSON.parse(str);
+      } catch {
+        obj = {};
+      }
+      if(!obj){
+        obj = {};
+        obj["Historys"] = [];
+      }
+      obj["Historys"].push(Historys);
+      if (limitMax && limitMax < obj["Historys"].length) {
+        let tempList = [];
+        for(let i = obj["Historys"].length-limitMax; i < obj["Historys"].length; i++) {
+          tempList.push(obj["Historys"][i]);
+        }
+        obj["Historys"] = tempList;
+      }
+      localStorage.setItem("Historys", JSON.stringify(obj));
+    },
     goMap(searchedLocation) {
-      console.log(searchedLocation)
-      this.$router.push({ name: 'Feed', params: {id: searchedLocation} })
+      this.Historys = 
+        {
+          HistoryTitle: searchedLocation.place_name,
+          HistoryContent: searchedLocation.x, 
+          HistoryContent2: searchedLocation.y, 
+          HistoryIcon:"mdi-map-marker",
+          HistoryProperty: "Map",
+        }
+      console.log(searchedLocation.x)
+      console.log(searchedLocation.y)
+      this.$router.push({ name: 'Feed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
+      this.appendToStorage(this.Historys)
     }
   },
   created() {
   },
   watch: {
-    search: function(res) {
-      this.getLocation(res)
+    search: function() {
+      console.log("맵a")
+      if(this.onTab===1){
+        this.getLocation()
+        
+      }
+
+    },
+    onTab: function() {
+      console.log("맵b")
+      if(this.onTab===1){
+        this.getLocation()
+      }
     }
   },
 }
