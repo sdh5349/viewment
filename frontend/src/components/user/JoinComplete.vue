@@ -1,9 +1,11 @@
 <template>
-  <div>
-    
+    <v-col
+    lg="4"
+    md="4"
+    sm="6"
+  >
     <h1>ViewMent에 오신걸 환영합니다.</h1>   
-    
-  </div>
+  </v-col>
 </template>
 
 <script>

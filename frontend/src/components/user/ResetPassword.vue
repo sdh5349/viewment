@@ -1,66 +1,62 @@
 <template>
-  <v-row
-    justify="center"
+  <v-col
+    lg="4"
+    md="4"
+    sm="6"
   >
-    <v-col
-      lg="4"
-      md="4"
-      sm="6"
+    <h1>비밀번호 재설정</h1>
+    <validation-observer
+      ref="observer"
+      v-slot="{ invalid }"
     >
-      <h1>비밀번호 재설정</h1>
-      <validation-observer
-        ref="observer"
-        v-slot="{ invalid }"
-      >
-        <form @submit.prevent="submit">
-          <validation-provider
-            v-slot="{ errors }"
-            rules="required|min:8"
-            name="password"
-          >
-            <v-text-field
-              v-model="password"
-              :error-messages="errors"
-              label="비밀번호"
-              placeholder="비밀번호를 입력해주세요."
-              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              :type="showPassword ? 'text' : 'password'"
-              @click:append="showPassword = !showPassword"
-            ></v-text-field>
-          </validation-provider>
-          <validation-provider
-            rules="required|min:8|password:@password"
-            v-slot="{ errors }"
-          >
-            <v-text-field
-              v-model="passwordConfirm"
-              :error-messages="errors"
-              label="비밀번호 확인"
-              placeholder="비밀번호를 다시한번 입력하세요."
-              :type="showPassword ? 'text' : 'password'"
-            ></v-text-field>
-          </validation-provider>
-          <v-btn
-            class="mr-4"
-            type="submit"
-            :disabled="invalid"
-            block
-          >
-            submit
-          </v-btn>
-        </form>
-      </validation-observer>
-    </v-col>
-  </v-row>
+      <form @submit.prevent="submit">
+        <validation-provider
+          mode="aggressive"
+          name="password"
+          rules="required|min:8"
+          v-slot="{ errors }"
+        >
+          <v-text-field
+            v-model="password"
+            :error-messages="errors"
+            label="비밀번호"
+            placeholder="비밀번호를 입력해주세요."
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="showPassword ? 'text' : 'password'"
+            @click:append="showPassword = !showPassword"
+          ></v-text-field>
+        </validation-provider>
+        <validation-provider
+          mode="aggressive"
+          rules="required|min:8|password:@password"
+          v-slot="{ errors }"
+        >
+          <v-text-field
+            v-model="passwordConfirm"
+            :error-messages="errors"
+            label="비밀번호 확인"
+            placeholder="비밀번호를 다시한번 입력하세요."
+            :type="showPassword ? 'text' : 'password'"
+          ></v-text-field>
+        </validation-provider>
+        <v-btn
+          class="mr-4"
+          type="submit"
+          :disabled="invalid"
+          block
+        >
+          submit
+        </v-btn>
+      </form>
+    </validation-observer>
+  </v-col>
 </template>
 
 <script>
   import firebase from 'firebase/app'
   import { required, min } from 'vee-validate/dist/rules'
-  import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+  import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 
-  // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-  setInteractionMode('eager') // 유효성 검사의 시기
 
   // 유효성 검사 규칙 커스터마이징
   extend('password', { // 비밀번호, 비밀번호 확인 입력 값 일치 검사
