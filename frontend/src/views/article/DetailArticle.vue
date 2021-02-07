@@ -164,7 +164,7 @@
         </v-card-text>
 
         <v-card-text class="pa-1 text-caption">
-          좋아요 <span> {{0}}</span>개  스크랩 <span> {{0}}</span>개
+          좋아요 <span> {{articleInfo.likes}}</span>개  스크랩 <span> {{0}}</span>개
         </v-card-text>
 
       <v-divider class="pb-2"></v-divider>
@@ -174,25 +174,33 @@
         v-model="commentInput"
         class="bottom-comment-input ma-0 pa-0"
         label="댓글 달기"
+        append-icon="mdi-pencil"
         outlined
         hide-details
+        @click:append="onCreateReply"
+        @keypress.enter="onCreateReply"
       ></v-text-field>
+      <ReplyList 
+        :replies="articleInfo.replies"
+        :profileUserId="articleInfo.user.userId"
+        :loginUserId="loginUserId"
+        replyType="reply"
+      />
     </v-col>
   </v-row>
 </template>
 
 <script>
-  import {
-    mdiAccount,
-    mdiHeart,
-  } from '@mdi/js'
-  import axios from 'axios'
-  import UpdateArticleVue from './UpdateArticle.vue'
+import axios from 'axios'
+import ReplyList from '@/components/reply/ReplyList'
 
-  const SERVER_URL = process.env.VUE_APP_SERVER_URL
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'DatailArticle',
+  components: {
+    ReplyList
+  },
   filters: {
     truncate(text, length, suffix) {
       if (text.length > length) {
@@ -213,14 +221,9 @@ export default {
     return{
       loading: true,
       imageServerPrefix: `${SERVER_URL}/images/`,
-      icons: {
-        mdiAccount,
-        mdiHeart,
-      },
-      drawer: false,
-      group: null,
-      // articleId: this.$route.params.articleId,
+      commentInput: '',
       articleInfo: '',
+      loginUserId: '',
     }
   },
   computed: {
@@ -234,13 +237,9 @@ export default {
       return config
     }
   },
-  watch: {
-    group () {
-      this.drawer = false
-    },
-  },
   created() {
     this.fetchData()
+    this.loginUserId = sessionStorage.getItem('uid')
   },
   methods: {
     fetchData() {
@@ -248,6 +247,7 @@ export default {
       .then(res => {
         this.articleInfo = res.data
         console.log(this.articleInfo)
+        // TODO: 지금 접속한 유저의 정보를 불러와 해당 유저가 이 게시물을 좋아요 하는지 알아내야함
       })
       .then(() => {
         this.loading = false
@@ -278,6 +278,25 @@ export default {
         clickedHash: res
       }})
     },
+    onCreateReply() {
+      if (this.commentInput) {
+        console.log(this.articleInfo.articleId)
+        const params = {
+          'articleId': this.articleInfo.articleId, 
+          'contents': this.commentInput, 
+          'userId': this.loginUserId
+        }
+  
+        axios.post(`${SERVER_URL}/replies`, params, this.getToken)
+        .then(()=> {
+          this.fetchData()
+        })
+        .then(() => {
+          this.commentInput = ''
+        })
+        .catch(() => {
+        })
+      },
     onProfileImage() {
       this.$router.push({ 
         name: 'Profile', 
