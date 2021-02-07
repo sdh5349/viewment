@@ -1,5 +1,6 @@
 <template>
-  <!-- 데이터 요청이 완료되지 않았다면 로딩화면 시작 -->
+  <!-- 데이터 요청이 완료되지 않았다면 로딩화면 시작 -->	
+  
   <v-row
     v-if="loading"
     style="height: 50vh;"
@@ -219,7 +220,6 @@ export default {
       },
       drawer: false,
       group: null,
-      // articleId: this.$route.params.articleId,
       articleInfo: '',
     }
   },
@@ -240,7 +240,10 @@ export default {
     },
   },
   created() {
+    window.history.forward()
+    function noBack(){window.history.forward()}
     this.fetchData()
+    
   },
   methods: {
     fetchData() {
