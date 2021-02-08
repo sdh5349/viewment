@@ -1,33 +1,39 @@
 <template>
-  <div>
-    <v-container class="py-0">
-      <v-row >
-        <v-col cols='12'>
-          <v-text-field 
-            @click='searchLocationModal' 
-            v-model="address" 
-            label='주소 검색'
-            >
-          </v-text-field>
-        </v-col>
+  <v-row>
+    <v-col style="z-index: 9999" class="memory-location-moda">
+      <MemoryLocation
+        v-if="is_Memoryshow"
+        @close-Memorymodal="is_Memoryshow=false"
+        @onMemory='saveMemory'
+        position: fixed  
+        >
+      </MemoryLocation>
+    </v-col>
+    <v-col cols='12'>
+      <v-text-field 
+        @click='searchLocationModal' 
+        v-model="address" 
+        label='주소 검색'
+        >
+      </v-text-field>
+    </v-col>
         
-        <v-col cols="12">
-          <SearchFeedLocation
-            v-if="is_show"
-            @close-modal="is_show=false"
-            @goSetLocation="searchAddress"
-          ></SearchFeedLocation>
-        </v-col>
+    <v-col cols="12">
+      <SearchFeedLocation
+        v-if="is_show"
+        @close-modal="is_show=false"
+        @goSetLocation="searchAddress"
+      ></SearchFeedLocation>
+    </v-col>
 
-        <v-col cols='12' >
-          <v-btn 
-            v-if="is_articles===false"
-            block 
-            @click='articleMarkers'
-            color="primary"
-          >게시물 받아오기</v-btn>          
-        </v-col>
-    </v-row>
+    <v-col cols='12' >
+      <v-btn 
+        v-if="is_articles===false"
+        block 
+        @click='articleMarkers'
+        color="primary"
+      >게시물 받아오기</v-btn>          
+    </v-col>
 
     <v-row     
       justify="space-around"
@@ -58,30 +64,29 @@
     </v-row>
 
 
-      <div 
-        id="map" 
-        class="map"
-        >
-      </div>
+    <v-col 
+      cols='12'
+      id="map" 
+      class="map"
+      position: fixed
+      style="z-index: 1"
+      >
+    </v-col>
 
-    <v-btn 
-      v-if="markerInfo != ''" 
-      @click="markerCheck(position)"
-      block
-      color="primary"
-      >
-      기억 완료
-    </v-btn>
-    <MemoryLocation
-      v-if="is_Memoryshow"
-      @close-Memorymodal="is_Memoryshow=false"
-      @onMemory='saveMemory'
-      >
-    </MemoryLocation>
-    
-      
-    </v-container>
-  </div>
+    <v-col cols="12">
+      <v-btn 
+        v-if="markerInfo != ''" 
+        @click="markerCheck(position)"
+        block
+        color="primary"
+        >
+        기억 완료
+      </v-btn>
+    </v-col>
+
+
+
+  </v-row>
 </template>
 
 <script>
@@ -129,7 +134,7 @@ export default {
       /* global kakao */
       script.onload = () => kakao.maps.load(this.initMap)
       script.src =
-        "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41dd8e1c2fab039d8dbbff2e13e8d5a5";
+        "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41dd8e1c2fab039d8dbbff2e13e8d5a5&libraries=services,clusterer,drawing";
       document.head.appendChild(script);
     },
     initMap() {
@@ -265,6 +270,7 @@ export default {
         }
     },
     getArticle() {
+      const self = this
       axios.get(`${SERVER_URL}/pins`, this.getToken)
       .then((res)=> {
         this.articles = res.data
@@ -289,7 +295,7 @@ export default {
         
         const id = self.articles[i].pinId
         kakao.maps.event.addListener(marker, 'click', articleMarkerClick(id))
-    
+        this.markers.push(marker)
       }
       function articleMarkerClick(id) {
         return function() {
@@ -298,10 +304,13 @@ export default {
           }})
         }
       }
+      var clusterer = new kakao.maps.MarkerClusterer({
+      map: self.map, // 마커들을 클러스터로 관리하고 표시할 지도 객체 
+      averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
+      minLevel: 8 // 클러스터 할 최소 지도 레벨 
+      })
+      clusterer.addMarkers(self.markers)
     },
-    // articleMarkerClick(id) {
-    //   console.log(id)
-    // },
     searchLocationModal(res) {
       this.is_show = !this.is_show
     },
@@ -322,7 +331,7 @@ export default {
           title : res.name,
           image :markerImage
       })
-      this.markers.push(marker)    
+      // this.markers.push(marker)    
       this.$emit('onClick', res)
     },
     moveMemory() {
@@ -362,5 +371,12 @@ export default {
   height: 400px;
   z-index: 0;
   /* position: absolute;  */
+}
+.memory-location-modar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>
