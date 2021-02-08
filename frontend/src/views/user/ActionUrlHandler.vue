@@ -13,7 +13,6 @@
   </v-row>
 </template>
 <script>
-import firebase from 'firebase/app'
 import ResetPassword from '@/components/user/ResetPassword'
 import JoinComplete from '@/components/user/JoinComplete'
 
