@@ -13,8 +13,8 @@
       >
         <form @submit.prevent="submit">
           <validation-provider
-            v-slot="{ errors }"
             rules="required|email"
+            v-slot="{ errors }"
           >
             <v-text-field
               v-model="email"
@@ -24,8 +24,9 @@
           </validation-provider>
           
           <validation-provider
-            v-slot="{ errors }"
+            mode="aggressive"
             rules="required|min:8"
+            v-slot="{ errors }"
           >
             <v-text-field
               v-model="password"
@@ -41,6 +42,7 @@
             class="mr-4"
             type="submit"
             :disabled="invalid"
+            @keypress.enter="submit"
             block
           >
             login
@@ -72,10 +74,7 @@
 <script>
 import firebase from 'firebase/app';
 import { required, email, min } from 'vee-validate/dist/rules'
-import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
-
-// https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-setInteractionMode('eager') // 유효성 검사의 시기
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 
 // 유효성 검사 규칙 커스터마이징
 extend('email', {
@@ -118,7 +117,6 @@ export default {
           const verifiedState = user.emailVerified
   
           if (verifiedState){
-          
             user.getIdToken()
             .then(token => {
               sessionStorage.setItem('jwt', token)
@@ -133,10 +131,10 @@ export default {
           else{
             user.sendEmailVerification()
             .then(() => {
-              alert('이메일 인증이 안되어있습니다. 이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요')
+              alert('이메일 인증이 안되어있습니다.\n이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요.')
             })
             .catch((err) => {
-              alert('인증메일이 발송된지 얼마지나지 않았습니다. 이메일에서 인증메일을 확인해주세요')
+              alert('인증메일이 발송된지 얼마지나지 않았습니다.\n이메일에서 인증메일을 확인해주세요.')
             })
           } 
   
@@ -152,7 +150,7 @@ export default {
       })
     },
     onResetPassword() {
-      this.$router.push({ name: 'FindEmailConfirm' })
+      this.$router.push({ name: 'ConfirmEmail' })
     },
     onJoin() {
       this.$router.push({ name: 'Join' })

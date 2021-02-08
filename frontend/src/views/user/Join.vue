@@ -22,7 +22,7 @@
 
           <validation-provider rules="required|max:8" v-slot="{ errors }">
             <v-text-field
-              v-model="nickName" 
+              v-model="nickname" 
               id="nickname" 
               placeholder="닉네임을 입력해주세요."
               type="text"
@@ -32,9 +32,10 @@
           </validation-provider>
 
           <validation-provider 
-            v-slot="{ errors }" 
+            mode="aggressive"
             rules="required|min:8" 
             name="password"
+            v-slot="{ errors }" 
           >
             <v-text-field
               v-model="password"
@@ -48,6 +49,7 @@
           </validation-provider>
 
           <validation-provider 
+            mode="aggressive"
             rules="required|min:8|password:@password" 
             v-slot="{ errors }">
             <v-text-field
@@ -68,7 +70,8 @@
 
           <v-btn
             class="mr-4"
-            type="submit"
+            @click="submit(email, password, nickname)"
+            @keypress.enter="submit(email, password, nickname)"
             :disabled="invalid"
             block
           >
@@ -84,12 +87,9 @@
 import axios from 'axios'
 import firebase from 'firebase/app'
 import { required, email, min, max } from 'vee-validate/dist/rules'
-import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
-
-// https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-setInteractionMode('eager') // 유효성 검사의 시기
 
 extend('password', { // 비밀번호, 비밀번호 확인 입력 값 일치 검사
   params: ['target'],
@@ -132,14 +132,8 @@ export default {
       email: "",
       password: "",
       passwordConfirm: "",
-      nickName: "",
-      confirmation: '',
+      nickname: "",
       showPassword: false,
-      userInfo:{
-        "userId":  "",
-        "email": "",
-        "nickname": "",
-      },
       isTerm: false,
       isLoading: false,
     };
@@ -147,56 +141,38 @@ export default {
   computed: {
   },
   methods: {
-    submit() {
-      const self = this
-      self.verificationDisable ='Disabled'
-      firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-      .then((res) => {
-        
-        res.user.updateProfile({
-          displayName: self.nickName,
+    submit(email, password, nickname) {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(res => {
+        const createdUser = res.user
+        const params = {
+          "userId":  createdUser.uid,
+          "password": createdUser.password,
+          "email": createdUser.email,
+          "nickname": nickname,
+        }
+
+        axios.post(`${SERVER_URL}/accounts`, params)
+        .then(() => {
+          createdUser.sendEmailVerification()
+          .then(() => {
+            alert('인증메일 발송 이메일을 확인해주세요')
+            this.$router.push({name:'Login'})
           })
-          .then(()=>{
-            const user = firebase.auth().currentUser
-            self.userInfo={
-              "userId":  user.uid,
-              "password": self.password,
-              "email": user.email,
-              "nickname": user.displayName,
-            }
-            
-
-            axios.post(`${SERVER_URL}/accounts`, self.userInfo)
-            .then(() => {
-              console.log('back에 데이터 넘겨주기 성공')
-
-              res.user.sendEmailVerification()
-              .then(() => {
-                alert('인증메일 발송 이메일을 확인해주세요')
-                this.$router.push({name:'Login'})
-                })
-              .catch((err) => {
-                alert('error :' + err.message)
-                })
-
-              })
-            .catch((err) => {
-              res.user.delete().then(function() {
-                
-                })
-                .catch(function(err) {
-                  
-                })
-
-              alert('error :' + err.message)
-              })
-            })
-          })      
-      .catch((err) => {
-        alert('error :' + err.message)
+          .catch((err) => {
+            alert('인증메일 발송 실패')
+          })
         })
+        .catch(() => {
+          alert('server 계정생성 오류')
+          createdUser.delete()
+        })
+      })
+      .catch(err => {
+        alert('firebase 계정생성 오류')
+      })
     }
-  },  
+  }
 }
 </script>
 
