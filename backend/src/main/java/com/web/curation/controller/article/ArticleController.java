@@ -58,8 +58,10 @@ public class ArticleController {
 
     @ApiOperation(value = "article id로 게시글 조회, 상세페이지에 사용")
     @GetMapping("/{articleId}")
-    public ResponseEntity<?> getArticleByArticleId(@PathVariable("articleId") Long articleId){
-        ArticleInfoDto articleInfoDto = articleService.findByArticleId(articleId);
+    public ResponseEntity<?> getArticleByArticleId(@PathVariable("articleId") Long articleId, Authentication authentication){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
+
+        ArticleInfoDto articleInfoDto = articleService.findByArticleId(currentUserId, articleId);
         return ResponseEntity.ok().body(articleInfoDto);
     }
 

@@ -34,6 +34,8 @@ public class ArticleInfoDto {
     private String contents;
     private String wdate;
 
+    private boolean liked;
+
     private int likes;
 
     public ArticleInfoDto(Article article){
