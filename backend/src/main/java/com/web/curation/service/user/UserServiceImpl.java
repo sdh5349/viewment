@@ -40,7 +40,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserPageDto findUserPageById(String currentUserId, String userId) {
         User user = getUser(userId);
-        User currentUser = getUser(currentUserId);
 
         Follow follow = followRepository.findByUserIdAndTargetUserId(currentUserId, userId).orElse(null);
 

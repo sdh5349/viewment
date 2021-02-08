@@ -70,13 +70,16 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public ArticleInfoDto findByArticleId(Long articleId) {
+    public ArticleInfoDto findByArticleId(String currentUserId, Long articleId) {
         Article article = getArticle(articleId);
+        User currentUser = getUser(currentUserId);
 
         int likes = likeRepository.countByArticle(article).intValue();
+        boolean liked = likeRepository.existsByUserAndArticle(currentUser, article);
 
         ArticleInfoDto articleInfoDto = new ArticleInfoDto(article);
         articleInfoDto.setLikes(likes);
+        articleInfoDto.setLiked(liked);
         return articleInfoDto;
     }
 

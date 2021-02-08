@@ -13,6 +13,15 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * com.web.curation.repository.like
+ * LikeRepository.java
+ * @date    2021-02-08 오후 12:00
+ * @author  김종성
+ *
+ * @변경이력
+ **/
+
 public interface LikeRepository extends JpaRepository<Likes, Long> {
 
     @Query("select l from Likes l where l.user.id = :userId and l.article.articleId = :articleId")
@@ -25,4 +34,6 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
 
     @Query("select NEW com.web.curation.recommend.analyzer.TupleUserArticle(l.user.id, l.article.articleId) from Likes l")
     public List<TupleUserArticle> findAllToTuple();
+
+    public boolean existsByUserAndArticle(User user, Article article);
 }
