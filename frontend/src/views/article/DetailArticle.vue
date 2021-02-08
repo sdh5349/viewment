@@ -1,5 +1,6 @@
 <template>
-  <!-- 데이터 요청이 완료되지 않았다면 로딩화면 시작 -->
+  <!-- 데이터 요청이 완료되지 않았다면 로딩화면 시작 -->	
+  
   <v-row
     v-if="loading"
     style="height: 50vh;"
@@ -169,7 +170,6 @@
         </v-card-text>
         <!-- 게시글 내용 끝 -->
 
-<<<<<<< frontend/src/views/article/DetailArticle.vue
         <!-- 게시글 좋아요 수, 스크랩 수 -->
         <v-card-actions class="pa-1">
 
@@ -204,11 +204,6 @@
           <v-btn small text class="text-caption">스크랩 {{0}} 개</v-btn> 
         </v-card-actions>
         <!-- 게시글 좋아요 수, 스크랩 수 -->
-=======
-        <v-card-text class="pa-1 text-caption">
-          좋아요 <span> {{articleInfo.likes}}</span>개  스크랩 <span> {{0}}</span>개
-        </v-card-text>
->>>>>>> frontend/src/views/article/DetailArticle.vue
 
       <v-divider class="pb-2"></v-divider>
       </v-card>
@@ -290,6 +285,8 @@ export default {
     }
   },
   created() {
+    window.history.forward()
+    function noBack(){window.history.forward()}
     this.fetchData()
     this.loginUserId = sessionStorage.getItem('uid')
   },
