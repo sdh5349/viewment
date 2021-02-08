@@ -268,7 +268,6 @@ export default {
       commentInput: '',
       loading: true,
       imageServerPrefix: `${SERVER_URL}/images/`,
-      commentInput: '',
       articleInfo: '',
       loginUserId: '',
     }
