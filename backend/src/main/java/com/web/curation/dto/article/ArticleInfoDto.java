@@ -32,6 +32,7 @@ public class ArticleInfoDto {
     private List<HashtagDto> hashtags = new ArrayList<>();
     private List<ReplyDto> replies = new ArrayList<>();
     private String contents;
+    private String date;
     private String wdate;
 
     private boolean liked;
@@ -52,6 +53,7 @@ public class ArticleInfoDto {
             this.replies.add(new ReplyDto(article.getReplies().get(i)));
         }
         this.contents = article.getContents();
+        this.date = article.getDate();
         this.wdate = article.getWdate().toString();
     }
 }
