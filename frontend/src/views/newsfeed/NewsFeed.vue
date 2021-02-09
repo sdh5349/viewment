@@ -1,6 +1,6 @@
 <template>
   <v-row
-      justify="center"
+    class="news-feed-container"
     >
       <v-col
         lg="4"
@@ -24,14 +24,14 @@
               </v-tab>
             </v-col>
           </v-tabs>
-        
-          <v-col cols='12'>
-            <div v-if="view === 0">
+        </v-row>
+
+        <v-row class="map-feed-row">
+
+        <v-col>
+            <div v-if="view === 0">   
               <Map 
-                v-if="myMemories"
-                @onClick="onMemory"
-                :goMemoryInfo="goMemoryInfo"
-                :myMemories="myMemories"
+                @onClick="saveMemory"
               />
             </div>
             <div v-if="view === 1">
@@ -39,14 +39,6 @@
                 feed-type="newsfeed" 
               />
             </div>
-          </v-col>
-
-          <v-col cols='12'>
-            <MemoryDrawer
-              @goToMemory="goToMemory"
-              @getMemories="getMemories"
-            >
-            </MemoryDrawer>
           </v-col>
         </v-row>
    </v-col>
@@ -56,7 +48,7 @@
 <script>
 import Map from '@/components/newsfeed/Map.vue'
 import Feed from '@/components/newsfeed/Feed.vue'
-import MemoryDrawer from '@/components/newsfeed/MemoryDrawer.vue'
+// import MemoryDrawer from '@/components/newsfeed/MemoryDrawer.vue'
 import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -64,7 +56,7 @@ export default {
   components: {
     Map,
     Feed,
-    MemoryDrawer
+    // MemoryDrawer
   },
   data() {
     return {
@@ -80,16 +72,14 @@ export default {
     goFeed() {
       this.view = 1
     },
-    onMemory(res) {
-
+    saveMemory(res) {
+      
       if (res){
-        console.log(res)
         const userId = sessionStorage.getItem('uid')
         axios.post(`${SERVER_URL}/users/${userId}/memories`, res, this.getToken)
         .then(()=> {
           alert('이 장소를 기억했습니다.')
           this.$router.go()
-
         })
         .catch((err)=> {
           console.log(err)
@@ -123,6 +113,24 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.news-feed-container{
+   display: flex; 
+   justify-content: center; 
+   align-items: center;
+}
+.map-feed-row {
+  position: relative;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  height: 100%;
+}
+.map-drawer-row {
+  position: relative;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
 
 </style>
