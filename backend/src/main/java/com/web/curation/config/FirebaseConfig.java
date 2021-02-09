@@ -16,16 +16,12 @@ import java.util.List;
 @Configuration
 public class FirebaseConfig {
 
-    @Value("${firebase.config.path}")
-    private String path;
-
     @PostConstruct
     public void init() throws Exception {
         List<FirebaseApp> apps = FirebaseApp.getApps();
         if(apps != null && apps.size() != 0) return;
-        InputStream serviceAccount = new FileInputStream(path);
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(GoogleCredentials.getApplicationDefault())
                 .build();
         FirebaseApp.initializeApp(options);
     }
