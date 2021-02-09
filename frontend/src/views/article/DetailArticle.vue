@@ -15,45 +15,35 @@
   </v-row>
   <!-- 데이터 요청이 완료되지 않았다면 로딩화면 끝-->
 
-
   <v-row 
     v-else
     justify="center"
-    class="scroll-container">
+    class="scroll-container"
+  >
     <v-col lg="4" md="4" sm="6">
       
       <!-- 게시물 헤더 부분 시작 -->
       <v-list-item
+        class="pa-0"
       >
-        <v-list-item-content>
-          <v-list-item-title>
-            <div class="d-flex justify-space-between"
+        <v-list-item-content class="pa-0">
+          <v-list-item-action class="pa-0">
+            <v-row
+              class="ma-0"
+              justify="space-between"
+              align="center"
             >
               <!-- 사용자 아이콘, 닉네임 시작 -->
-              <div class="text-h6 mouse-hover" @click="onProfileImage">
-                <v-list-item-avatar
-                  v-if="articleInfo.user.profileImage"
-                  size="36"
-                  class="my-0"
-                >
-                  <img
-                    :src="imageServerPrefix + articleInfo.user.profileImage.path"
-                  >
-                </v-list-item-avatar>
-                <v-icon
-                  v-else
-                  class="mr-4" 
-                  left 
-                  large
-                > 
-                  mdi-account-circle 
-                </v-icon>
-                  {{ articleInfo.user.nickname }}
-              </div>
+              <UserProfileImage 
+                :profile-image="articleInfo.user.profileImage"
+                :nickname="articleInfo.user.nickname"
+              />
               <!-- 사용자 아이콘, 닉네임 끝 -->
               
               <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 시작 -->
-              <v-menu transition="scroll-y-transition">
+              <v-menu 
+                transition="scroll-y-transition"
+              >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     class="m-0"
@@ -74,26 +64,24 @@
                 </v-list>
               </v-menu>
               <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 끝 -->
-
-            </div>
-          </v-list-item-title>
+            </v-row>
+          </v-list-item-action>
         </v-list-item-content>
       </v-list-item>
       <!-- 게시물 헤더 부분 끝 -->
+      <v-divider class="pb-2"></v-divider>
       
       <!-- 게시물 작성 시간 시작 -->
       <p class="text-overline mb-0">{{articleInfo.wdate | dateFormat()}}</p>
       <!-- 게시물 작성 시간 끝 -->
       
       <!-- 디바이더 -->
-      <v-divider class="pb-2"></v-divider>
   
       <!--  -->
-      <v-card elevation="10">
-        <!-- 위치정보 시작 -->
+      <v-card elevation="0">
+        <!-- 주소정보 시작 -->
         <v-card-title>
           <v-icon
-            large
             left
           >
             mdi-map-marker
@@ -104,13 +92,13 @@
                 v-if="articleInfo.pin.addressName"
                 v-bind="attrs"
                 v-on="on" 
-                class="text-h6"
+                class="text-body-1"
               >{{ articleInfo.pin.addressName | truncate(10, '...')}}</span>
             </template>
             <span>{{articleInfo.pin.addressName}}</span>
           </v-tooltip>
         </v-card-title>
-        <!-- 위치정보 끝 -->
+        <!-- 주소정보 끝 -->
 
         <!-- 캐러셀 + 좋아요 버튼 시작 -->
         <div class="relative-container">
@@ -137,8 +125,8 @@
             class="bottom-left-position"
             @click="onLikeButton"
           >        
-            <v-icon v-if="articleInfo.liked" x-large>mdi-heart-outline</v-icon>
-            <v-icon v-else x-large color="error">mdi-heart</v-icon>
+            <v-icon v-if="articleInfo.liked" x-large color="error">mdi-heart</v-icon>
+            <v-icon v-else x-large color="white">mdi-heart-outline</v-icon>
           </v-btn>
           <!-- 좋아요 버튼 시작 -->
 
@@ -146,21 +134,21 @@
         <!-- 캐러셀 + 좋아요 버튼 끝 -->
 
         <!-- 해시태그 시작 -->
-        <v-card-actions>
-          <v-row>
-            <v-col class="x-overflow-container" >
-              <v-chip
-                v-for="(hashtag, i) in articleInfo.hashtags" :key="i"
-                class="mx-1"
-                style="display: inline-block;"
-                label
-                color="primary"
-                @click='clickHashtag(hashtag.contents)'
-              >
-              #{{ hashtag.contents }}
-              </v-chip>
-            </v-col>
-          </v-row>
+        <v-card-actions class="pa-0">
+          <v-chip-group
+            column
+          >
+            <v-chip
+              v-for="(hashtag, i) in articleInfo.hashtags" :key="i"
+              class="mx-1 px-2"
+              label
+              small
+              color="primary"
+              @click='clickHashtag(hashtag.contents)'
+            >
+              # {{ hashtag.contents }}
+            </v-chip>
+          </v-chip-group>
         </v-card-actions>
         <!-- 해시태그 끝 -->
 
@@ -173,68 +161,67 @@
         <!-- 게시글 좋아요 수, 스크랩 수 -->
         <v-card-actions class="pa-1">
 
-            <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 시작 -->
-            <v-dialog
-              v-model="dialog"
-              scrollable
-              width="70vh"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <!-- 좋아요가 하나도 없으면 버튼이 활성화되지 않는다 -->
-                <v-btn
-                  small
-                  :class="{ 'disable-events': !articleInfo.likes }"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  좋아요 {{articleInfo.likes}} 개
-                </v-btn>
-              </template>
-              <v-card>
-                <v-card-text style="height: 70vh;">  
-                  <ArticleLikeUserList 
-                    :article-id="articleId"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-            <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 끝 -->
-
-          <v-btn small text class="text-caption">스크랩 {{0}} 개</v-btn> 
+          <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 시작 -->
+          <v-dialog
+            v-model="dialog"
+            scrollable
+            max-width="40vh"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <!-- 좋아요가 하나도 없으면 버튼이 활성화되지 않는다 -->
+              <v-btn
+                small
+                :class="{ 'disable-events': !articleInfo.likes }"
+                text
+                v-bind="attrs"
+                v-on="on"
+              >
+                좋아요 {{articleInfo.likes}} 개
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-text class="like-user-container">  
+                <ArticleLikeUserList 
+                  :article-id="articleId"
+                />
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 끝 -->
         </v-card-actions>
         <!-- 게시글 좋아요 수, 스크랩 수 -->
-
-      <v-divider class="pb-2"></v-divider>
+        <v-divider class="mb-2"></v-divider>
+        <v-text-field
+          v-model="commentInput"
+          class="ma-0 pa-1"
+          label="댓글 달기"
+          append-icon="mdi-pencil"
+          dense
+          outlined
+          hide-details
+          @click:append="onCreateReply"
+          @keypress.enter="onCreateReply"
+        ></v-text-field>
+        <ReplyList
+          v-if="articleInfo.replies.length > 0"
+          :replies="articleInfo.replies"
+          :profileUserId="articleInfo.user.userId"
+          :loginUserId="loginUserId"
+          replyType="reply"
+        />
+        <p 
+          v-else
+          class="text-caption pa-2"
+        >아직 댓글이 없어요... 첫 댓글을 달아주세요</p>
+        
       </v-card>
-
-      <v-text-field
-        v-model="commentInput"
-        class="bottom-comment-input ma-0 pa-0"
-        label="댓글 달기"
-        append-icon="mdi-pencil"
-        outlined
-        hide-details
-        @click:append="onCreateReply"
-        @keypress.enter="onCreateReply"
-      ></v-text-field>
-      <ReplyList 
-        :replies="articleInfo.replies"
-        :profileUserId="articleInfo.user.userId"
-        :loginUserId="loginUserId"
-        replyType="reply"
-      />
     </v-col>
   </v-row>
 </template>
 
 <script>
-  import {
-    mdiAccount,
-    mdiHeart,
-  } from '@mdi/js'
   import axios from 'axios'
-  import UpdateArticleVue from './UpdateArticle.vue'
+  import UserProfileImage from '@/components/user/UserProfileImage'
   import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
   import ReplyList from '@/components/reply/ReplyList'
 
@@ -244,7 +231,8 @@ export default {
   name: 'DatailArticle',
   components: {
     ArticleLikeUserList,
-    ReplyList
+    ReplyList,
+    UserProfileImage,
   },
   filters: {
     truncate(text, length, suffix) {
@@ -305,14 +293,17 @@ export default {
       })
     },
     updateArticle(){
-      this.$router.push({name: 'UpdateArticle', params: {
-        articleId: this.articleId,
-        hashtagArray: this.articleInfo.hashtags,
-        contents: this.articleInfo.contents,
-        lat: this.articleInfo.pin.lat,
-        lng: this.articleInfo.pin.lng,
-        preview: this.articleInfo.images
-      }})
+      console.log(this.articleInfo)
+      // this.$router.push({name: 'UpdateArticle', params: {
+      //   articleId: this.articleId,
+      //   hashtagArray: this.articleInfo.hashtags,
+      //   contents: this.articleInfo.contents,
+      //   lat: this.articleInfo.pin.lat,
+      //   lng: this.articleInfo.pin.lng,
+      //   preview: this.articleInfo.images,
+      //   addressName: this.articleInfo.addressName,
+      //   date: this.articleInfo.date
+      // }})
     },
     deleteArticle(){
       axios.delete(`${SERVER_URL}/articles/`+ this.articleId, this.getToken )
@@ -328,7 +319,6 @@ export default {
     },
     onCreateReply() {
       if (this.commentInput) {
-        console.log(this.articleInfo.articleId)
         const params = {
           'articleId': this.articleInfo.articleId, 
           'contents': this.commentInput, 
@@ -344,7 +334,8 @@ export default {
         })
         .catch(() => {
         })
-      },
+      }
+    },
     onProfileImage() {
       this.$router.push({ 
         name: 'Profile', 
@@ -358,22 +349,23 @@ export default {
     },
     onLikeButton() {
       if (this.articleInfo.liked) {
-        axios.delete(`${SERVER_URL}/articles/${this.articleId}/unlike`, this.getToken )
+        axios.delete(`${SERVER_URL}/articles/${this.articleId}/unlike`, this.getToken)
         .then(res => {
           this.articleInfo.liked = !this.articleInfo.liked
           this.articleInfo.likes -= 1 
         })
         .catch(err => {
-          
+          console.log(err)
         })
       } else {
-        axios.post(`${SERVER_URL}/articles/${this.articleId}/like`, this.getToken )
+        axios.post(`${SERVER_URL}/articles/${this.articleId}/like`, {}, this.getToken)
         .then(res => {
           this.articleInfo.liked = !this.articleInfo.liked
           this.articleInfo.likes += 1 
         })
         .catch(err => {
-          
+          console.log(err)
+
         })
       }
     }
@@ -404,6 +396,7 @@ export default {
   z-index: 1;
 }
 
+/* 컨테이너를 relative position으로 바꾼다. */
 .relative-container {
   position: relative
 }
@@ -414,7 +407,7 @@ export default {
   left: 0;
   background: white;
   width: 100%;
-  z-index: 4;
+  z-index: 5;
 }
 
 .mouse-hover:hover {
@@ -424,5 +417,11 @@ export default {
 /* 마우스를 버튼에 올려도 마우스 커서가 활성화 되지 않는다 */
 .disable-events {
   pointer-events: none
+}
+
+/* 게시글 좋아요 누른 사람들을 보여줄 모달 창의 컨테이너 */
+.like-user-container {
+  height: 70vh;
+  padding: 12px 0 12px 0 !important;
 }
 </style>

@@ -10,6 +10,7 @@ SSAFY 4기 2학기 공통 프로젝트 Sub Project2
 * [Intro](#intro)
 * [Architecture](#architecture)
 * [Tech Stack](#tech-stack)
+* [User Manual](#user-manual)
 * [Feature](#feature)
 
 <br/>
@@ -18,14 +19,11 @@ SSAFY 4기 2학기 공통 프로젝트 Sub Project2
 
 
 ## Intro
-Sub Project1 시연
-회원가입, 로그인, 인증, 인가, 회원정보 수정 구현
 
-![gif1](./img/01.gif)   
-![gif2](./img/02.gif)
+수정중입니다
 
 
-<br/>
+<br/><br/>
 
 
 
@@ -33,8 +31,7 @@ Sub Project1 시연
 
 ![architecture](./img/diagram.png)
 
-<br/>
-
+<br/><br/>
 
 
 
@@ -53,9 +50,29 @@ Front-End
 - CSS
 - JavaScript
 
-<br/>
+<br/> <br/>
 
+## User Manual
 
+#### Front End
+1. /frontend/firebaseConfig.js 파일 추가
+2. 
+```
+cd ./frontend
+npm install
+npm run serve
+```
+
+#### Back End
+1. /backend/src/main/resources/application.yml 파일 추가
+2. 
+```
+cd ./backend
+gradlew clean build
+java -jar {생성된jar파일이름}
+```
+
+<br/> <br/>
 
 ## Feature
 
@@ -133,8 +150,3 @@ Front-End
 - 기억하기 장소에 이름을 부여할 수 있음
 - 다른 회원들의 프로필에서 기억하기 장소들을 조회 가능 
 
-
-To Do:
-- 리팩토링(ICP, DIP 최대한 지키기)
-- SNS 로그인
-- 토큰 저장소 구현

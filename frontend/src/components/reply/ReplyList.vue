@@ -1,16 +1,14 @@
 <template>
-  <v-container>
-    <v-card-text>
-      <Reply 
-        v-for="reply in replies" 
-        :key="reply.replyId" 
-        :reply="reply" 
-        :profileUserId="profileUserId"
-        :loginUserId="loginUserId"
-        :replyType="replyType" 
-      />
-    </v-card-text>
-  </v-container>
+  <v-card-text>
+    <Reply 
+      v-for="reply in replies" 
+      :key="reply.replyId" 
+      :reply="reply" 
+      :profileUserId="profileUserId"
+      :loginUserId="loginUserId"
+      :replyType="replyType" 
+    />
+  </v-card-text>
 </template>
 
 <script>

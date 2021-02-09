@@ -2,25 +2,7 @@
   <v-row justify="center">
     <v-col lg="4" md="4" sm="6">
       <v-row justify="center">
-        <v-col cols="12">
-          <h4>게시글에서 사진과 위치는 수정할수 없습니다.</h4>
-        </v-col>
 
-        <!-- <v-col cols="12">
-            <v-carousel
-              :show-arrows="false"
-              hide-delimiter-background
-              delimiter-icon="mdi-minus"
-              height="50px"
-              mouse-drag = true
-            >
-              <v-carousel-item
-                v-for="(image, i) in preview"
-                :key="i"
-                :src="SERVER+ '/images/'+ image.path"
-              ></v-carousel-item>
-            </v-carousel>
-          </v-col>  -->
 
         <v-col cols="12">
           <validation-provider rules="required" v-slot="{ errors }">
@@ -30,34 +12,66 @@
         </v-col>
 
         <v-col cols="12">
-          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @change="writeHash">
+          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search">
             <template v-slot:selection="data">
               <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
                 :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
-                <v-avatar class="accent white--text" left v-text="'#'"></v-avatar>
+                <v-avatar class="accent white--text" left v-text="'#'" ></v-avatar>
                 {{ data.item }}
               </v-chip>
             </template>
-          </v-combobox>
+          </v-combobox> 
         </v-col>
 
 
         <v-col cols='12'>
-          <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y
-            min-width="auto">
+          <v-menu
+            ref="menu"
+            v-model="menu"
+            :close-on-content-click="false"
+            :return-value.sync="date"
+            transition="scale-transition"
+            offset-y
+            min-width="auto"
+          >
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field v-model="date" label="날짜 입력" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on">
-              </v-text-field>
+              <v-text-field
+                v-model="date"
+                label="날짜 선택"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
             </template>
-            <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)" min="1950-01-01"
-              @change="save"></v-date-picker>
+            <v-date-picker
+              v-model="date"
+              no-title
+              scrollable
+            >
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                color="primary"
+                @click="menu = false"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                text
+                color="primary"
+                @click="$refs.menu.save(date)"
+              >
+                OK
+              </v-btn>
+            </v-date-picker>
           </v-menu>
         </v-col>
 
 
 
 
-        <v-btn class="mr-4" color="primary" block @click="onUpdate">
+        <v-btn  color="primary" block @click="onUpdate">
           게시물 수정
         </v-btn>
       </v-row>
@@ -96,10 +110,11 @@ export default {
         userId: '',
         lat: '',
         lng: '',
-        // address: '',
+        addressName: '',
         contents: '',
         hashtags: '',
         imgFormData: '',
+        date: '',
       },
       articleImages: null,
 
@@ -109,7 +124,7 @@ export default {
       lat: '',
       lng: '',
       preview: '',
-      items: ['자취방', '덕명동', '2021년', '집 앞'],
+      items: [],
       content: '',
       position: {
         latitude: '',
@@ -117,8 +132,9 @@ export default {
       },
       files: [],
       visible: false,
-      date: null,
+      date: new Date().toISOString().substr(0, 10),
       menu: false, 
+      search: '',
     }
   },
   methods: {
@@ -138,6 +154,8 @@ export default {
       this.articleInfo.lng = this.lng
       this.articleInfo.contents = this.contents
       this.articleInfo.hashtags = this.hashtags
+      this.articleInfo.date = this.date
+      this.articleInfo.addressName = this.addressName
 
       var headers = {
         headers: {
@@ -167,7 +185,25 @@ export default {
       for (var i=0; i< hashtagArray.length; i++){
         this.hashtags.push(hashtagArray[i].contents)
       }
-    }
+    },
+    hashKeyup(){
+      this.getHashtags()
+    },
+    getHashtags() {
+      if (this.search){
+      axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+        .then((res) => {
+          
+          for (var i = 0; i < res.data.length; i++){
+            this.items.push(res.data[i].contents)
+            }  
+          
+          })
+        .catch((err)=> {
+          alert('error'+err.message)
+        })
+      }
+    },
   },
   computed: {
     getToken(){
@@ -187,6 +223,7 @@ export default {
     this.lng= this.$route.params.lng,
     this.preview = this.$route.params.preview
     this.date = this.$route.params.date
+    this.addressName = this.$route.params.addressName
     this.gethash()
   }
 }

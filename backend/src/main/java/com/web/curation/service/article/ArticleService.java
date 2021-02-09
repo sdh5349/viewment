@@ -62,6 +62,19 @@ public class ArticleService {
         User user = getUser(articleDto.getUserId());
         article.setUser(user);
 
+        Pin pin = null;
+        if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
+            pin = getPin(articleDto.getPinId());
+        } else {
+            Pin newPin = new Pin();
+            newPin.setLocation(articleDto.getLat(), articleDto.getLng());
+            newPin.setAddress(articleDto.getAddressName());
+            newPin.setType('a');
+            Long savedPinId = pinRepository.save(newPin).getPinId();
+            pin = getPin(savedPinId);
+        }
+        article.setPin(pin);
+
         setData(articleDto, article);
 
         articleRepository.save(article);
@@ -150,7 +163,6 @@ public class ArticleService {
 
         Article article = getArticle(articleDto.getArticleId());
 
-        article.resetPin();
         article.resetHashtag();
         setData(articleDto, article);
 
@@ -165,19 +177,6 @@ public class ArticleService {
     }
 
     public void setData(ArticleDto articleDto, Article article) {
-        Pin pin = null;
-        if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
-            pin = getPin(articleDto.getPinId());
-        } else {
-            Pin newPin = new Pin();
-            newPin.setLocation(articleDto.getLat(), articleDto.getLng());
-            newPin.setAddress(articleDto.getAddressName());
-            newPin.setType('a');
-            Long savedPinId = pinRepository.save(newPin).getPinId();
-            pin = getPin(savedPinId);
-        }
-        article.setPin(pin);
-
         article.setContents(articleDto.getContents());
 
         if (articleDto.getHashtags() != null) {

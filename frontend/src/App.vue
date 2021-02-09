@@ -10,6 +10,7 @@
           <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
           <v-btn icon>
             <v-icon
+              large
               @click="goPrevious"
             >
               mdi-arrow-left
@@ -19,25 +20,15 @@
           <v-toolbar-title>{{$route.meta.title}}</v-toolbar-title>
         
           <v-spacer></v-spacer>
+  
     
           <v-btn 
             icon
-            @click="goSearch"
+            @click="goAlarm"
           >
-            <v-icon>
-              fas fa-search
-            </v-icon>
+            <v-icon>mdi-bell</v-icon>
           </v-btn>
-    
-          <v-btn 
-            icon
-            @click="goCreateArticle">
-            <v-icon>fas fa-edit</v-icon>
-          </v-btn>
-    
-          <v-btn icon>
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
+  
         </v-app-bar>
         <!-- <v-sheet
           id="scrolling-techniques-7"
@@ -54,35 +45,49 @@
       <!-- </v-card> -->
        <v-bottom-navigation grow fixed>
         <v-btn
-          @click="goFeed"
+          icon
+          @click="goCuration"
         >
-          <v-icon>
+          <v-icon large>
             mdi-home
           </v-icon>
         </v-btn>  
 
         <v-btn
-          @click="goAlarm"
-        >
-          <!-- <span>Favorites</span> -->
-    
-          <v-icon>mdi-bell</v-icon>
-        </v-btn>
-    
-        <v-btn
-          @click="goMessage"
+          icon
+          @click="goFeed"
         >
           <!-- <span>Nearby</span> -->
-    
-          <v-icon>mdi-chat</v-icon>
+          <v-icon large>mdi-map-marker</v-icon>
         </v-btn>
 
         <v-btn
+          icon
+          @click="goCreateArticle"
+        >
+          <!-- <span>Favorites</span> -->
+    
+          <v-icon large>mdi-plus-box</v-icon>
+        </v-btn>
+
+        <v-btn 
+          icon
+          @click="goSearch"
+        >
+          <v-icon
+            style="width: 28px; height: 28px" 
+          >
+            fas fa-search
+          </v-icon>
+        </v-btn>
+          
+        <v-btn
+          icon
           @click="goProfile"
         >
           <!-- <span>Nearby</span> -->
     
-          <v-icon>mdi-account</v-icon>
+          <v-icon large>mdi-account</v-icon>
         </v-btn>
       </v-bottom-navigation>
     </v-app>
@@ -122,7 +127,7 @@ export default {
     goFeed() {
       const token = sessionStorage.getItem('jwt')
       if (token) {
-        this.$router.push({ name: 'Feed' })
+        this.$router.push({ name: 'NewsFeed' })
         .catch (err=>{
         if(err.name === "NavigationDuplicated" ){
           location.reload();
@@ -141,8 +146,8 @@ export default {
         }
       })
     },
-    goMessage() {
-      this.$router.push({ name: '' })
+    goCuration() {
+      this.$router.push({ name: 'Curation' })
       .catch (err=>{
         if(err.name === "NavigationDuplicated" ){
           location.reload();

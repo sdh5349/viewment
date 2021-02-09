@@ -122,7 +122,7 @@ export default {
               sessionStorage.setItem('jwt', token)
               sessionStorage.setItem('uid', user.uid)
               self.$emit('login')
-              self.$router.push({ name: 'Feed' })
+              self.$router.push({ name: 'Curation' })
             })
             .catch(err => {
               alert("오류"); // TODO: 오류페이지로 변경
