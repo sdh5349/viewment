@@ -1,5 +1,6 @@
 package com.web.curation.repository.article;
 
+import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,6 +32,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByArticleIdIn(Collection<Long> articleIds);
 
     List<Article> findByWdateAfter(Timestamp timestamp);
+
+    List<Article> findByPinAndDateBetween(Pin pin, String start, String end);
 
     Long countByUser(User user);
 

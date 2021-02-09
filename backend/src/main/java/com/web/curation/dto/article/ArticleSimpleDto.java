@@ -28,6 +28,7 @@ public class ArticleSimpleDto {
     private SimpleUserInfoDto user;
     private PinDto pin;
     private ImageDto thumbnail;
+    private String date;
     private String wdate;
     private double distance;
 
@@ -37,6 +38,7 @@ public class ArticleSimpleDto {
         this.pin = new PinDto(article.getPin());
         if(article.getArticleImages().size()>0)
             this.thumbnail = new ImageDto(article.getArticleImages().get(0).getImage());
+        this.date = article.getDate();
         this.wdate = article.getWdate().toString();
     }
 }

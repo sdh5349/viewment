@@ -27,6 +27,7 @@ public class ArticleDto {
     private Long pinId;
     private String contents;
     private String addressName;
+    private String date;
     private List<String> hashtags;
 
 }
