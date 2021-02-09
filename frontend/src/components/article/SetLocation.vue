@@ -253,7 +253,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .address-search-field {
   position: absolute;
 }
