@@ -25,6 +25,7 @@ public class ReplyDto {
     public ReplyDto(Reply reply) {
         replyId = reply.getReplyId();
         userId = reply.getUser().getId();
+        articleId = reply.getArticle().getArticleId();
         contents = reply.getContents();
         wdate = reply.getWdate().toString();
         child = new ArrayList<>();
