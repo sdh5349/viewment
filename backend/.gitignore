@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 **/application.yml
+**/resources/config.json
 
 ### STS ###
 .apt_generated
