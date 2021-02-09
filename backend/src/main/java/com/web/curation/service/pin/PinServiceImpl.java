@@ -56,8 +56,7 @@ public class PinServiceImpl implements PinService {
 
     @Override
     public List<PinDto> getPinsAll() {
-        List<PinDto> pins = pinRepository.findAll().stream()
-                .filter(pin->pin.getArticles().size() > 0)
+        List<PinDto> pins = pinRepository.findByType('a').stream()
                 .map(pin -> {
                     return new PinDto(pin);
                 })

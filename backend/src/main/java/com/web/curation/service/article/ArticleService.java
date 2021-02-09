@@ -62,6 +62,19 @@ public class ArticleService {
         User user = getUser(articleDto.getUserId());
         article.setUser(user);
 
+        Pin pin = null;
+        if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
+            pin = getPin(articleDto.getPinId());
+        } else {
+            Pin newPin = new Pin();
+            newPin.setLocation(articleDto.getLat(), articleDto.getLng());
+            newPin.setAddress(articleDto.getAddressName());
+            newPin.setType('a');
+            Long savedPinId = pinRepository.save(newPin).getPinId();
+            pin = getPin(savedPinId);
+        }
+        article.setPin(pin);
+
         setData(articleDto, article);
 
         articleRepository.save(article);
@@ -70,13 +83,16 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public ArticleInfoDto findByArticleId(Long articleId) {
+    public ArticleInfoDto findByArticleId(String currentUserId, Long articleId) {
         Article article = getArticle(articleId);
+        User currentUser = getUser(currentUserId);
 
         int likes = likeRepository.countByArticle(article).intValue();
+        boolean liked = likeRepository.existsByUserAndArticle(currentUser, article);
 
         ArticleInfoDto articleInfoDto = new ArticleInfoDto(article);
         articleInfoDto.setLikes(likes);
+        articleInfoDto.setLiked(liked);
         return articleInfoDto;
     }
 
@@ -128,11 +144,11 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds) {
+    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds, String start, String end) {
         List<Article> articles = new ArrayList<>();
         for (int i = 0; i < pinIds.length; i++) {
             Pin pin = getPin(pinIds[i]);
-            articles.addAll(pin.getArticles());
+            articles.addAll(articleRepository.findByPinAndDateBetween(pin, start, end));
         }
 
         List<ArticleSimpleDto> result = articles.stream()
@@ -147,7 +163,6 @@ public class ArticleService {
 
         Article article = getArticle(articleDto.getArticleId());
 
-        article.resetPin();
         article.resetHashtag();
         setData(articleDto, article);
 
@@ -162,18 +177,6 @@ public class ArticleService {
     }
 
     public void setData(ArticleDto articleDto, Article article) {
-        Pin pin = null;
-        if (articleDto.getPinId() != null && articleDto.getPinId() != 0) {
-            pin = getPin(articleDto.getPinId());
-        } else {
-            Pin newPin = new Pin();
-            newPin.setLocation(articleDto.getLat(), articleDto.getLng());
-            newPin.setAddress(articleDto.getAddressName());
-            Long savedPinId = pinRepository.save(newPin).getPinId();
-            pin = getPin(savedPinId);
-        }
-        article.setPin(pin);
-
         article.setContents(articleDto.getContents());
 
         if (articleDto.getHashtags() != null) {
@@ -189,6 +192,8 @@ public class ArticleService {
                 }
             }
         }
+
+        article.setDate(articleDto.getDate());
     }
 
     /***
@@ -231,7 +236,9 @@ public class ArticleService {
     public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable) {
         User currentUser = getUser(currentUserId);
         Article article = getArticle(articleId);
-        List<Follow> follows = followRepository.findByFrom(currentUser);
+        List<User> follows = followRepository.findByFrom(currentUser).stream()
+                .map(follow->{return follow.getTo();})
+                .collect(Collectors.toList());
 
         Page<SimpleUserInfoDto> result = likeRepository.findByArticle(article, pageable).map(
                 (like) -> {

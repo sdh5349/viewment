@@ -13,6 +13,7 @@
       >
         <form @submit.prevent="submit">
           <validation-provider
+            mode="aggressive"
             v-slot="{ errors }"
             rules="required|email"
           >
@@ -39,10 +40,8 @@
 <script>
   import firebase from 'firebase/app'
   import { required, email } from 'vee-validate/dist/rules'
-  import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+  import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 
-  // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-  setInteractionMode('eager') // 유효성 검사의 시기
 
    // 유효성 검사 규칙 커스터마이징
   extend('email', {

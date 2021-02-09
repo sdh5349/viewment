@@ -11,11 +11,13 @@
             <v-text-field 
               v-model="memoryName"
               label='기억하기 이름'
+              @click="resetMemoryName"
             ></v-text-field>
 
             <v-text-field 
               v-model="memoryRadius"
               label='반경(km)'
+              @click="resetMemoryRadius"
             ></v-text-field>
       
             <v-btn @click='memoryClick' block color='primary'>기억 저장</v-btn>
@@ -39,14 +41,22 @@ export default {
         lat: '',
         lng: '',
       }
-
     }
   },
+  props: ['position'],
   methods: {
     memoryClick() {
       this.memoryInfo.name = this.memoryName
       this.memoryInfo.radius = this.memoryRadius
+      this.memoryInfo.lat = this.position.lat
+      this.memoryInfo.lng = this.position.lng
       this.$emit('onMemory', this.memoryInfo)
+    },
+    resetMemoryName() {
+      this.memoryName = ''
+    },
+    resetMemoryRadius() {
+      this.memoryRadius = ''
     }
   },
 }

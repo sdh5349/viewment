@@ -13,9 +13,8 @@
   </v-row>
   <v-virtual-scroll
     v-else
-    :items="followings"
+    :items="articleLikeUsers"
     :item-height="50"
-    class="scroll-container"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
@@ -25,7 +24,7 @@
         <v-list-item-content class="pa-0">
           <v-list-item-title>
             <div class="d-flex justify-space-between">
-
+              
               <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 시작 -->
               <UserProfileImage
                 :profile-image="item.profileImage"
@@ -72,18 +71,18 @@ import UserProfileImage from '@/components/user/UserProfileImage'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
-  name: 'FollowingList',
+  name: 'ArticleLikeUserList',
   components: {
     UserProfileImage
   },
   props: {
-    profileUserId: String,
+    articleId: [String, Number]
   },
   data() {
     return {
       loading: true,
       loginUserId: '',
-      followings: [],
+      articleLikeUsers: [],
       imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
       size: 200,
@@ -108,14 +107,14 @@ export default {
     this.readMore()
   },
   methods: {
-    // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드
+    // 현재 게시글을 좋아요 누른사람의 정보를 원하는 갯수 만큼 요청하는 메서드
     readMore() {
       // 필요한 데이터 가져오기
       this.loading = true
-
-      axios.get(`${SERVER_URL}/users/${this.profileUserId}/followings?page=${this.page}&size=${this.size}`, this.getToken)
+      
+      axios.get(`${SERVER_URL}/articles/${this.articleId}/like-users?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
-        this.followings.push(...res.data.content)
+        this.articleLikeUsers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
       })
@@ -144,14 +143,29 @@ export default {
         }
       })
     },
+    // 본인 팔로워 리스트일 경우 삭제를 희망하는 유저의 인덱스를 찾아 삭제하는 메서드
+    onFollowerDeleteButton (targetUser) {
+      if (confirm("삭제하시겠습니까?")) {
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
+        .then(() => {
+        const targetUserIdx = this.followers.indexOf(targetUser)
+        this.followers.splice(targetUserIdx, 1)
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      }
+    },
     // 팔로우/언팔로우 메서드
     onFollowButton (targetUser) {
-      const targetUserIdx = this.followings.indexOf(targetUser)
+      const targetUserIdx = this.followers.indexOf(targetUser)
       
       if (targetUser.followed) {
         axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
-          this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed
+          this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -162,7 +176,7 @@ export default {
         var params = {'targetUserId' : targetUser.userId }
         axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
-          this.followings[targetUserIdx].followed = !this.followings[targetUserIdx].followed 
+          this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed 
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -175,12 +189,6 @@ export default {
 }
 </script>
 
-<style scoped>
-/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
-  .scroll-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    margin-bottom: 50px;
-  }
+<style>
+
 </style>

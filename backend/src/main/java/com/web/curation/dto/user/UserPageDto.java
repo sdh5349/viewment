@@ -40,5 +40,6 @@ public class UserPageDto {
         this.countFollowings = countFollowings;
         this.countMemories = countMemories;
         this.isFollowed = isFollowed;
+        this.countArticles = countArticles;
     }
 }

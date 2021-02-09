@@ -1,4 +1,5 @@
 <template>
+
 <v-row
     justify="center"
   >
@@ -24,9 +25,16 @@
       <v-col 
         cols='4'
       >
-        <v-btn>기억하기</v-btn> 
+        <v-btn @click='markerCheck'>기억하기</v-btn> 
       </v-col>
     </v-row>
+    <MemoryLocation
+      v-if="is_Memoryshow"
+      @close-Memorymodal="is_Memoryshow=false"
+      @onMemory='saveMemory'
+      :position='position'
+      >
+    </MemoryLocation>
 
     <v-row>
       <v-col 
@@ -42,8 +50,6 @@
     max-width="444"
     class="mx-auto"
   >
-    <v-system-bar lights-out></v-system-bar>
-
 
     <v-carousel
       :continuous="false"
@@ -118,7 +124,7 @@
               v-on="on"
             >
               <v-icon>
-                
+                수정/삭제
               </v-icon>
             </v-btn>
           </template>
@@ -147,7 +153,7 @@
     @onClick='getBindArticle'
     >
   </Bind>
-  
+
 
 
 
@@ -161,6 +167,7 @@
 <script>
 import axios from 'axios'
 import Bind from '@/components/article/Bind'
+import MemoryLocation from '@/components/article/MemoryLocation.vue'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
@@ -172,7 +179,8 @@ export default {
     },
   },
   components: {
-    Bind
+    Bind,
+    MemoryLocation
   },
   data() {
     return {
@@ -183,6 +191,7 @@ export default {
       drawer: false,
       group: null,
       articleId: '',
+      is_Memoryshow: false,
     }
   },
   methods: {
@@ -205,6 +214,8 @@ export default {
       axios.get(`${SERVER_URL}/articles/${this.articleId}`, this.getToken)
       .then( (res)=> {
         this.pickArticle = res.data
+        this.position = this.pickArticle.pin
+        
       })
     },
     updateArticle(){
@@ -226,11 +237,26 @@ export default {
       })
     },
     goHash(res) {
-      console.log(132213)
       this.$router.push({name:'Search', params: {
       hashtag: res}
       })
     },
+    markerCheck(res) {
+      this.is_Memoryshow = !this.is_Memoryshow
+    },
+    saveMemory(res) {
+      console.log(res)
+      const userId = sessionStorage.getItem('uid')
+      axios.post(`${SERVER_URL}/users/${userId}/memories`, res, this.getToken)
+      .then(()=> {
+        alert('이 장소를 기억했습니다.')
+        this.$router.go()
+
+      })
+      .catch((err)=> {
+        console.log(err)
+      })
+    }
   },
   created() {
     this.getArticles()

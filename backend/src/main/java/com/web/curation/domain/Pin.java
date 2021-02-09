@@ -32,6 +32,8 @@ public class Pin {
 
     private String address;
 
+    private char type;
+
     @OneToMany(mappedBy = "pin", fetch = FetchType.LAZY)
     private List<Article> articles = new ArrayList<>();
 
