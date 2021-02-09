@@ -293,14 +293,17 @@ export default {
       })
     },
     updateArticle(){
-      this.$router.push({name: 'UpdateArticle', params: {
-        articleId: this.articleId,
-        hashtagArray: this.articleInfo.hashtags,
-        contents: this.articleInfo.contents,
-        lat: this.articleInfo.pin.lat,
-        lng: this.articleInfo.pin.lng,
-        preview: this.articleInfo.images
-      }})
+      console.log(this.articleInfo)
+      // this.$router.push({name: 'UpdateArticle', params: {
+      //   articleId: this.articleId,
+      //   hashtagArray: this.articleInfo.hashtags,
+      //   contents: this.articleInfo.contents,
+      //   lat: this.articleInfo.pin.lat,
+      //   lng: this.articleInfo.pin.lng,
+      //   preview: this.articleInfo.images,
+      //   addressName: this.articleInfo.addressName,
+      //   date: this.articleInfo.date
+      // }})
     },
     deleteArticle(){
       axios.delete(`${SERVER_URL}/articles/`+ this.articleId, this.getToken )

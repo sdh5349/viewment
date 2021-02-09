@@ -88,8 +88,8 @@ public class ArticleController {
 
     @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지")
     @GetMapping("/pins")
-    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
