@@ -35,7 +35,9 @@
               />
             </div>
             <div v-if="view === 1">
-              <Feed />
+              <Feed 
+                feed-type="newsfeed" 
+              />
             </div>
           </v-col>
 
@@ -52,9 +54,9 @@
 </template>
 
 <script>
-import Map from '@/components/feed/Map.vue'
-import Feed from '@/components/feed/Feed.vue'
-import MemoryDrawer from '@/components/feed/MemoryDrawer.vue'
+import Map from '@/components/newsfeed/Map.vue'
+import Feed from '@/components/newsfeed/Feed.vue'
+import MemoryDrawer from '@/components/newsfeed/MemoryDrawer.vue'
 import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 

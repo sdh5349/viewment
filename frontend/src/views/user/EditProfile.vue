@@ -17,22 +17,21 @@
     > 
       <div class="d-flex justify-center">
         <div>
-          <v-card
-          elevation="0"
+          <div
+            class="relative-container"
           > 
             <v-avatar
-              v-if="this.profileImageUrl"
-              size="150"
+              size="9rem"
             >
               <img
+                v-if="profileImageUrl"
                 :src="profileImageUrl"
               >
+              <img
+                v-else
+                src="@/assets/images/account.png"
+              >
             </v-avatar>
-            <v-icon
-              v-else
-              color="primary"
-              size="160"
-            >mdi-account-circle</v-icon>
 
             <!-- 프로필 삭제 버튼 시작 -->
             <v-btn
@@ -48,7 +47,7 @@
               </v-icon>
             </v-btn>
             <!-- 프로필 삭제 버튼 끝 -->
-          </v-card>
+          </div>
 
           <div class="d-flex justify-center my-4">
             <!-- <input type="file" ref="file" hidden>
@@ -218,38 +217,41 @@ export default {
           if (this.profileUserInfo.profileImage) {
             axios.put(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.profileImageFile, config)
             .then(() => {
+              this.goProfile()
             })
             .catch(err => {
-              console.log(err)
+              console.log(err.message)
             })
           // 기존에 프로필 이미지가 없었던 유저라면
           } else {
             axios.post(`${SERVER_URL}/images/profile/${this.profileUserId}`, this.profileImageFile, config)
             .then(() => {
+              this.goProfile()
             })
             .catch(err => {
+              console.log(err.message)
             })
           }
         // 현재 페이지에 선택한 이미지가 없고
         } else {
           // 기존에 프로필 이미지가 있었던 유저라면
           if (this.profileUserInfo.profileImage && this.profileImageUrl === null) {
+            console.log("딜리트동작 하러 갑니다")
             axios.delete(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
             .then(() => {
+              this.goProfile()
             })
             .catch(err => {
+              console.log(err)
             })
+          } else {
+            // 프로필 사진은 바뀐것이 없을 경우!
+            this.goProfile()
           }
         }
       })
-      .then(() => {
-        // 정상적으로 사진까지 업로드가 완료 되었으면 프로필 화면으로 돌아간다.
-        this.$router.push({ 
-          name: 'Profile', 
-          params: { profileUserId : this.profileUserId }
-        })
-      })
       .catch(err => {
+        console.log(err)
       })
     },
     // 사진 파일을 불러오는 버튼
@@ -275,6 +277,12 @@ export default {
       if (confirm('프로필 이미지를 삭제하시겠습니까?')) {
         this.profileImageUrl = null
       }
+    },
+    goProfile() {
+      this.$router.push({ 
+        name: 'Profile', 
+        params: { profileUserId : this.profileUserId }
+      })
     }
   }
 }
@@ -287,4 +295,9 @@ export default {
     bottom: 0px; 
     right: 0px;
   }
+
+/* 컨테이너를 relative position으로 바꾼다. */
+.relative-container {
+  position: relative
+}
 </style>

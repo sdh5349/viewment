@@ -1,30 +1,25 @@
 <template>
   <div>
-    <v-list-item-avatar
-      v-if="profileImage"
-      size="36"
-      class="my-0"
+    <v-avatar
+      :size="`${size}rem`"
     >
       <img
-        :src="imageServerPrefix + profileImage.path"
+        v-if="this.profileImage"
+        :src="prefix + profileImage.path"
       >
-    </v-list-item-avatar>
-    <v-list-item-avatar
-      v-else
-    >
-      <v-icon
-        class="mr-4" 
-        left 
-        large
-      > 
-      mdi-account-circle 
-      </v-icon>
-      {{ nickname }}
-    </v-list-item-avatar>
+      <img
+        v-else
+        src="@/assets/images/account.png"
+      >
+    </v-avatar>
+    {{nickname}}
   </div>
 </template>
 
 <script>
+
+const SERVER_URL = process.env.VUE_APP_SERVER_URL
+
 export default {
   name: 'UserProfileImage',
   props: {
@@ -32,7 +27,25 @@ export default {
     nickname: {
       type: String,
       default: '',
+    },
+    size: {
+      type: Number,
+      default: 3,
     }
+  },
+  data() {
+    return {
+      prefix: `${SERVER_URL}/images/`,
+      imagePath: null,
+    }
+  },
+  watch: {
+    profileImage() {
+      this.imagePath = this.profileImage
+    }
+  },
+  created() {
+    this.imagePath = this.profileImage
   }
 }
 </script>
