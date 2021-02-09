@@ -12,16 +12,16 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * com.web.curation.domain.article
  * Article.java
- * @date    2021-01-25 오전 9:28
- * @author  이주희
  *
- * @변경이력
- * 21-02-02 replies 추가
+ * @author 이주희
+ * @date 2021-01-25 오전 9:28
+ * @변경이력 21-02-02 replies 추가
  **/
 
 @Entity
@@ -31,7 +31,7 @@ import java.util.List;
 public class Article {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,6 +63,9 @@ public class Article {
     @CreationTimestamp
     private Timestamp wdate;
 
+    @Column(columnDefinition = "date")
+    private String date;
+
 
     public void setUser(User user) {
         this.user = user;
@@ -74,26 +77,26 @@ public class Article {
         pin.getArticles().add(this);
     }
 
-    public void setContents(String contents){
+    public void setContents(String contents) {
         this.contents = contents;
     }
 
-    public void addArticleImage(ArticleImage articleImage){
+    public void addArticleImage(ArticleImage articleImage) {
         articleImages.add(articleImage);
         articleImage.setArticle(this);
     }
 
-    public void addHashtag(Hashtag hashtag){
+    public void addHashtag(Hashtag hashtag) {
         hashtags.add(hashtag);
         hashtag.getArticles().add(this);
     }
 
-    public void addLike(Likes like){
+    public void addLike(Likes like) {
         this.likes.add(like);
         like.setArticle(this);
     }
 
-    public void removeLike(Likes like){
+    public void removeLike(Likes like) {
         this.likes.remove(like);
         like.setArticle(null);
     }
@@ -108,5 +111,9 @@ public class Article {
 
     public void resetUser() {
         user = null;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

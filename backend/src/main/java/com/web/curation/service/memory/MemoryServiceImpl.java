@@ -63,6 +63,7 @@ public class MemoryServiceImpl implements MemoryService{
         Pin pin = new Pin();
         pin.setAddress("추후에 수정");
         pin.setLocation(memoryDto.getLat(), memoryDto.getLng());
+        pin.setType('m');
         pinRepository.save(pin);
 
         Memory memory = new Memory();
