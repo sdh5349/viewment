@@ -234,7 +234,9 @@ public class ArticleService {
     public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable) {
         User currentUser = getUser(currentUserId);
         Article article = getArticle(articleId);
-        List<Follow> follows = followRepository.findByFrom(currentUser);
+        List<User> follows = followRepository.findByFrom(currentUser).stream()
+                .map(follow->{return follow.getTo();})
+                .collect(Collectors.toList());
 
         Page<SimpleUserInfoDto> result = likeRepository.findByArticle(article, pageable).map(
                 (like) -> {
