@@ -54,7 +54,7 @@ public class ImageService {
         article.addArticleImage(ArticleImage.createArticleImage(article, savedImage, no));
 
         File file = ImageUtil.multipartToFile(DIR + path, multipartFile);
-        ImageUtil.resize("article", file);
+        ImageUtil.save("article", file);
     }
 
     public void saveProfileImage(MultipartFile profileImage, String userId) throws Exception {
@@ -70,7 +70,7 @@ public class ImageService {
         user.setProfileImage(savedImage);
 
         File file = ImageUtil.multipartToFile(DIR + path, profileImage);
-        ImageUtil.resize("profile", file);
+        ImageUtil.save("profile", file);
     }
 
     public void updateProfileImage(MultipartFile profileImage, String userId) throws Exception {
@@ -81,7 +81,7 @@ public class ImageService {
             dest.delete();
 
         File file = ImageUtil.multipartToFile(DIR + path, profileImage);
-        ImageUtil.resize("profile", file);
+        ImageUtil.save("profile", file);
     }
 
     public void deleteProfileImage(String userId) {
