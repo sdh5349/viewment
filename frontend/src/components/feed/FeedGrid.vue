@@ -1,42 +1,47 @@
 <template>
-  <div>
-    <v-row>
+  <v-row>
+    <v-col cols="12">
+      <v-text-field 
+        @keypress.enter='searchAddress' 
+        v-model="address" 
+        label='주소 검색'>
+      </v-text-field>
+    </v-col>
 
-      <v-col>
-        <v-btn > 
-          <v-icon>
-            mdi-cog-outline
-          </v-icon>
-        </v-btn>
-      </v-col>
 
-      <v-col>
-        <v-btn @click="moveLocation"> 
-          <v-icon>
-            mdi-apple-safari
-          </v-icon>
-        </v-btn>
-      </v-col>
-      
+    <v-col cols="6">
+      <v-btn > 
+        <v-icon>
+          mdi-cog-outline
+        </v-icon>
+      </v-btn>
+    </v-col>
 
-    </v-row>
-
-    <v-row 
-      class="d-flex justify-center"
-      v-for="(name, i) in distances" 
-      :key=i>
-        <v-img
-        :src='name.src'
-        max-height="200px"
-        max-width="200px">
-        </v-img>
-        {{name.dist}} Km 거리
-        <v-system-bar lights-out></v-system-bar>
-    </v-row>
+    <v-col cols="6">
+      <v-btn @click="moveLocation"> 
+        <v-icon>
+          mdi-apple-safari
+        </v-icon>
+      </v-btn>
+    </v-col>
     
 
 
-  </div>
+    
+    <v-col cols="3"
+      class="d-flex justify-center"
+      v-for="(name, i) in distances" 
+      :key=i
+    >
+      <v-img
+        :src='name.src'
+        height="100px"
+        width="100px">
+      </v-img>   
+    
+    </v-col>
+
+  </v-row>
 </template>
 
 <script>
@@ -115,16 +120,18 @@ export default {
     },
     moveLocation() {
       const self = this
-      // this.$getLocation()
-      // .then(coordinates => {
-      //   this.myLocation = coordinates
-      // })
-      // .then(() => {
-      //     console.log('현재위치', self.myLocation.lat, self.myLocation.lng)
-      //     this.checkfeed()
-      //   })  
+      self.$getLocation()
+      .then(coordinates => {
+        self.myLocation = coordinates
+      })
+      .then(() => {
+        self.map.setCenter(new kakao.maps.LatLng(self.myLocation.lat, self.myLocation.lng))
+        kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+          self.mapClick(mouseEvent)
+          })
+        })
       },
-      searchAddress() {
+    searchAddress() {
       const self = this
       var geocoder = new kakao.maps.services.Geocoder()
       var callback = function(result, status) {
@@ -132,7 +139,7 @@ export default {
               console.log(result);
           }
       }
-      
+        
       geocoder.addressSearch(self.address, function(result, status) {
 
     // 정상적으로 검색이 완료됐으면 
