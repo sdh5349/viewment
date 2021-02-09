@@ -22,24 +22,21 @@
       elevation="2"
       class="py-3"
     >
+      <!-- 프로필 사진 및 사용자 본인인 경우 사용자 설정 버튼 -->
       <v-list-item three-line>
-        <v-card
-          elevation="0"
-        >
-          <v-list-item-avatar
-            v-if="profileImageUrl"
-            size="80"
+        <div class="relative-container">
+            <v-avatar
+            size="6rem"
           >
             <img
+              v-if="this.profileUserInfo.profileImage"
               :src="profileImageUrl"
             >
-          </v-list-item-avatar>
-          <v-icon
-            v-else
-            color="primary"
-            size="85"
-          >mdi-account-circle</v-icon>
-          
+            <img
+              v-else
+              src="@/assets/images/account.png"
+            >
+          </v-avatar>
           <!-- 계정설정 버튼 시작 -->
           <v-btn
             v-if="loginUserId === profileUserId"
@@ -56,7 +53,7 @@
             </v-icon>
           </v-btn>
           <!-- 계정설정 버튼 끝 -->
-        </v-card>
+        </div>
 
         <v-list-item-content
           class="ml-2"
@@ -173,6 +170,7 @@
 import axios from 'axios'
 import UserArticleGrid from '@/components/user/UserArticleGrid'
 import UserArticleMap from '@/components/user/UserArticleMap'
+import UserProfileImage from '@/components/user/UserProfileImage'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -181,6 +179,7 @@ export default {
   components: {
     UserArticleGrid,
     UserArticleMap,
+    UserProfileImage,
   },
   props: {
     profileUserId: String,
@@ -214,10 +213,11 @@ export default {
     profileUserId: function() {
       this.loading = true
       this.fetchData()
-    }
+    },
   },
   created() {
     this.fetchData()
+    console.log("새로 생성되었어요")
   },
   methods: {
     // 데이터 초기화 메서드
@@ -226,6 +226,7 @@ export default {
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
         this.profileUserInfo = res.data
+        console.log(res.data)
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
         if (this.profileUserInfo.profileImage) {
@@ -235,6 +236,7 @@ export default {
           // DOM에 b 유저 사진 데이터가 남아 있으므로 사진이 없는 경우 null 처리 해야함
           this.profileImageUrl = null
         }
+        console.log(this.profileUserInfo)
       })
       .then(() => {
         this.loading = false
@@ -316,7 +318,12 @@ export default {
 /* 계정설정 버튼의 위치를 설정한다 */
   .bottom-right-position {
     position: absolute; 
-    bottom: 0.4rem; 
-    right: 0.4rem;
+    bottom: 0; 
+    right: 0;
   }
+
+/* 컨테이너를 relative position으로 바꾼다. */
+.relative-container {
+  position: relative
+}
 </style>

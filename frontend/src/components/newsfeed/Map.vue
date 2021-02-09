@@ -53,7 +53,8 @@
 </template>
 
 <script>
-
+import SearchFeedLocation from "../newsfeed/SearchFeedLocation.vue" 
+import MemoryLocation from "./MemoryLocation.vue"
 import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL 
 
@@ -188,8 +189,8 @@ export default {
     // 기억 되있는 마커 찍어 놓기
     alreadyMemoryMarker() {
       const self = this
-      const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"
-      const imageSize = new kakao.maps.Size(24, 35)
+      const imageSrc = require('@/assets/images/flag2.png')
+      const imageSize = new kakao.maps.Size(35, 35)
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       for (var i = 0; i < self.myMemories.length; i ++) {
         
@@ -234,8 +235,15 @@ export default {
     // 게시물들 마커 찍기
     articleMarkers() {   
       const self = this
+
+      self.is_articles = !self.is_articles
+
+      // const imageSrc = require('@/assets/images/pin.png')
+      // const imageSize = new kakao.maps.Size(24, 24)
+
       const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
       const imageSize = new kakao.maps.Size(24, 35)
+
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       
       for (var i = 0; i < self.articles.length; i ++) {
@@ -333,7 +341,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .map {
   width: 100%;
   height: 80%;

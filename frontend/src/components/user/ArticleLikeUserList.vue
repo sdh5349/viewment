@@ -15,38 +15,24 @@
     v-else
     :items="articleLikeUsers"
     :item-height="50"
-    class="scroll-container"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
       <v-list-item
         @click="onProfileListItem(item.userId)"
       >
-        <v-list-item-content>
+        <v-list-item-content class="pa-0">
           <v-list-item-title>
             <div class="d-flex justify-space-between">
-              <div>
-                <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 시작 -->
-                <v-list-item-avatar
-                  v-if="item.profileImage"
-                  size="36"
-                  class="my-0"
-                >
-                  <img
-                    :src="imageServerPrefix + item.profileImage.path"
-                  >
-                </v-list-item-avatar>
-                <v-icon
-                  v-else
-                  class="mr-4" 
-                  left 
-                  large
-                > 
-                  mdi-account-circle 
-                </v-icon>
-                  {{ item.nickname}}
-                <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 끝 -->
-              </div>
+              
+              <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 시작 -->
+              <UserProfileImage
+                :profile-image="item.profileImage"
+                :nickname="item.nickname"
+                :size="2.7"
+              />
+              <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 끝 -->
+
               <!-- 팔로우/언팔로우 버튼 시작 -->
               <v-btn
                 v-if="item.followed && item.userId !== loginUserId"
@@ -80,11 +66,15 @@
 
 <script>
 import axios from 'axios'
+import UserProfileImage from '@/components/user/UserProfileImage'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'ArticleLikeUserList',
+  components: {
+    UserProfileImage
+  },
   props: {
     articleId: [String, Number]
   },
@@ -121,13 +111,12 @@ export default {
     readMore() {
       // 필요한 데이터 가져오기
       this.loading = true
-
+      
       axios.get(`${SERVER_URL}/articles/${this.articleId}/like-users?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
         this.articleLikeUsers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
-        console.log(res)
       })
       .then(() => {
         this.loading = false
