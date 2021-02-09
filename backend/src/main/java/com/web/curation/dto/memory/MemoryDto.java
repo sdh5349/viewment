@@ -14,13 +14,13 @@ import lombok.Setter;
  * @author  김종성
  *
  * @변경이력
+ * 이주희 21-02-09 핀 삭제
  **/
 @Getter
 @Setter
 public class MemoryDto {
     private Long memoryId;
     private String name;
-    private Long pinId;
     private int radius;
 
     private double lat;
@@ -33,9 +33,7 @@ public class MemoryDto {
         this.name = memory.getName();
         this.radius = memory.getRadius();
 
-        this.pinId = memory.getPin().getPinId();
-
-        this.lat = memory.getPin().getLocation().getY();//위도
-        this.lng = memory.getPin().getLocation().getX();//경도
+        this.lat = memory.getLocation().getY();//위도
+        this.lng = memory.getLocation().getX();//경도
     }
 }

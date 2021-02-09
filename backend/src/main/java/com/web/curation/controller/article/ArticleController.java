@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @변경이력 김종성: 좋아요 기능 추가
  * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
+ * 이주희 21-02-09 기본 피드 게시글 조회 기능 수정
  **/
 
 
@@ -79,10 +80,10 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
-    @ApiOperation(value = "기본 피드 게시글 조회 - 노출 정도 설정 가능")
-    @GetMapping("/forfeed")
-    public ResponseEntity<?> getArticlesForFeed(FeedArticleDto feedArticleDto) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(feedArticleDto);
+    @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회")
+    @GetMapping("/feed/{userId}")
+    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 

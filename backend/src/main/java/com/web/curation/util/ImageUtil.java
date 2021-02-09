@@ -17,6 +17,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * com.web.curation.util
+ * ImageUtil.java
+ * @date    2021-02-07 오전 7:41
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 public class ImageUtil {
 
     static final int maxWidth = 1000;
