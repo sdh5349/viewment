@@ -272,6 +272,7 @@ export default {
         lng: '',
         addressName: '',
         date: '',
+        pinId: '',
       }, 
       prac:'',
       search: '',
@@ -312,23 +313,31 @@ export default {
       this.$refs.menu.save(date)
     },
     savePosition(res) {
-      this.articleInfo.addressName = res.addressName
-      this.articleInfo.lat = res.Ma
-      this.articleInfo.lng = res.La
+      if (res.pinId) {
+        this.articleInfo.pinId = res.pinId
+        this.articleInfo.addressName = res.addressName
+        this.articleInfo.lat = res.lat
+        this.articleInfo.lng = res.lng
+      }
+      else{
+        this.articleInfo.addressName = res.addressName
+        this.articleInfo.lat = res.Ma
+        this.articleInfo.lng = res.La
+      }
     },
     onSumbit() {
       this.articleInfo.userId = sessionStorage.getItem('uid')
       this.articleInfo.contents = this.contents
       this.articleInfo.hashtags = this.hashtags
       this.articleInfo.date = this.date
+      this.articleInfo.addressName = this.addressName
+      console.log(this.articleInfo)
 
       this.articleImages = new FormData()
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      this.$router.push({name:'CreateArticleEtc', params: {
-        articleImages: this.articleImages
-      }})     
+      
 
       var headers = {
         headers: {
