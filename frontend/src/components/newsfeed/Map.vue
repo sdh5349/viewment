@@ -1,67 +1,121 @@
 <template>
-  <v-row>
+  <v-row class="map-container">
+    <v-col>
+      <v-btn-toggle>
+        <v-btn icon color="black" @click="moveMyLocation"  position: absolute style="z-index: 9999; top:7px;">
+          <v-icon>
+            mdi-apple-safari
+          </v-icon>
+        </v-btn>
 
-    <v-btn icon color="primary" @click="moveMyLocation" position: absolute style="z-index: 9999">
-      <v-icon>
-        mdi-apple-safari
-      </v-icon>
-    </v-btn>
+      
+        <v-btn icon color="black" @click="checkMemory" class="d-flex" position: absolute style="z-index: 9999; left: 50px; top:7px;">
+          <v-icon>
+            mdi-pin
+          </v-icon>
+        </v-btn>
+      
 
-    <v-btn icon color="black" @click="checkMemory" class="d-flex" position: absolute style="z-index: 9999; left: 30px">
-      <v-icon>
-        mdi-pin
-      </v-icon>
-    </v-btn>
+    <v-dialog
+      v-model="moveMemoryDialog"
+      scrollable
+      max-width="300px"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn icon 
+          color="black" 
+          class="d-flex" 
+          v-bind="attrs"
+          v-on="on"
+          position: absolute 
+          style="z-index: 9999; left: 99px; top:7px;">
+          <v-icon>
+            mdi-book
+          </v-icon>
+        </v-btn>
+      </template>
+      <v-card>
+        <v-card-title>기억하기 선택</v-card-title>
+        <v-divider></v-divider>
+        <v-card-text style="height: 300px;">
+          <v-list dense>
+            <v-list-item-group
+              v-model="selectMemory"
+              color="primary"
+              > 
+                <v-list-item
+                  v-for="(memory, i) in myMemories"
+                  :key="i"
+                  >
+                <!-- <v-list-item-icon>
+                  <v-icon v-text="item.icon"></v-icon>
+                </v-list-item-icon> -->
+                <v-list-item-content>
+                  <v-list-item-title v-text="memory.name" @click="moveMemory(memory)"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
 
 
-
-
-
-
-
-    <div id="map" class="map" position: fixed style="z-index: 0">
-    </div>
-
-    <!-- dialog -->
-    <v-row justify="center">
-      <v-dialog v-model="dialog" persistent max-width="290">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" v-on="on">
-            기억하기
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="moveMemoryDialog = false"
+          >
+            닫기
           </v-btn>
-        </template>
 
-        <v-card>
-          <v-card-title class="headline">
-            기억할 장소의 이름과 반경을 적어주세요
-          </v-card-title>
-          <v-card-text>
-            <v-col cols='12'>
-              <div class="modal-card">
-                <v-text-field v-model="memoryName" label='기억하기 이름' @click="resetMemoryName"></v-text-field>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-btn-toggle>
 
-                <v-text-field v-model="memoryRadius" label='반경(km)' @click="resetMemoryRadius"></v-text-field>
-                <v-btn @click='memoryClick' block color='primary'>기억 저장</v-btn>
-              </div>
-            </v-col>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-    </v-row>
+    
+        <div id="map" class="map"></div>
 
+
+        <!-- dialog -->
+        <v-row justify="center">
+          <v-dialog v-model="saveMemoryDialog" persistent max-width="290">
+            <template v-slot:activator="{ on, attrs }" v-if="pinInfo">
+              <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                기억하기
+              </v-btn>
+            </template>
+
+            <v-card>
+              <v-card-title class="headline">
+                기억할 장소의 이름과 반경을 적어주세요
+              </v-card-title>
+              <v-card-text>
+                <v-col cols='12'>
+                  <div class="modal-card">
+                    <v-text-field v-model="memoryName" label='기억하기 이름' @click="resetMemoryName"></v-text-field>
+
+                    <v-text-field v-model="memoryRadius" label='반경(km)' @click="resetMemoryRadius"></v-text-field>
+                    <v-btn @click='saveMemory' text color='primary'>기억 저장</v-btn>
+                    <v-btn @click="saveMemoryDialog = false" text color="red">닫기</v-btn>
+                  </div>
+                </v-col>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+        </v-row>
+    </v-col>
   </v-row>
 </template>
-
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-import SearchFeedLocation from "../newsfeed/SearchFeedLocation.vue" 
 import MemoryLocation from "./MemoryLocation.vue"
 import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL 
 
 export default {
   props: [
-    'goMemoryInfo',
-    'myMemories'
   ],
   components: {
     
@@ -74,18 +128,27 @@ export default {
       roadview: '',
       myLocation: '',
       address: '',
-      markerInfo: '',
+      pinInfo: '',
       container: '',
       options: '',
       position: '',
-      markers: [],
+      pins: [],
       checkMemoryState: false,
       is_infowindow: false,
       articles: '',
       is_articles: false,
-      dialog: false,
       memoryName: '',
       memoryRadius: '',
+      myMemories: '',
+      moveMemoryDialog: false,
+      selectMemory: '',
+      saveMemoryDialog: false,
+      memoryInfo: {
+        name: '',
+        radius: '',
+        lat: '',
+        lng: ''
+      }
     }
   },
   mounted() {
@@ -101,10 +164,11 @@ export default {
       script.src =
         "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41dd8e1c2fab039d8dbbff2e13e8d5a5&libraries=services,clusterer,drawing";
       document.head.appendChild(script);
+      
     },
     initMap() {
       const self = this
-
+    
       self.options = { 
           center: new kakao.maps.LatLng(36.3586873, 127.30278400),
           level: 5 
@@ -122,13 +186,8 @@ export default {
       }
     
       geocoder.coord2RegionCode(127.30278400, 36.3586873, callback)
-    
-
-
-
-
-
-      self.alreadyMemoryMarker()
+      
+      
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
       self.mapClick(mouseEvent)
 
@@ -139,21 +198,22 @@ export default {
     mapClick(mouseEvent) {
         const self = this
         if (self.checkMemoryState){  
+          console.log(self.checkMemoryState)
           var latlng = mouseEvent.latLng;   
           self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
-          var marker = new kakao.maps.Marker({
+          var pin = new kakao.maps.Marker({
             map: self.map,
             position: self.position
           })        
           // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
-          if (self.markerInfo==''){
-            marker.setMap(self.map)
+          if (self.pinInfo==''){
+            pin.setMap(self.map)
           } else {
-            self.markerInfo.setMap(null)
-            marker.setMap(self.map)
+            self.pinInfo.setMap(null)
+            pin.setMap(self.map)
           }
-          self.markerInfo = marker 
-          console.log(self.markerInfo)
+          self.pinInfo = pin 
+          console.log(self.pinInfo)
         // 주소 넣기
         var geocoder = new kakao.maps.services.Geocoder()
         var callback = function(result, status) {
@@ -162,7 +222,9 @@ export default {
           }
         }
         geocoder.coord2RegionCode(self.position.La, self.position.Ma, callback)
+        self.saveMemoryDialog = true
       }
+      
     },
     // 내 위치로 이동
     moveMyLocation() {
@@ -182,46 +244,56 @@ export default {
     // 핀을 누른 상태인지 아닌지를 판단하는것
     checkMemory() {
       this.checkMemoryState = !this.checkMemoryState
-      if (this.markerInfo){
-        this.markerInfo.setMap(null)
+      if (this.pinInfo){
+        this.pinInfo.setMap(null)
       }
     },
     // 기억 되있는 마커 찍어 놓기
-    alreadyMemoryMarker() {
+    alreadyMemoryPin() {
+      console.log(this.myMemories)
       const self = this
       const imageSrc = require('@/assets/images/flag2.png')
       const imageSize = new kakao.maps.Size(35, 35)
-      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+      const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       for (var i = 0; i < self.myMemories.length; i ++) {
         
         self.position = new kakao.maps.LatLng(self.myMemories[i].lat, self.myMemories[i].lng)
-        var marker = new kakao.maps.Marker({
+        var pin = new kakao.maps.Marker({
             map: self.map, 
             position: self.position,
             title : self.myMemories[i].name,
-            image : markerImage
+            image : pinImage
         })
+        
 
+        
+        
+        
+                            
+        const tempContent = `${self.myMemories[i].lat}`
         var infowindow = new kakao.maps.InfoWindow({
-            content: marker.Fb // 인포윈도우에 표시할 내용
+            content: tempContent // 인포윈도우에 표시할 내용
         })
 
-        kakao.maps.event.addListener(marker, 'click', makeOverListener(self.map, marker, infowindow))
+
+        kakao.maps.event.addListener(pin, 'click', memoryClickListener(self.map, pin, infowindow))
+        
         
       }
-      
 
-      function makeOverListener(map, marker, infowindow) {
-            return function() {
-              this.is_infowindow = !this.is_infowindow
-              if (this.is_infowindow){
-                infowindow.open(map, marker)
-              }
-              else{
-                infowindow.close()
-              }
-            };
+
+      function memoryClickListener(map, pin, infowindow) {
+          return function() {
+            this.is_infowindow = !this.is_infowindow
+            if (this.is_infowindow){
+              infowindow.open(map, pin)
+            }
+            else{
+              infowindow.close()
+            }
+          }
         }
+      
     },
     // 게시물들 받아오기
     getArticle() {
@@ -229,11 +301,11 @@ export default {
       axios.get(`${SERVER_URL}/pins`, this.getToken)
       .then((res)=> {
         this.articles = res.data
-        this.articleMarkers()
+        this.articlePins()
       }) 
     },
     // 게시물들 마커 찍기
-    articleMarkers() {   
+    articlePins() {   
       const self = this
 
       self.is_articles = !self.is_articles
@@ -244,22 +316,26 @@ export default {
       const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
       const imageSize = new kakao.maps.Size(24, 35)
 
-      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+      const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       
       for (var i = 0; i < self.articles.length; i ++) {
         const position = new kakao.maps.LatLng(self.articles[i].lat, self.articles[i].lng)
-        var marker = new kakao.maps.Marker({
+        var pin = new kakao.maps.Marker({
             map: self.map, 
             position: position,
             title : self.articles[i].address_name,
-            image : markerImage
+            image : pinImage
         })
         
         const id = self.articles[i].pinId
-        kakao.maps.event.addListener(marker, 'click', articleMarkerClick(id))
-        this.markers.push(marker)
+        kakao.maps.event.addListener(pin, 'click', articlePinClick(id))
+        this.pins.push(pin)
+
       }
-      function articleMarkerClick(id) {
+
+
+
+      function articlePinClick(id) {
         return function() {
           self.$router.push({name: 'BindArticle', params: {
             pinId: id,
@@ -271,28 +347,38 @@ export default {
       averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
       minLevel: 8 // 클러스터 할 최소 지도 레벨 
       })
-      clusterer.addMarkers(self.markers)
+      clusterer.addMarkers(self.pins)
     },
     // 기억하기 저장
     saveMemory(res) {
+      
       const self = this
-      this.is_Memoryshow = !this.is_Memoryshow
-      res.lat= this.position.Ma
+      self.is_Memoryshow = !self.is_Memoryshow
+      res.lat= self.position.Ma
       res.lng= this.position.La
       
       const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"
       const imageSize = new kakao.maps.Size(24, 35)
-      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+      const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
-      self.position = new kakao.maps.LatLng(res.lat, res.lng)
-      var marker = new kakao.maps.Marker({
+      self.position = new kakao.maps.LatLng(self.position.Ma, self.position.La)
+      var pin = new kakao.maps.Marker({
           map: self.map, 
           position: self.position,
-          title : res.name,
-          image :markerImage
+          title: res.name,
+          image: pinImage
       })
-      // this.markers.push(marker)    
-      this.$emit('onClick', res)
+
+      self.saveMemoryDialog = false
+      self.memoryInfo.name = self.memoryName
+      self.memoryInfo.radius = self.memoryRadius
+      self.memoryInfo.lat = self.position.Ma
+      self.memoryInfo.lng = self.position.La
+      this.$emit('onClick', self.memoryInfo)
+    },
+    deleteMemory() {
+      // console.log(123)
+      // axios.delete(`${SERVER_URL}/memories/${pin}`)
     },
     resetMemoryName() {
       
@@ -301,19 +387,25 @@ export default {
 
     },
     // 기억하기 장소로 이동
-    moveMemory() {
+    moveMemory(memory) {
       const self = this
-      console.log(self.goMemoryInfo)
-      self.map.setCenter(new kakao.maps.LatLng(self.goMemoryInfo.lat, self.goMemoryInfo.lng))
+      self.moveMemoryDialog = false
+      self.map.setCenter(new kakao.maps.LatLng(memory.lat, memory.lng))
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
         self.mapClick(mouseEvent)
       })
     },
-    memoryClick() {
-      
-    }
+    getMemories() {
+      const userId = sessionStorage.getItem('uid')
+      axios.get(`${SERVER_URL}/users/${userId}/memories`, this.getToken)
+      .then((res) => {
+        this.myMemories = res.data    
+        this.alreadyMemoryPin()    
+      })
+    },
   },
   created() {
+    this.getMemories()
     this.getArticle()
   },
   watch: {
@@ -332,27 +424,26 @@ export default {
       return config
     },
   },
-  // watch: {
-  //   markers() {
-  //     this.articleMarkers
-  //   }
-  // }
-
 }
 </script>
 
 <style scoped>
+.map-container {
+  position: relative;
+}
+
 .map {
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 70vh;
   z-index: 0;
+  margin: 0%;
+  
 }
 .memory-location-modar {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  
 }
 </style>
