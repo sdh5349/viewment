@@ -74,6 +74,7 @@ export default {
       is_show: false,
       searchedLocations: '',
       markers: [],
+      pinId: '',
     }
   },
   mounted() {
@@ -205,11 +206,21 @@ export default {
       }
       function articleMarkerClick(id) {
         return function() {
-          self.markerInfo.setMap(null)
+          
+          if (self.markerInfo){
+            self.markerInfo.setMap(null)
+          }
           axios.get(`${SERVER_URL}/pins/${id}`, self.getToken)
           .then((res)=> {
-            self.$emit('onClick', res.data)
+            const pinInfo = {
+              addressName: res.data.addressName,
+              lat: res.data.lat,
+              lng: res.data.lng,
+              pinId: res.data.pinId
+            }
+            self.$emit('onClick', pinInfo)
             alert('이 마커로 위치 지정 완료')
+            
           }) 
         }
       }

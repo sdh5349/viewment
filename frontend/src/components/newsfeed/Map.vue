@@ -250,7 +250,7 @@ export default {
     },
     // 기억 되있는 마커 찍어 놓기
     alreadyMemoryPin() {
-      console.log(this.myMemories)
+      
       const self = this
       const imageSrc = require('@/assets/images/flag2.png')
       const imageSize = new kakao.maps.Size(35, 35)

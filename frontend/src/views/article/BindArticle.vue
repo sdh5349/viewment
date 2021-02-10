@@ -196,7 +196,9 @@ export default {
   },
   methods: {
     getArticles() {
-      axios.get(`${SERVER_URL}/articles/pins/?pinId=${this.pinId}`, this.getToken)
+      
+      // axios.get(`${SERVER_URL}/articles/pins/?pinId=${this.pinId}`, this.getToken)
+      axios.get(`${SERVER_URL}/articles/pins?end=2021-02-10&start=2000-02-10&pinId=${this.pinId}`, this.getToken)
       .then( (res)=> {
         this.articles = res.data
         this.articleId = this.articles[0].articleId
