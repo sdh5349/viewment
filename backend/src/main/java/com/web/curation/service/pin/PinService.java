@@ -23,6 +23,6 @@ public interface PinService {
     public List<PinDto> getPinsAll();
     public void deletePin(Long pinId);
     public Long updatePin(PinDto pinDto);
-    List<PinDto> getPinsForMap(String userId, boolean includeMine, boolean includeFollowings);
-
+    List<PinDto> getPinsForUserMap(String userId);
+    List<PinDto> getPinsForMap(String userId);
 }
