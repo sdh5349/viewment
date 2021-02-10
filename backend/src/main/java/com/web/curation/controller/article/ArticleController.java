@@ -94,6 +94,13 @@ public class ArticleController {
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
+    @ApiOperation(value = "트렌드 게시글 및 팔로잉 게시글 조회")
+    @GetMapping("/trend/{userId}")
+    public ResponseEntity<?> getArticlesForTrend(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForTrend(userId, lat, lng);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
     @ApiOperation(value = "게시글 수정", notes = "contents, hashtags만 수정 가능 \n articleId, contents, hashtags, userId, pinId 필수")
     @PutMapping("/{articleId}")
     public ResponseEntity<?> updateArticle(@PathVariable("articleId") Long articleId, @RequestBody ArticleDto articleDto) {

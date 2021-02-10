@@ -1,27 +1,23 @@
 package com.web.curation.service.article;
 
-import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.connection.Follow;
 import com.web.curation.domain.connection.Likes;
-import com.web.curation.dto.article.FeedArticleDto;
-import com.web.curation.dto.user.SimpleUserInfoDto;
-import com.web.curation.dto.article.ArticleSimpleDto;
-import com.web.curation.exceptions.ElementNotFoundException;
-import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.domain.hashtag.Hashtag;
 import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleInfoDto;
+import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.exceptions.ElementNotFoundException;
+import com.web.curation.exceptions.UserNotFoundException;
+import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.follow.FollowRepository;
+import com.web.curation.repository.hashtag.HashtagRepository;
 import com.web.curation.repository.like.LikeRepository;
 import com.web.curation.repository.memory.MemoryRepository;
-import com.web.curation.repository.user.UserRepository;
-import com.web.curation.repository.article.ArticleRepository;
-import com.web.curation.repository.hashtag.HashtagRepository;
-import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.pin.PinRepository;
+import com.web.curation.repository.user.UserRepository;
 import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
@@ -30,8 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -122,7 +117,7 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public List<ArticleSimpleDto> getArticlesForFeed(String userId, double lat, double lng) {
-        List<Article> articles = new ArrayList<>();
+        Set<Article> articles = new HashSet<>();
 
         getUser(userId).getMemories().stream()
                 .forEach(memory -> {
@@ -154,6 +149,40 @@ public class ArticleService {
         List<ArticleSimpleDto> result = articles.stream()
                 .map(article -> {
                     return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    public List<ArticleSimpleDto> getArticlesForTrend(String userId, double lat, double lng) {
+        Set<Article> articles = new HashSet<>();
+        List<Article> nearbyArticles = new ArrayList<>();
+
+        User user = getUser(userId);
+        followRepository.findByFrom(user).stream()
+                .forEach(follow -> {
+                    articles.addAll(follow.getTo().getArticles());
+                });
+
+        pinRepository.findAll().stream()
+                .forEach(pin -> {
+                    Point point = pin.getLocation();
+                    if (1500 > DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX())) {
+                        nearbyArticles.addAll(pin.getArticles());
+                    }
+                });
+
+        Collections.sort(nearbyArticles, (a1, a2) -> a2.getLikes().size() - a1.getLikes().size());
+
+        if(nearbyArticles.size()>0)
+            articles.addAll(nearbyArticles.subList(0, Math.min(nearbyArticles.size(), Math.max(10,articles.size()/3))));
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
+                    if (!followRepository.findByUserIdAndTargetUserId(userId, article.getUser().getId()).isEmpty())
+                        dto.setFollowing(true);
+                    return dto;
                 })
                 .collect(Collectors.toList());
         return result;
@@ -284,5 +313,4 @@ public class ArticleService {
         );
         return pin;
     }
-
 }
