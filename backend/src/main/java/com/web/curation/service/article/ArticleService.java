@@ -3,23 +3,22 @@ package com.web.curation.service.article;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.connection.Follow;
 import com.web.curation.domain.connection.Likes;
-import com.web.curation.dto.article.FeedArticleDto;
-import com.web.curation.dto.user.SimpleUserInfoDto;
-import com.web.curation.dto.article.ArticleSimpleDto;
-import com.web.curation.exceptions.ElementNotFoundException;
-import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.domain.hashtag.Hashtag;
 import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.repository.follow.FollowRepository;
-import com.web.curation.repository.like.LikeRepository;
-import com.web.curation.repository.user.UserRepository;
+import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.exceptions.ElementNotFoundException;
+import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
+import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
-import com.web.curation.repository.image.ImageRepository;
+import com.web.curation.repository.like.LikeRepository;
+import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.pin.PinRepository;
+import com.web.curation.repository.user.UserRepository;
+import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
@@ -27,8 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +38,7 @@ import java.util.stream.Collectors;
  * @변경이력 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
  * @변경이력 김종성: like, unlike 기능 추가
  * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
+ * 이주희 21-02-09 기억하기 주변 핀 찾기 기능 추가
  **/
 
 @Service
@@ -51,7 +50,7 @@ public class ArticleService {
 
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
-    private final ImageRepository imageRepository;
+    private final MemoryRepository memoryRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
@@ -69,9 +68,9 @@ public class ArticleService {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             newPin.setAddress(articleDto.getAddressName());
-            newPin.setType('a');
             Long savedPinId = pinRepository.save(newPin).getPinId();
             pin = getPin(savedPinId);
+            addMemoryPin(pin);
         }
         article.setPin(pin);
 
@@ -117,26 +116,22 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleSimpleDto> getArticlesForFeed(FeedArticleDto feedArticleDto) {
-        List<Article> articles = new ArrayList<>();
+    public List<ArticleSimpleDto> getArticlesForFeed(String userId, double lat, double lng) {
+        Set<Article> articles = new HashSet<>();
 
-        User user = getUser(feedArticleDto.getUserId());
-
-        if (feedArticleDto.isIncludeMine()) {
-            articles.addAll(user.getArticles());
-        }
-        if (feedArticleDto.isIncludeFollowings()) {
-            List<Follow> followings = followRepository.findByFrom(user);
-            for (int i = 0; i < followings.size(); i++) {
-                articles.addAll(followings.get(i).getTo().getArticles());
-            }
-        }
+        getUser(userId).getMemories().stream()
+                .forEach(memory -> {
+                    memory.getNearbyPins().stream()
+                            .forEach(pin -> {
+                                articles.addAll(pin.getArticles());
+                            });
+                });
 
         List<ArticleSimpleDto> result = articles.stream()
                 .map(article -> {
                     ArticleSimpleDto dto = new ArticleSimpleDto(article);
                     Point point = article.getPin().getLocation();
-                    dto.setDistance(calcDistance(feedArticleDto.getLat(), feedArticleDto.getLng(), point.getY(), point.getX()));
+                    dto.setDistance(DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX()));
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -154,6 +149,40 @@ public class ArticleService {
         List<ArticleSimpleDto> result = articles.stream()
                 .map(article -> {
                     return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    public List<ArticleSimpleDto> getArticlesForTrend(String userId, double lat, double lng) {
+        Set<Article> articles = new HashSet<>();
+        List<Article> nearbyArticles = new ArrayList<>();
+
+        User user = getUser(userId);
+        followRepository.findByFrom(user).stream()
+                .forEach(follow -> {
+                    articles.addAll(follow.getTo().getArticles());
+                });
+
+        pinRepository.findAll().stream()
+                .forEach(pin -> {
+                    Point point = pin.getLocation();
+                    if (1500 > DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX())) {
+                        nearbyArticles.addAll(pin.getArticles());
+                    }
+                });
+
+        Collections.sort(nearbyArticles, (a1, a2) -> a2.getLikes().size() - a1.getLikes().size());
+
+        if(nearbyArticles.size()>0)
+            articles.addAll(nearbyArticles.subList(0, Math.min(nearbyArticles.size(), Math.max(10,articles.size()/3))));
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
+                    if (!followRepository.findByUserIdAndTargetUserId(userId, article.getUser().getId()).isEmpty())
+                        dto.setFollowing(true);
+                    return dto;
                 })
                 .collect(Collectors.toList());
         return result;
@@ -195,6 +224,16 @@ public class ArticleService {
 
         article.setDate(articleDto.getDate());
     }
+
+
+    private void addMemoryPin(Pin pin) {
+        memoryRepository.findAll().stream()
+                .forEach(memory -> {
+                    if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
+                        memory.addNearbyPins(pin);
+                });
+    }
+
 
     /***
      *  좋아요 관련 메소드
@@ -248,35 +287,6 @@ public class ArticleService {
         return result;
     }
 
-    /**
-     * 거리 계산 메소드
-     */
-
-    public double calcDistance(double srcLat, double srcLng, double destLat, double destLng) {
-        double theta = srcLng - destLng;
-        double dist = Math.sin(deg2rad(srcLat)) * Math.sin(deg2rad(destLat))
-                + Math.cos(deg2rad(srcLat)) * Math.cos(deg2rad(srcLat)) * Math.cos(deg2rad(theta));
-
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515;
-
-        dist = dist * 1.609344;
-
-        return dist;
-    }
-
-    // This function converts decimal degrees to radians
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
-
-    // This function converts radians to decimal degrees
-    private double rad2deg(double rad) {
-        return (rad * 180 / Math.PI);
-    }
-
-
     private User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> {
@@ -303,5 +313,4 @@ public class ArticleService {
         );
         return pin;
     }
-
 }

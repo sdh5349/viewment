@@ -56,7 +56,7 @@ public class PinServiceImpl implements PinService {
 
     @Override
     public List<PinDto> getPinsAll() {
-        List<PinDto> pins = pinRepository.findByType('a').stream()
+        List<PinDto> pins = pinRepository.findAll().stream()
                 .map(pin -> {
                     return new PinDto(pin);
                 })
@@ -65,22 +65,31 @@ public class PinServiceImpl implements PinService {
     }
 
     @Override
-    public List<PinDto> getPinsForMap(String userId, boolean includeMine, boolean includeFollowings) {
+    public List<PinDto> getPinsForUserMap(String userId) {
         Set<Pin> pins = new HashSet<>();
-        if (includeMine) {
-            pins.addAll(pinRepository.findByUserId(userId));
-        }
-        if (includeFollowings) {
-            User user = userRepository.findById(userId).orElseThrow(
-                    () -> {
-                        throw new UserNotFoundException();
-                    }
-            );
-            List<Follow> followings = followRepository.findByFrom(user);
-            for (int i = 0; i < followings.size(); i++) {
-                pins.addAll(pinRepository.findByUserId(followings.get(i).getTo().getId()));
-            }
-        }
+
+        getUser(userId).getArticles().stream()
+                .forEach(article -> {
+                    pins.add(article.getPin());
+                });
+
+        List<PinDto> result = pins.stream()
+                .map(pin -> {
+                    return new PinDto(pin);
+                })
+                .collect(Collectors.toList());
+
+        return result;
+    }
+
+    @Override
+    public List<PinDto> getPinsForMap(String userId) {
+        Set<Pin> pins = new HashSet<>();
+
+        getUser(userId).getMemories().stream()
+                .forEach(memory -> {
+                    pins.addAll(memory.getNearbyPins());
+                });
 
         List<PinDto> result = pins.stream()
                 .map(pin -> {
@@ -101,4 +110,14 @@ public class PinServiceImpl implements PinService {
     public Long updatePin(PinDto pinDto) {
         return null;
     }
+
+    private User getUser(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> {
+                    throw new UserNotFoundException();
+                }
+        );
+        return user;
+    }
+
 }

@@ -31,6 +31,7 @@ public class ArticleSimpleDto {
     private String date;
     private String wdate;
     private double distance;
+    private boolean following;
 
     public ArticleSimpleDto(Article article){
         this.articleId = article.getArticleId();
