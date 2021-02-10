@@ -10,6 +10,9 @@ import com.web.curation.recommend.recommender.ArticleRecommender;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +42,7 @@ public class RecommendServiceImpl implements RecommendService{
     private final ArticleRepository articleRepository;
 
     @Override
-    public List<ArticleSimpleDto> recommendArticle(String userId) {
+    public Page<ArticleSimpleDto> recommendArticle(String userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(()->{
             throw new UserNotFoundException();
         });
@@ -58,6 +61,8 @@ public class RecommendServiceImpl implements RecommendService{
 
         List<Article> articles = articleRepository.findByArticleIdIn(recommend);
 
+        int s = pageable.getPageNumber();
+        int e = pageable.getPageSize();
         List<ArticleSimpleDto> result = articles.stream()
                 .filter(article -> !article.getUser().getId().equals(userId))
                 .map(article -> {
@@ -65,7 +70,9 @@ public class RecommendServiceImpl implements RecommendService{
                 })
                 .collect(Collectors.toList());
 
-        return result;
+        int fromIdx = s*e<result.size() ? (s+e) : result.size()-1;
+        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+        return new PageImpl<ArticleSimpleDto> (result.subList(fromIdx, toIdx), pageable, result.size()) ;
     }
 
     @Override

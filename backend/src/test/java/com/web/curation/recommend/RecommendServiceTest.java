@@ -15,6 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -97,7 +101,7 @@ public class RecommendServiceTest {
 
         //when
 
-        List<ArticleSimpleDto> result = recommendService.recommendArticle("4");
+        List<ArticleSimpleDto> result = recommendService.recommendArticle("4", PageRequest.of(0, 10)).getContent();
 
         //then
         System.out.println();
@@ -119,7 +123,7 @@ public class RecommendServiceTest {
 
         //when
 
-        List<ArticleSimpleDto> result = recommendService.recommendArticle("1");
+        List<ArticleSimpleDto> result = recommendService.recommendArticle("1", PageRequest.of(0, 10)).getContent();
 
         //then
         result.forEach(articleInfoDto -> System.out.println(articleInfoDto.getArticleId()));

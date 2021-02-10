@@ -33,7 +33,7 @@ public class FpgAnalyzer implements Analyzer{
 
             rules.sort((a, b)->Double.compare(b.lift, a.lift));
 
-            for(int i = 0; i<rules.size()/3+1; i++){
+            for(int i = 0; i<rules.size(); i++){
                 T t = rules.get(i).B;
                 if(!input.contains(t))
                     set.add(rules.get(i).B);
