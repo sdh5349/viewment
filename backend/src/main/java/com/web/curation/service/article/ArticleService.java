@@ -139,6 +139,22 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds) {
+        List<Article> articles = new ArrayList<>();
+        for (int i = 0; i < pinIds.length; i++) {
+            Pin pin = getPin(pinIds[i]);
+            articles.addAll(articleRepository.findByPin(pin));
+        }
+
+        List<ArticleSimpleDto> result = articles.stream()
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
     public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds, String start, String end) {
         List<Article> articles = new ArrayList<>();
         for (int i = 0; i < pinIds.length; i++) {
