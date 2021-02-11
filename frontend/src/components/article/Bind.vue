@@ -1,7 +1,7 @@
 <template>
   <div>
   <v-sheet
-    class="mx-auto"
+    class="mx-auto border-sheet"
     elevation="8"
     max-width="800"
   >
@@ -52,5 +52,7 @@ export default {
 </script>
 
 <style scoped>
-
+.bind-sheet {
+  border: 0;
+}
 </style>
