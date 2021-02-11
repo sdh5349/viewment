@@ -12,7 +12,7 @@
         src="@/assets/images/account.png"
       >
     </v-avatar>
-    {{nickname}}
+    <span :style="`font-size: ${fontSize}rem;`">{{nickname}}</span>
   </div>
 </template>
 
@@ -31,6 +31,10 @@ export default {
     size: {
       type: Number,
       default: 3,
+    },
+    fontSize: {
+      type: Number,
+      default: 1,
     }
   },
   data() {
