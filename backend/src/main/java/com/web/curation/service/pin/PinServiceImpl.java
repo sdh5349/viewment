@@ -75,7 +75,7 @@ public class PinServiceImpl implements PinService {
 
         List<PinDto> result = pins.stream()
                 .map(pin -> {
-                    return new PinDto(pin);
+                    return new PinDto(pin, pin.getTrendArticleId());
                 })
                 .collect(Collectors.toList());
 
@@ -93,7 +93,7 @@ public class PinServiceImpl implements PinService {
 
         List<PinDto> result = pins.stream()
                 .map(pin -> {
-                    return new PinDto(pin);
+                    return new PinDto(pin, pin.getTrendArticleId());
                 })
                 .collect(Collectors.toList());
 

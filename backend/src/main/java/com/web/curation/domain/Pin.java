@@ -10,6 +10,8 @@ import org.locationtech.jts.io.WKTReader;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * com.web.curation.domain
@@ -44,5 +46,18 @@ public class Pin {
             e.printStackTrace();
         }
         this.location = point;
+    }
+
+    public Long getTrendArticleId() {
+        AtomicReference<Long> id = new AtomicReference<>(0L);
+        AtomicInteger max = new AtomicInteger();
+        articles.stream()
+                .forEach(article -> {
+                    if(max.get() <= article.getLikes().size()) {
+                        max.set(article.getLikes().size());
+                        id.set(article.getArticleId());
+                    }
+                });
+        return id.get();
     }
 }
