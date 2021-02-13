@@ -74,7 +74,7 @@
     </v-dialog>
   </v-btn-toggle>
 
-    
+      
         <div id="map" class="map"></div>
 
 
@@ -137,8 +137,8 @@ export default {
       is_infowindow: false,
       articles: '',
       is_articles: false,
-      memoryName: '',
-      memoryRadius: '',
+      memoryName: '기억장소',
+      memoryRadius: '5',
       myMemories: '',
       moveMemoryDialog: false,
       selectMemory: '',
@@ -265,34 +265,47 @@ export default {
             image : pinImage
         })
         
-
-        
-        
-        
-                            
-        const tempContent = `${self.myMemories[i].lat}`
-        var infowindow = new kakao.maps.InfoWindow({
-            content: tempContent // 인포윈도우에 표시할 내용
-        })
+    
+        const content = `<div @onclick="closeOverlay()"> ` +
+                        `dasdas ` +
+                        `</div>`
 
 
-        kakao.maps.event.addListener(pin, 'click', memoryClickListener(self.map, pin, infowindow))
+        var customOverlay = new kakao.maps.CustomOverlay({
+            position: self.position,
+            map: self.map,
+            content: content   
+        });
+
+      kakao.maps.event.addListener(pin, 'click', function() {
+          customOverlay.setMap(null)
+          console.log(1322323)  
+      });
+
+      function closeOverlay() {
+          console.log(123)
+          // overlay.setMap(null);     
+      }
+
+
+        // customOverlay.setMap(self.map);
+        // kakao.maps.event.addListener(pin, 'click', memoryClickListener(self.map, pin, customOverlay))
         
         
       }
 
 
-      function memoryClickListener(map, pin, infowindow) {
-          return function() {
-            this.is_infowindow = !this.is_infowindow
-            if (this.is_infowindow){
-              infowindow.open(map, pin)
-            }
-            else{
-              infowindow.close()
-            }
-          }
-        }
+      // function memoryClickListener(map, pin, customOverlay) {
+      //     return function() {
+      //       this.is_infowindow = !this.is_infowindow
+      //       if (this.is_infowindow){
+      //         customOverlay.open(map, pin)
+      //       }
+      //       else{
+      //         customOverlay.close()
+      //       }
+      //     }
+      //   }
       
     },
     // 게시물들 받아오기
@@ -381,10 +394,10 @@ export default {
       // axios.delete(`${SERVER_URL}/memories/${pin}`)
     },
     resetMemoryName() {
-      
+      this.memoryName = ''
     },
     resetMemoryRadius() {
-
+      this.memoryRadius = ''
     },
     // 기억하기 장소로 이동
     moveMemory(memory) {

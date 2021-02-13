@@ -11,21 +11,22 @@
   <div v-if="pickArticle">
     <v-row class="mt-5">
       <v-col
-        cols='3'
+        cols='1'
       >
         <v-icon color="green darken-2">mdi-call-split</v-icon>
       </v-col>
 
       <v-col 
-        cols='5'
+        cols='7'
       >
         {{pickArticle.pin.addressName}}
       </v-col>
 
       <v-col 
         cols='4'
+        class=""
       >
-        <v-btn @click='markerCheck'>기억하기</v-btn> 
+        <v-btn @click='markerCheck' color="primary">기억하기</v-btn> 
       </v-col>
     </v-row>
     <MemoryLocation
@@ -38,14 +39,26 @@
 
     <v-row>
       <v-col 
+        cols="3"
+        class="text-center"
+      ><v-icon @click="openBindSetting">mdi-calendar</v-icon>
+      </v-col>
+
+      <v-col
+        cols="9" 
+        class=""
       >
-        {{pickArticle.wdate | dateFormat()}}
+        <div @click.stop="dialog = true">
+          {{ startDate }} ~ {{ endDate }}
+        </div>
+        
       </v-col>
       
     </v-row>
 
 
   <v-card
+    v-if="articles"
     elevation="24"
     max-width="444"
     class="mx-auto"
@@ -115,7 +128,8 @@
             
           </v-list-item-subtitle>
         </v-list-item-content>
-        <v-menu transition="slide-y-transition">
+
+        <v-menu v-if="is_Creater" transition="slide-y-transition">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               color="primary"
@@ -146,15 +160,77 @@
 
   <v-system-bar lights-out></v-system-bar>
   
- 
+ <v-dialog
+      v-model="dialog"
+      max-width="100%"
+      
+    >
+      <v-card height="100%">
+        <v-card-title class="headline">
+          모아보기 기간 지정
+        </v-card-title>
+
+      <v-card-text>
+        <v-row>
+          <v-col
+            cols="12"
+            sm="6"
+          >
+            <v-date-picker
+              v-model="dates"
+              range
+            ></v-date-picker>
+          </v-col>
+          <v-col
+            cols="12"
+            sm="6"
+          >
+            <v-text-field
+              v-model="dateRangeText"
+              label="Date range"
+              prepend-icon="mdi-calendar"
+              readonly
+            ></v-text-field>
+          </v-col>
+        </v-row>
+      </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="dialog = false"
+          >
+            취소
+          </v-btn>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="bindSetting"
+          >
+            설정
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
+
+
   
   <Bind
+    v-if="articles"
     :articles='articles'
     @onClick='getBindArticle'
     >
   </Bind>
 
-
+  <div v-if="articles == ''">
+    게시물이 없습니다. 기간을 다시 설정해주세요.
+    (게시글 없을때 먼가 출력해야할듯)
+  </div>
 
 
 
@@ -168,6 +244,7 @@
 import axios from 'axios'
 import Bind from '@/components/article/Bind'
 import MemoryLocation from '@/components/article/MemoryLocation.vue'
+
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
@@ -192,17 +269,69 @@ export default {
       group: null,
       articleId: '',
       is_Memoryshow: false,
+      is_Creater: false,
+      dialog: false,
+      items: [{a:'1'},{a:'1'},{a:'1'},{a:'1'},],
+      endDate: '',
+      startDate: '2000-01-01',
+      dates: ['2019-09-10', '2019-09-20'],
+
     }
   },
   methods: {
+    openBindSetting() {
+      this.dialog = true
+      this.dates = [this.startDate, this.endDate]
+    },
+    bindSetting() {
+      this.dialog = false
+      if (this.dates[0] > this.dates[1]){
+        this.startDate = this.dates[1]
+        this.endDate = this.dates[0]
+      }
+      else{
+        this.startDate = this.dates[0]
+        this.endDate = this.dates[1]  
+      }
+      this.getArticles()
+      alert('설정 완료')
+    },
+    getDate() {
+      function getTimeStamp() {
+          var d = new Date();
+          var s =
+              leadingZeros(d.getFullYear(), 4) + '-' +
+              leadingZeros(d.getMonth() + 1, 2) + '-' +
+              leadingZeros(d.getDate(), 2)
+          return s
+      }
+      function leadingZeros(n, digits) {
+          var zero = '';
+          n = n.toString();
+          if (n.length < digits) {
+              for (var i = 0; i < digits - n.length; i++)
+                  zero += '0';
+          }
+          return zero + n;
+      }
+      this.endDate = getTimeStamp()
+       
+    },
     getArticles() {
-      
-      // axios.get(`${SERVER_URL}/articles/pins/?pinId=${this.pinId}`, this.getToken)
-      axios.get(`${SERVER_URL}/articles/pins?end=2021-02-10&start=2000-02-10&pinId=${this.pinId}`, this.getToken)
+
+      axios.get(`${SERVER_URL}/articles/pins?end=${this.endDate}&start=${this.startDate}&pinId=${this.pinId}`, this.getToken)
       .then( (res)=> {
-        this.articles = res.data
-        this.articleId = this.articles[0].articleId
-        this.getBindArticle()
+        console.log(res.data)
+        if (res.data.length){
+          this.articles = res.data
+          this.articleId = this.articles[this.articles.length-1].articleId
+          this.getBindArticle()
+        }
+        else {
+          this.articles = ''
+          console.log('해당 기간에 게시물이 없습니다. 기간을 다시 설정해 주세요.')
+        }
+        
       })
     },
     getBindArticle(res) {
@@ -217,7 +346,13 @@ export default {
       .then( (res)=> {
         this.pickArticle = res.data
         this.position = this.pickArticle.pin
-        
+        const userId = sessionStorage.getItem('uid')
+        if ( userId == this.pickArticle.user.userId){
+          this.is_Creater = true
+        }
+        else {
+          this.is_Creater = false
+        }
       })
     },
     updateArticle(){
@@ -261,6 +396,7 @@ export default {
     }
   },
   created() {
+    this.getDate()
     this.getArticles()
   
   },
@@ -273,12 +409,14 @@ export default {
         }
       }
       return config
-    }
+    },
+    dateRangeText () {
+      return this.dates.join(' ~ ')
+      },
   },
-
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>
