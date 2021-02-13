@@ -33,6 +33,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findByWdateAfter(Timestamp timestamp);
 
+    List<Article> findByPin(Pin pin);
+
     List<Article> findByPinAndDateBetween(Pin pin, String start, String end);
 
     Long countByUser(User user);
