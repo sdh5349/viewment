@@ -16,10 +16,10 @@
     justify="center"
   >
     <v-col
-      class="scroll-container"
       lg="4"
       md="4"
       sm="6"
+      class="scroll-container"
     >
       <div
         class="px-3 pt-3"
@@ -30,18 +30,21 @@
       <RecommandsByLocation />
      
       
-      <v-divider></v-divider>
+      <div
+        class="px-3 pt-3"
+      >
+        <p class="text-caption mb-1">회원님의 활동을 기반으로 추천해드립니다.</p>
 
       <Feed 
-        feed-type="recommanded" 
+        feed-type="recommend" 
       />
+      </div>
 
     </v-col>
   </v-row>
 </template>
 
 <script>
-import axios from 'axios'
 import Feed from '@/components/newsfeed/Feed'
 import RecommandsByLocation from '@/components/curation/RecommandsByLocation'
 
