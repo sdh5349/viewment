@@ -123,7 +123,7 @@
           <!-- 좋아요 버튼 시작 -->
           <v-btn 
             icon
-            class="bottom-left-position"
+            class="bottom-right-position"
             @click="onLikeButton"
           >        
             <v-icon v-if="articleInfo.liked" x-large color="error">mdi-heart</v-icon>
@@ -384,10 +384,10 @@ export default {
 }
 
 /* 계정설정 버튼의 위치를 설정한다 */
-.bottom-left-position {
+.bottom-right-position {
   position: absolute; 
   bottom: 0.4rem; 
-  left: 0.4rem;
+  right: 0.4rem;
   z-index: 1;
 }
 

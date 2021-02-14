@@ -47,7 +47,6 @@
               v-if="showInput"
               v-model="commentInput"
               class="pt-0"
-              
               append-icon="mdi-pencil"
               dense
               @click:append="onCreateRereply"
@@ -165,6 +164,7 @@ export default {
         })
         .then(() => {
           this.commentInput = ''
+          this.showInput = false
         })
         .catch(() => {
         })
