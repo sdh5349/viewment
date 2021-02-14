@@ -36,7 +36,7 @@ public class ArticleSimpleDto {
     public ArticleSimpleDto(Article article){
         this.articleId = article.getArticleId();
         this.user = new SimpleUserInfoDto(article.getUser());
-        this.pin = new PinDto(article.getPin());
+        this.pin = new PinDto(article.getPin(), article.getPin().getTrendArticleId());
         if(article.getArticleImages().size()>0) {
             this.thumbnail = new ImageDto();
             this.thumbnail.setPath("thumbnail/"+articleId);

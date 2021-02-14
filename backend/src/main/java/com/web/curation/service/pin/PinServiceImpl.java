@@ -58,7 +58,7 @@ public class PinServiceImpl implements PinService {
     public List<PinDto> getPinsAll() {
         List<PinDto> pins = pinRepository.findAll().stream()
                 .map(pin -> {
-                    return new PinDto(pin);
+                    return new PinDto(pin, pin.getTrendArticleId());
                 })
                 .collect(Collectors.toList());
         return pins;
