@@ -72,7 +72,9 @@ export default {
           self.searchedLocations = result
         }
       };
-      places.keywordSearch(this.search, callback);
+      if(this.search) {
+        places.keywordSearch(this.search, callback);
+      }
     },
     appendToStorage(Historys) {
       var str = localStorage.getItem("Historys");
@@ -106,29 +108,25 @@ export default {
           HistoryIcon:"mdi-map-marker",
           HistoryProperty: "Map",
         }
-      console.log(searchedLocation.x)
-      console.log(searchedLocation.y)
       this.$router.push({ name: 'Feed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
       this.appendToStorage(this.Historys)
-    }
-  },
-  created() {
+    },
   },
   watch: {
-    search: function() {
-      console.log("맵a")
-      if(this.onTab===1){
-        this.getLocation()
-        
+    onTab: {
+      immediate: true,
+      handler(onTab) {
+        fetch(`/${onTab}`).then((data) => {
+          this.getLocation()
+        })
       }
-
     },
-    onTab: function() {
-      console.log("맵b")
+    search: function() {
       if(this.onTab===1){
-        this.getLocation()
+        console.log("맵a")
+        this.getLocation() 
       }
-    }
+    },
   },
 }
 </script>

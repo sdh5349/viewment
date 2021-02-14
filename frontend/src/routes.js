@@ -16,6 +16,7 @@ import CreateArticle from './views/article/CreateArticle.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
 import UpdateArticle from './views/article/UpdateArticle.vue'
 import BindArticle from './views/article/BindArticle.vue'
+import SearchHashtagGrid from './views/search/SearchHashtagGrid.vue'
 import Curation from './views/curation/Curation.vue'
 
 export default [
@@ -129,5 +130,12 @@ export default [
         name : 'Curation',
         meta : { title: '게시물 추천'},
         component : Curation,
+    },  
+    {
+        path : '/search/search-hashtag-grid/:clickedHash',
+        name : 'SearchHashtagGrid',
+        meta : { title: '검색'},
+        component : SearchHashtagGrid,
+        props: true,
     },  
 ]

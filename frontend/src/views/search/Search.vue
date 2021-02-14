@@ -83,23 +83,24 @@ export default {
       search: null,
       onTab: null,
       tabItems: [
-        { tabId: 0, tabName: 'record', icon: 'mdi-heart', content: 'SearchRecord', searchLabel: "Search"},
-        { tabId: 1, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
-        { tabId: 2, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
-        { tabId: 3, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
+        { tabId: 10, tabName: 'record', icon: 'mdi-heart', content: 'SearchRecord', searchLabel: "Search"},
+        { tabId: 11, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
+        { tabId: 22, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
+        { tabId: 33, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
       ],
     }
   },
   methods: {
     onSearch(res) {
-        this.search = res
+      console.log(res)
+      this.search = res
     }
   },
   watch: {
     onTab: function() {
       console.log(this.onTab)
       // if (this.search === '' || this.search === null || this.search.value === 0){
-      //       console.log("gg")
+      //       alert("검색해라")
       //   }
     }
   }

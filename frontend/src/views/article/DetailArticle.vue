@@ -308,7 +308,7 @@ export default {
       })
     },
     clickHashtag(res){
-      this.$router.push({name: 'Search', params: {
+      this.$router.push({name: 'SearchHashtagGrid', params: {
         clickedHash: res
       }})
     },
