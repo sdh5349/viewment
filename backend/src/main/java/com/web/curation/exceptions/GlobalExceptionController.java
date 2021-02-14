@@ -21,8 +21,9 @@ public class GlobalExceptionController {
 
     @ExceptionHandler(UserDuplicateException.class)
     public ResponseEntity<?> handleUserDuplicateException(UserDuplicateException e){
-        final String msg  = "[ " + e.getEmail() + "] 은 중복된 이메일입니다";
-        final String code = "duplicated.email.exception";
+        final String type = e.getEmail()==null?"nickname":"email";
+        final String msg  = String.format("[ %s ]는 증복된 %s 입니다", e.getEmail()==null?e.getNickname():e.getEmail(), type);
+        final String code = "duplicated.user.exception";
         ErrorResponse errorResponse = new ErrorResponse(msg, code);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
