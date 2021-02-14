@@ -29,7 +29,7 @@
         >
         
         <v-file-input
-          v-if="this.preview != []"
+          v-if="this.preview.length == 0"
           accept="image/*"
           multiple 
           v-model="files"

@@ -158,6 +158,7 @@ export default {
         var yAnchor = 1.2
         content.type = 'button'
         content.addEventListener('click', function(){
+          console.log(position)
         })
 
         if (pinInfo.thumbnail) {
