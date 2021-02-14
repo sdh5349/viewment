@@ -161,7 +161,7 @@ export default {
 
         axios.post(`${SERVER_URL}/replies/rereply`, params, this.getToken)
         .then(res => {
-          // this.replyInfo.child.push(res.data)
+          this.replyInfo.child.push(res.data)
         })
         .then(() => {
           this.commentInput = ''
