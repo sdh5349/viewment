@@ -52,7 +52,7 @@ public class AccountController {
     @ApiOperation(value = "중복 이메일 확인")
     @GetMapping("/{email}/check")
     public ResponseEntity<?> checkDuplicatedEmail(@PathVariable(value = "email") String email){
-        accountService.validateDuplicateUser(email);
+        accountService.validateDuplicateEmail(email);
         return ResponseEntity.ok().build();
     }
 }
