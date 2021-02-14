@@ -18,6 +18,7 @@ import CreateArticleMap from './views/article/CreateArticleMap.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
 import UpdateArticle from './views/article/UpdateArticle.vue'
 import BindArticle from './views/article/BindArticle.vue'
+import SearchHashtagGrid from './views/search/SearchHashtagGrid.vue'
 
 export default [
     {
@@ -136,5 +137,12 @@ export default [
         name : 'CreateArticleMap',
         meta : { title: '게시물 생성'},
         component : CreateArticleMap,
+    },  
+    {
+        path : '/search/search-hashtag-grid/:clickedHash',
+        name : 'SearchHashtagGrid',
+        meta : { title: '검색'},
+        component : SearchHashtagGrid,
+        props: true,
     },  
 ]

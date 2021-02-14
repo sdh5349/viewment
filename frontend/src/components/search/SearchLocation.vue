@@ -108,8 +108,6 @@ export default {
           HistoryIcon:"mdi-map-marker",
           HistoryProperty: "Map",
         }
-      console.log(searchedLocation.x)
-      console.log(searchedLocation.y)
       this.$router.push({ name: 'Feed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
       this.appendToStorage(this.Historys)
     },

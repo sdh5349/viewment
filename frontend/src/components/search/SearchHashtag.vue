@@ -53,9 +53,9 @@ export default {
     onTab : {
       type: Number, 
     },
-    limitMax: {
-      type: Number,
-    },
+    // limitMax: {
+    //   type: Number,
+    // },
   },
   computed: {
     getToken() {
@@ -76,7 +76,7 @@ export default {
           .then((res) => {
           console.log(res) 
           console.log(res.data)
-          this.hashtags = res.data      
+          this.hashtags = res.data
           })
           .catch((err)=> {
             alert('error'+err.message)
@@ -85,6 +85,7 @@ export default {
     },
     goGrid(hash) {
       console.log(hash.contents)
+      this.$router.push({name: 'SearchHashtagGrid', params: {clickedHash: hash.contents}})
       this.Historys = 
         {
           HistoryTitle: hash.contents,

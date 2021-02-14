@@ -11,9 +11,15 @@
       >
         <v-list-item-avatar>
           <v-img
-            :alt="`${user.nickname} avatar`"
-            :src="user.profileImage"
+            v-if="user.profileImage"
+            :src="profileImageUrl+user.profileImage.path"
           ></v-img>
+            <!-- :src="user.profileImage.path" -->
+          <v-icon
+            v-else
+            color="primary"
+            size="85"
+          >mdi-account-circle</v-icon>
         </v-list-item-avatar>
 
         <v-list-item-content>
@@ -32,15 +38,14 @@
 
 <script>
 import axios from 'axios'
-// import { params } from 'vee-validate/dist/types/rules/alpha'
-// import { params } from 'vee-validate/dist/types/rules/alpha'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   data() {
     return {
-     users: [],
+    users: [],
+    profileImageUrl: `${SERVER_URL}/images/`,
     }
   },
   props: {
@@ -71,6 +76,8 @@ export default {
             .then((res) => {
             console.log(res)     
             this.users = res.data
+            console.log(this.users)
+            console.log(this.users.content)
             })
             .catch((err)=> {
               alert('error'+err.message)
@@ -79,13 +86,24 @@ export default {
     },
     goProfile(user) {
       this.$router.push({ name: 'Profile', params: { profileUserId : user.userId }})
-      this.Historys = 
-        {
-          HistoryTitle: user.nickname,
-          HistoryContent: user.userId, 
-          HistoryIcon: user.profileImage,
-          HistoryProperty: "User",
-        }
+      if(user.profileImage) {
+        this.Historys = 
+          {
+            HistoryTitle: user.nickname,
+            HistoryContent: user.userId, 
+            HistoryImage: user.profileImage.path,
+            HistoryProperty: "User",
+          }
+      }
+      else {
+        this.Historys = 
+          {
+            HistoryTitle: user.nickname,
+            HistoryContent: user.userId,
+            HistoryIcon: "mdi-account-circle",
+            HistoryProperty: "User",
+          }
+      }
       this.appendToStorage(this.Historys)
     },
     appendToStorage(Historys) {

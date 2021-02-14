@@ -96,13 +96,6 @@ export default {
       this.search = res
     }
   },
-  created() {
-    if(this.$route.params.clickedHash){
-      console.log(this.$route.params.clickedHash)
-      // this.onSearch(this.$route.params.clickedHash)
-      this.onTab = 2
-    }
-  },
   watch: {
     onTab: function() {
       console.log(this.onTab)
