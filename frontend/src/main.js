@@ -6,6 +6,8 @@ import store from './vuex/store'
 import vuetify from './plugins/vuetify'
 import './plugins/firebase'
 import VueGeolocation from 'vue-browser-geolocation';
+import firebase from "firebase/app";
+import "firebase/messaging";
 
 
 Vue.config.productionTip = false
@@ -33,3 +35,8 @@ new Vue({
     vuetify,
     render: h => h(App)
 }).$mount('#app');
+
+const messaging = firebase.messaging();
+messaging.onMessage((payload) => {
+  console.log('Message received. ', payload);
+});

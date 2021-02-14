@@ -5,10 +5,12 @@ import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.connection.Likes;
 import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.domain.memory.MemoryPin;
 import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.event.NewArticleEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
@@ -21,6 +23,7 @@ import com.web.curation.repository.user.UserRepository;
 import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -55,6 +58,8 @@ public class ArticleService {
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
 
@@ -76,9 +81,11 @@ public class ArticleService {
 
         setData(articleDto, article);
 
-        articleRepository.save(article);
+        Article savedArticle = articleRepository.save(article);
 
-        return article;
+        eventPublisher.publishEvent(new NewArticleEvent(savedArticle));
+
+        return savedArticle;
     }
 
     @Transactional(readOnly = true)
@@ -122,8 +129,8 @@ public class ArticleService {
         getUser(userId).getMemories().stream()
                 .forEach(memory -> {
                     memory.getNearbyPins().stream()
-                            .forEach(pin -> {
-                                articles.addAll(pin.getArticles());
+                            .forEach(memoryPin -> {
+                                articles.addAll(memoryPin.getPin().getArticles());
                             });
                 });
 
@@ -230,7 +237,7 @@ public class ArticleService {
         memoryRepository.findAll().stream()
                 .forEach(memory -> {
                     if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
-                        memory.addNearbyPins(pin);
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
                 });
     }
 
