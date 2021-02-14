@@ -1,7 +1,7 @@
 <template>
   <div>
   <v-sheet
-    class="mx-auto"
+    class="mx-auto border-sheet"
     elevation="8"
     max-width="800"
   >
@@ -16,15 +16,14 @@
         :key="i"
       >
         <v-card
-          class="ma-4"
-          height="200"
-          width="200"
+          class="ma-1"
+          height="50"
+          width="50"
           @click="clickArticle(article)"
         > 
           <v-img
             @onClick="clickArticle"
             :src="SERVER + '/images/'+ article.thumbnail.path"
-            
           >
           </v-img>
         </v-card>
@@ -52,6 +51,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+.bind-sheet {
+  border: 0;
+}
 </style>

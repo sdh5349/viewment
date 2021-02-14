@@ -20,6 +20,7 @@ import java.util.List;
  * @author  김종성
  *
  * @변경이력
+ * 이주희 21-02-09 핀 기능 삭제
  **/
 @Api(tags = {"3. Memory"})
 @RequiredArgsConstructor
@@ -36,17 +37,11 @@ public class MemoryController {
         return ResponseEntity.ok().body(memories);
     }
 
-    @ApiOperation(value = "핀이 있는 곳에 회원의 기억하기 추가")
-    @PostMapping("/users/{userId}/memories/pin")
-    public ResponseEntity<?> createMemoryWithPin(@PathVariable("userId") String userId,@RequestBody MemoryDto memoryDto){
-        memoryService.createWithPin(userId, memoryDto, memoryDto.getPinId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
 
-    @ApiOperation(value = "핀이 없는 곳에 회원의 기억하기 추가")
+    @ApiOperation(value = "회원의 기억하기 추가")
     @PostMapping("/users/{userId}/memories")
     public ResponseEntity<?> createMemory(@PathVariable("userId") String userId,@RequestBody MemoryDto memoryDto){
-        memoryService.createWithoutPin(userId, memoryDto);
+        memoryService.createMemory(userId, memoryDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -57,7 +52,7 @@ public class MemoryController {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "회원의 기억하기 수정")
+    @ApiOperation(value = "회원의 기억하기 수정 - 이름만 변경 가능")
     @PutMapping("/memories/{memoryId}")
     public ResponseEntity<?> modifyMemory(@PathVariable("memoryId") Long memoryId, @RequestBody MemoryDto memoryDto ){
         memoryService.updateMemory(memoryDto);

@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @변경이력 김종성: 좋아요 기능 추가
  * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
+ * 이주희 21-02-09 기본 피드 게시글 조회 기능 수정
  **/
 
 
@@ -58,8 +59,10 @@ public class ArticleController {
 
     @ApiOperation(value = "article id로 게시글 조회, 상세페이지에 사용")
     @GetMapping("/{articleId}")
-    public ResponseEntity<?> getArticleByArticleId(@PathVariable("articleId") Long articleId){
-        ArticleInfoDto articleInfoDto = articleService.findByArticleId(articleId);
+    public ResponseEntity<?> getArticleByArticleId(@PathVariable("articleId") Long articleId, Authentication authentication){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
+
+        ArticleInfoDto articleInfoDto = articleService.findByArticleId(currentUserId, articleId);
         return ResponseEntity.ok().body(articleInfoDto);
     }
 
@@ -77,10 +80,10 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
-    @ApiOperation(value = "기본 피드 게시글 조회 - 노출 정도 설정 가능")
-    @GetMapping("/forfeed")
-    public ResponseEntity<?> getArticlesForFeed(FeedArticleDto feedArticleDto) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(feedArticleDto);
+    @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회")
+    @GetMapping("/feed/{userId}")
+    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
@@ -88,6 +91,20 @@ public class ArticleController {
     @GetMapping("/pins")
     public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 (기간조회)")
+    @GetMapping("/pins/period")
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "트렌드 게시글 및 팔로잉 게시글 조회")
+    @GetMapping("/trend/{userId}")
+    public ResponseEntity<?> getArticlesForTrend(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForTrend(userId, lat, lng);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 

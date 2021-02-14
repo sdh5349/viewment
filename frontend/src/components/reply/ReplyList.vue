@@ -1,23 +1,21 @@
 <template>
-  <v-container>
-    <v-card-text>
-      <Reply 
-        v-for="reply in replies" 
-        :key="reply.replyId" 
-        :reply="reply" 
-        :profileUserId="profileUserId"
-        :loginUserId="loginUserId"
-        :replyType="replyType" 
-      />
-    </v-card-text>
-  </v-container>
+  <v-list class="py-0">
+    <Reply 
+      v-for="reply in replies" 
+      :key="reply.replyId" 
+      :reply="reply" 
+      :profileUserId="profileUserId"
+      :loginUserId="loginUserId"
+      :replyType="replyType" 
+    />
+  </v-list>
 </template>
 
 <script>
 import Reply from '@/components/reply/Reply'
 
 export default {
-  name: 'ReplyList',
+  name: 'reply-list',
   components: {
     Reply
   },

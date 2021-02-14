@@ -65,7 +65,7 @@ public class MemoryControllerTest {
         memoryDto.setLat(1.0000);
         memoryDto.setLng(2.0000);
         memoryDto.setName("memory");memoryDto.setRadius(10);
-        memoryService.createWithoutPin("a", memoryDto);
+        memoryService.createMemory("a", memoryDto);
 
     }
 

@@ -117,13 +117,12 @@ export default {
           const verifiedState = user.emailVerified
   
           if (verifiedState){
-          
             user.getIdToken()
             .then(token => {
               sessionStorage.setItem('jwt', token)
               sessionStorage.setItem('uid', user.uid)
               self.$emit('login')
-              self.$router.push({ name: 'Feed' })
+              self.$router.push({ name: 'Curation' })
             })
             .catch(err => {
               alert("오류"); // TODO: 오류페이지로 변경
@@ -132,10 +131,10 @@ export default {
           else{
             user.sendEmailVerification()
             .then(() => {
-              alert('이메일 인증이 안되어있습니다. 이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요')
+              alert('이메일 인증이 안되어있습니다.\n이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요.')
             })
             .catch((err) => {
-              alert('인증메일이 발송된지 얼마지나지 않았습니다. 이메일에서 인증메일을 확인해주세요')
+              alert('인증메일이 발송된지 얼마지나지 않았습니다.\n이메일에서 인증메일을 확인해주세요.')
             })
           } 
   

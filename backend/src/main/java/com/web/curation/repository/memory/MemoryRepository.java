@@ -11,6 +11,5 @@ import java.util.Optional;
 public interface MemoryRepository extends JpaRepository<Memory, Long> {
 
     public List<Memory> findByUser(User user);
-    public List<Memory> findByPin(Pin pin);
     Long countByUser(User user);
 }

@@ -9,6 +9,7 @@ import com.web.curation.repository.article.ArticleImageRepository;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.user.UserRepository;
+import com.web.curation.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,9 +53,13 @@ public class ImageService {
         );
         article.addArticleImage(ArticleImage.createArticleImage(article, savedImage, no));
 
+        File file = ImageUtil.multipartToFile(DIR + path, multipartFile);
+        ImageUtil.save("article", file);
 
-        File dest = new File(DIR + path);
-        multipartFile.transferTo(dest);
+        if (no == 0) {
+            File thumbnail = ImageUtil.multipartToFile(DIR + "thumbnail/" + articleId, multipartFile);
+            ImageUtil.save("thumbnail", thumbnail);
+        }
     }
 
     public void saveProfileImage(MultipartFile profileImage, String userId) throws Exception {
@@ -69,8 +74,8 @@ public class ImageService {
                 });
         user.setProfileImage(savedImage);
 
-        File dest = new File(DIR + path);
-        profileImage.transferTo(dest);
+        File file = ImageUtil.multipartToFile(DIR + path, profileImage);
+        ImageUtil.save("profile", file);
     }
 
     public void updateProfileImage(MultipartFile profileImage, String userId) throws Exception {
@@ -80,7 +85,8 @@ public class ImageService {
         if (dest.exists())
             dest.delete();
 
-        profileImage.transferTo(dest);
+        File file = ImageUtil.multipartToFile(DIR + path, profileImage);
+        ImageUtil.save("profile", file);
     }
 
     public void deleteProfileImage(String userId) {

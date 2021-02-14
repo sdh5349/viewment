@@ -28,7 +28,14 @@ public class PinDto {
         addressName = pin.getAddress();
         lat = pin.getLocation().getY();
         lng = pin.getLocation().getX();
-        if (pin.getArticles().size() > 0 && pin.getArticles().get(0).getArticleImages().size() > 0)
-            thumbnail = new ImageDto(pin.getArticles().get(0).getArticleImages().get(0).getImage());
+    }
+
+    public PinDto(Pin pin, Long trendArticleId) {
+        pinId = pin.getPinId();
+        addressName = pin.getAddress();
+        lat = pin.getLocation().getY();
+        lng = pin.getLocation().getX();
+        thumbnail = new ImageDto();
+        thumbnail.setPath("thumbnail/"+trendArticleId);
     }
 }

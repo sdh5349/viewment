@@ -8,11 +8,11 @@ import './plugins/firebase'
 import VueGeolocation from 'vue-browser-geolocation';
 
 
+
 Vue.config.productionTip = false
 
 Vue.use(VueRouter)
 Vue.use(VueGeolocation);
-
 // TODO: beforeEnter로 토큰이 없으면 들어 갈 수 없는 페이지 구성
 
 const router = new VueRouter({

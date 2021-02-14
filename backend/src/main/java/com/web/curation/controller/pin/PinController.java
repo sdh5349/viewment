@@ -43,10 +43,17 @@ public class PinController {
         return ResponseEntity.ok().body(pin);
     }
 
-    @ApiOperation(value = "지도에 뿌릴 핀 가져오기 - 노출 정도 설정 가능")
+    @ApiOperation(value = "사용자 페이지 지도탭에 노출될 핀 조회 (사용자가 올린 글만 조회)")
+    @GetMapping("/forusermap")
+    public ResponseEntity<?> getPinsForUserMap(@RequestParam("userId") String userId) {
+        List<PinDto> pins = pinService.getPinsForUserMap(userId);
+        return ResponseEntity.ok().body(pins);
+    }
+
+    @ApiOperation(value = "뉴스피드 지도에 노출될 핀 조회")
     @GetMapping("/formap")
-    public ResponseEntity<?> getPinsForMap(@RequestParam("userId") String userId, @RequestParam("mine") boolean includeMine, @RequestParam("follow") boolean includeFollowings) {
-        List<PinDto> pins = pinService.getPinsForMap(userId, includeMine, includeFollowings);
+    public ResponseEntity<?> getPinsForMap(@RequestParam("userId") String userId) {
+        List<PinDto> pins = pinService.getPinsForMap(userId);
         return ResponseEntity.ok().body(pins);
     }
 

@@ -22,31 +22,18 @@
       <v-list-item
         @click="onProfileListItem(item.userId)"
       >
-        <v-list-item-content>
+        <v-list-item-content class="pa-0">
           <v-list-item-title>
             <div class="d-flex justify-space-between">
-              <div>
-                <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 시작 -->
-                <v-list-item-avatar
-                  v-if="item.profileImage"
-                  size="36"
-                  class="my-0"
-                >
-                  <img
-                    :src="imageServerPrefix + item.profileImage.path"
-                  >
-                </v-list-item-avatar>
-                <v-icon
-                  v-else
-                  class="mr-4" 
-                  left 
-                  large
-                > 
-                  mdi-account-circle 
-                </v-icon>
-                  {{ item.nickname}}
-                <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 끝 -->
-              </div>
+
+              <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 시작 -->
+              <UserProfileImage
+                :profile-image="item.profileImage"
+                :nickname="item.nickname"
+                :size="2.7"
+              />
+              <!-- 아이콘 or 프로필 썸네일, 사용자 닉네임 끝 -->
+
               <!-- 팔로워 삭제(본인 프로필 일 경우)/팔로우/언팔로우 버튼 시작 -->
               <v-btn 
                 v-if="profileUserId === loginUserId"
@@ -91,11 +78,15 @@
 
 <script>
 import axios from 'axios'
+import UserProfileImage from '@/components/user/UserProfileImage'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'FollowerList',
+  components: {
+    UserProfileImage
+  },
   props: {
     profileUserId: String,
   },

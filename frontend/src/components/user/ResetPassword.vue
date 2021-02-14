@@ -84,9 +84,6 @@
       ValidationProvider,
       ValidationObserver,
     },
-    props: {
-      urlConfig: Object
-    },
     data: () => ({
       password: '',
       passwordConfirm: '',

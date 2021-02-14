@@ -4,7 +4,7 @@ import ConfirmEmail from './views/user/ConfirmEmail.vue'
 import Error from './views/error/Error.vue'
 import NotFound from './views/error/NotFound.vue'
 import ChangePassword from './views/user/ChangePassword.vue'
-import Feed from './views/feed/Feed.vue'
+import NewsFeed from './views/newsfeed/NewsFeed.vue'
 import ActionUrlHandler from './views/user/ActionUrlHandler.vue'
 import Search from './views/search/Search.vue'
 import Profile from './views/user/Profile.vue'
@@ -13,12 +13,11 @@ import MemoryList from './views/memory/MemoryList.vue'
 import EditProfile from './views/user/EditProfile.vue'
 import EditAccount from './views/user/EditAccount.vue'
 import CreateArticle from './views/article/CreateArticle.vue'
-import CreateArticleEtc from './views/article/CreateArticleEtc.vue'
-import CreateArticleMap from './views/article/CreateArticleMap.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
 import UpdateArticle from './views/article/UpdateArticle.vue'
 import BindArticle from './views/article/BindArticle.vue'
 import SearchHashtagGrid from './views/search/SearchHashtagGrid.vue'
+import Curation from './views/curation/Curation.vue'
 
 export default [
     {
@@ -35,10 +34,10 @@ export default [
         component : Join,
     },
     {
-        path : '/feed/main',
-        name : 'Feed',
+        path : '/newsfeed/main',
+        name : 'NewsFeed',
         meta : {title: '피드'},
-        component : Feed
+        component : NewsFeed
     },
     {
         path : '/user/find',
@@ -127,16 +126,10 @@ export default [
         component : BindArticle,
     }, 
     {
-        path : '/article/createetc',
-        name : 'CreateArticleEtc',
-        meta : { title: '게시물 생성'},
-        component : CreateArticleEtc,
-    },
-    {
-        path : '/article/createmap',
-        name : 'CreateArticleMap',
-        meta : { title: '게시물 생성'},
-        component : CreateArticleMap,
+        path : '/curation',
+        name : 'Curation',
+        meta : { title: '게시물 추천'},
+        component : Curation,
     },  
     {
         path : '/search/search-hashtag-grid/:clickedHash',

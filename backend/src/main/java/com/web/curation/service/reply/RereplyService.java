@@ -32,7 +32,7 @@ public class RereplyService {
     private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
 
-    public Rereply writeRereply(RereplyDto rereplyDto) {
+    public RereplyDto writeRereply(RereplyDto rereplyDto) {
         Rereply rereply = new Rereply();
 
         User findUser = userRepository.findById(rereplyDto.getUserId()).orElseThrow(() -> {
@@ -50,7 +50,7 @@ public class RereplyService {
         rereply.setContents(rereplyDto.getContents());
 
         Rereply savedRereply = rereplyRepository.save(rereply);
-        return savedRereply;
+        return new RereplyDto(savedRereply);
     }
 
     public void updateRereply(RereplyDto rereplyDto) {
