@@ -73,6 +73,7 @@ export default {
       document.head.appendChild(script);
     },
     initMap(pins) {
+      console.log(pins)
       const self = this
       // 사용자의 현재 위치를 기반으로 맵 보여준다.
       if (navigator.geolocation) {

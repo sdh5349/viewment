@@ -322,7 +322,7 @@ export default {
   
         axios.post(`${SERVER_URL}/replies`, params, this.getToken)
         .then(res => {
-          // this.articleInfo.replies.push(res.data)
+          this.articleInfo.replies.push(res.data)
         })
         .then(() => {
           this.commentInput = ''

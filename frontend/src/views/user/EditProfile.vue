@@ -15,6 +15,11 @@
       md="4"
       sm="6"
     > 
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
       <div class="d-flex justify-center">
         <div>
           <div
@@ -71,6 +76,7 @@
       >
         <form @submit.prevent="submit">
           <validation-provider
+            mode="aggressive"
             v-slot="{ errors }"
             rules="required|max:8"
           >
@@ -81,6 +87,7 @@
             ></v-text-field>
           </validation-provider>
           <validation-provider
+            mode="aggressive"
             v-slot="{ errors }"
             rules="max:50"
           >
@@ -102,6 +109,11 @@
         </form>
       </validation-observer>
       <!-- 닉네임, 자기소개 입력 창 + 유효성 검사 끝 -->
+      <Confirm 
+        v-if="confirm.confirmed"
+        :message="confirm.message"
+        @on-confirmed="onDeleteConfirmed"
+      />
     </v-col>
   </v-row>
 </template>
@@ -109,12 +121,11 @@
 <script>
 import axios from 'axios'
 import { required, max } from 'vee-validate/dist/rules'
-import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
+import Alert from '@/components/common/Alert'
+import Confirm from '@/components/common/Confirm'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
-
-// https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-setInteractionMode('eager') // 유효성 검사의 시기
 
 extend('required', {
   ...required,
@@ -136,11 +147,22 @@ extend('required', {
 export default {
   name: 'EditProfile',
   components: {
+    Alert,
+    Confirm,
     ValidationProvider,
     ValidationObserver,
   },
   data() {
     return {
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
+      confirm: {
+        confirmed: false,
+        message: '',
+      },
       profileUserId: sessionStorage.getItem('uid'),
       loading: true,
       profileUserInfo: null,
@@ -185,9 +207,8 @@ export default {
         this.loading = false
       })
       .catch(err => {
-        alert("오류"); // TODO: 오류페이지로 변경
-        console.log('Error', err.message);
-        // self.$router.push({ name: 'Error' })
+        this.alert.message = err.message
+        this.alert.alerted = true
       })
     },
     // 프로필 변경사항 서버 전달 메서드
@@ -220,7 +241,8 @@ export default {
               this.goProfile()
             })
             .catch(err => {
-              console.log(err.message)
+              this.alert.message = err.message
+              this.alert.alerted = true
             })
           // 기존에 프로필 이미지가 없었던 유저라면
           } else {
@@ -229,20 +251,21 @@ export default {
               this.goProfile()
             })
             .catch(err => {
-              console.log(err.message)
+              this.alert.message = err.message
+              this.alert.alerted = true
             })
           }
         // 현재 페이지에 선택한 이미지가 없고
         } else {
           // 기존에 프로필 이미지가 있었던 유저라면
           if (this.profileUserInfo.profileImage && this.profileImageUrl === null) {
-            console.log("딜리트동작 하러 갑니다")
             axios.delete(`${SERVER_URL}/images/${this.profileUserInfo.profileImage.path}`, this.getToken)
             .then(() => {
               this.goProfile()
             })
             .catch(err => {
-              console.log(err)
+              this.alert.message = err.message
+              this.alert.alerted = true
             })
           } else {
             // 프로필 사진은 바뀐것이 없을 경우!
@@ -251,7 +274,8 @@ export default {
         }
       })
       .catch(err => {
-        console.log(err)
+        this.alert.message = err.message
+        this.alert.alerted = true
       })
     },
     // 사진 파일을 불러오는 버튼
@@ -268,14 +292,25 @@ export default {
         this.profileImageFile.append('profileImage', imageFile)
         this.isFileChanged = true
       } else if (imageFile) {
-        alert("파일 크기는 20MB를 넘길 수 없습니다.")
+        this.alert.message = '파일 크기는 20MB를 넘길 수 없습니다.'
+        this.alert.alerted = true
       }
 
     },
     // 프로필 이미지를 삭제하는 버튼
     onDeleteProfileImageButton () {
-      if (confirm('프로필 이미지를 삭제하시겠습니까?')) {
+      if (this.profileImageUrl) {
+        this.confirm.confirmed = true
+        this.confirm.message = '프로필 이미지를 삭제하시겠습니까?'
+      }
+    },
+    onDeleteConfirmed(confirmed) {
+      if (confirmed) {
         this.profileImageUrl = null
+        this.isFileChanged = false
+        this.confirm.confirmed = false
+      } else {
+        this.confirm.confirmed = false
       }
     },
     goProfile() {
