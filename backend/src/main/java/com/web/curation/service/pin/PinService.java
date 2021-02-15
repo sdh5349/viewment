@@ -25,4 +25,5 @@ public interface PinService {
     public Long updatePin(PinDto pinDto);
     List<PinDto> getPinsForUserMap(String userId);
     List<PinDto> getPinsForMap(String userId);
+    List<PinDto> getPinsForTrend(double lat, double lng);
 }
