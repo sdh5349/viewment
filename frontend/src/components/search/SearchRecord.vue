@@ -10,36 +10,38 @@
       >
      
         <v-list>
+          
           <v-list-item
             v-for="(History,i) in Historys"
             :key="i"
-            @click="goPage(History)"
           >
-            <v-list-item-avatar>
+            <v-list-item-avatar  @click="goPage(History)">
               <UserProfileImage
                 v-if="History.HistoryProperty === 'User'"
                 :profileImage="History.HistoryImage"
               />
-              <v-btn icon v-else>
-                <v-icon
-                  
+                <v-icon 
+                  large
+                  v-else
                 >
                   {{History.HistoryIcon}}
                 </v-icon>
-              </v-btn>
             </v-list-item-avatar>
 
-            <v-list-item-content>
+            <v-list-item-content @click="goPage(History)">
               <v-list-item-title >{{History.HistoryTitle}}</v-list-item-title>
             </v-list-item-content>
 
-            <v-list-item-icon>
-              <v-icon
+            <v-list-item-action>
+              <v-btn
+                icon
                 @click="removeHistory(History)"
               >
-                mdi-close
-              </v-icon>
-            </v-list-item-icon>
+                <v-icon>
+                  mdi-close
+                </v-icon>
+              </v-btn>
+            </v-list-item-action>
           </v-list-item>
         </v-list>    
       </v-card>
@@ -58,7 +60,6 @@ export default {
       loading: false,
       Historys: [],
       profileImageUrl: `${SERVER_URL}/images/`,
-      // removedHistory: {},
     }
   },
   components: {
@@ -75,10 +76,8 @@ export default {
   methods: {
     getSearchedlog() {
       var record = JSON.parse(localStorage.getItem('Historys'))
-      console.log("레코드입니다",typeof(record))
       if (record) {
         this.Historys = record.reverse()
-        // this.Historys = record
       }
     },
     removeHistory(History) {
@@ -87,21 +86,26 @@ export default {
       localStorage.setItem("Historys", JSON.stringify(this.Historys))
     },
     goPage(History) {
+      var tempArray
+      tempArray = JSON.parse(localStorage.getItem('Historys'))
+      var index = tempArray.findIndex(x => x.HistoryTitle === History.HistoryTitle && x.HistoryProperty === History.HistoryProperty)
+      if (index != -1){
+        tempArray.splice(index, 1)
+      }
+      tempArray.push(History)
+      localStorage.setItem('Historys', JSON.stringify(tempArray))   
       if (History.HistoryProperty === "User") {
-        // this.appendToStorage(History)
         this.$router.push({ name: 'Profile', params: { profileUserId : History.HistoryContent }})
       }
       else if (History.HistoryProperty === "Map") {
         this.$router.push({ name: 'NewsFeed', params: {lng: History.HistoryContent, lat: History.HistoryContent2} })
       }
       else if (History.HistoryProperty === "Hashtag") {
-        // this.appendToStorage(History)
         this.$router.push({name: 'SearchHashtagGrid', params: {clickedHash: History.HistoryTitle}})
       }
     },
   },
   created() {
-    console.log("다시되니???")
     this.getSearchedlog()
   },
   watch: {

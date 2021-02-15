@@ -125,15 +125,18 @@ export default {
     },
     appendToStorage(History) {
       var tempArray
-
       if (localStorage.getItem('Historys') === null) {
         tempArray = [];
-      } else {
+      } 
+      else {
         tempArray = JSON.parse(localStorage.getItem('Historys'))
       }
-
-      tempArray.push(History);
-      localStorage.setItem('Historys', JSON.stringify(tempArray)); 
+      var index = tempArray.findIndex(x => x.HistoryTitle === History.HistoryTitle && x.HistoryProperty === History.HistoryProperty)
+      if (index != -1){
+        tempArray.splice(index, 1)
+      }
+      tempArray.push(History)
+      localStorage.setItem('Historys', JSON.stringify(tempArray))   
     },
     onFollowButton (targetUser) {
       const targetUserIdx = this.users.indexOf(targetUser)

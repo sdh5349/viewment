@@ -30,7 +30,7 @@
 </template>
 
 <script>
-// import { params } from 'vee-validate/dist/types/rules/alpha';
+
 export default {
   data() {
     return {
@@ -74,15 +74,18 @@ export default {
     },
     appendToStorage(History) {
       var tempArray
-
       if (localStorage.getItem('Historys') === null) {
         tempArray = [];
-      } else {
+      } 
+      else {
         tempArray = JSON.parse(localStorage.getItem('Historys'))
       }
-
-      tempArray.push(History);
-      localStorage.setItem('Historys', JSON.stringify(tempArray));    
+      var index = tempArray.findIndex(x => x.HistoryTitle === History.HistoryTitle && x.HistoryProperty === History.HistoryProperty)
+      if (index != -1){
+        tempArray.splice(index, 1)
+      }
+      tempArray.push(History)
+      localStorage.setItem('Historys', JSON.stringify(tempArray))   
     },
     goMap(searchedLocation) {
       this.History = 
@@ -93,10 +96,8 @@ export default {
           HistoryIcon:"mdi-map-marker",
           HistoryProperty: "Map",
         }
-      console.log(searchedLocation.x)
-      console.log(searchedLocation.y)
       this.$router.push({ name: 'NewsFeed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
-      this.appendToStorage(this.Historys)
+      this.appendToStorage(this.History)
     },
   },
   watch: {
@@ -110,7 +111,6 @@ export default {
     },
     search: function() {
       if(this.onTab===1){
-        console.log("맵a")
         this.getLocation() 
       }
     },
