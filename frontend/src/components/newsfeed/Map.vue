@@ -94,7 +94,7 @@
               <v-col cols='12'>
                 <div class="modal-card">
                   <v-text-field v-model="memoryName" label='기억하기 이름' @click="resetMemoryName"></v-text-field>
-                  <v-text-field v-model="memoryRadius" label='반경(km)' @click="resetMemoryRadius"></v-text-field>
+                  <v-text-field v-model="memoryRadius" label='반경(m)' @click="resetMemoryRadius"></v-text-field>
                   <v-btn @click='saveMemory' text color='primary'>기억 저장</v-btn>
                   <v-btn @click="saveMemoryDialog = false" text color="red">닫기</v-btn>
                 </div>
@@ -153,7 +153,7 @@ export default {
       is_customOverlay: false, // 커스텀오버레이가 보일지 말지를 판단하는 것  클릭할때마다 보이거나 안보이거나 
       articles: '', // 게시물들을 담을 변수
       memoryName: '기억장소', // 기억하기를 저장할때 장소 이름을 담을 변수
-      memoryRadius: '5', // 기억하기를 저장할때 반경을 담을 변수
+      memoryRadius: '500', // 기억하기를 저장할때 반경을 담을 변수
       myMemories: '', // 지금까지 저장된 기억하기들을 담을 변수
       moveMemoryDialog: false, // 기억하기로 이동하기 dialog를 보여줄지 말지를 판단하는 변수
       saveMemoryDialog: false, // 기억하기를 저장할때 dialog를 보여줄지 말지를 판단하는 변수
@@ -169,7 +169,8 @@ export default {
       centerPosition: { // 지도의 중심좌표를 담을 변수
         lat: '',
         lng: '',
-      }
+      },
+      imageServerPrefix: `${SERVER_URL}/images/`, // 이미지를 쉽게 불러오기 위한 변수
     }
   },
   mounted() {
@@ -394,21 +395,25 @@ export default {
             image : pinImage
         })
 
+
         var content = document.createElement('input');
         var yAnchor = 1.2
         content.type = 'button'
 
 
-        // content.style = `background: url(${self.imageServerPrefix + pinInfo.thumbnail.path}) no-repeat;
-        //                 background-size: 100%; 
-        //                 border-radius: 30px; 
-        //                 border: none;
-        //                 width: 100px;
-        //                 height: 100px;
-        //                 cursor: pointer;`
+        content.style = `background: url(${self.imageServerPrefix + article.thumbnail.path}) no-repeat;
+                        background-size: 100%; 
+                        border-radius: 30px; 
+                        border: none;
+                        width: 100px;
+                        height: 100px;
+                        cursor: pointer;`
 
         content.addEventListener('click', function(){
-          console.log(position)
+          
+          self.$router.push({name: 'BindArticle', params: {
+            pinId: article.pinId,
+          }})
         })
         var overlay = new kakao.maps.CustomOverlay({
             position: position,
@@ -451,11 +456,8 @@ export default {
             console.log(overlay.getMap())
             if (overlay.getMap()) {
               overlay.setMap(null)
-              console.log("닫힘")
             } else {
-              console.log(overlay)
               overlay.setMap(map)
-              console.log("열림")
             }
 
           };
@@ -478,12 +480,7 @@ export default {
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
       self.position = new kakao.maps.LatLng(self.position.Ma, self.position.La)
-      // var pin = new kakao.maps.Marker({
-      //     map: self.map, 
-      //     position: self.position,
-      //     title: res.name,
-      //     image: pinImage
-      // })
+
 
       self.saveMemoryDialog = false
       self.memoryInfo.name = self.memoryName
