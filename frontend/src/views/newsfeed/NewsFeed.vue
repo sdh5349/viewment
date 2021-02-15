@@ -53,7 +53,8 @@
       <!-- 탭 선택에 의해서 나올 피드 화면 (시작) -->            
             <div v-if="view === 1">
               <Feed 
-                feed-type="newsfeed" 
+                feed-type="newsfeed"
+                :centerPosition="centerPosition"
               />
       <!-- 탭 선택에 의해서 나올 피드 화면 (끝) -->   
 

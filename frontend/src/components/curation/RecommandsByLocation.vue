@@ -34,6 +34,7 @@ export default {
       map: null,
       lat: 0,
       lon: 0,
+      pins: [],
     }
   },
   computed: {
@@ -73,7 +74,6 @@ export default {
       document.head.appendChild(script);
     },
     initMap(pins) {
-      console.log(pins)
       const self = this
       // 사용자의 현재 위치를 기반으로 맵 보여준다.
       if (navigator.geolocation) {
@@ -105,12 +105,12 @@ export default {
           currentPin.setMap(self.map)
 
           var circle = new kakao.maps.Circle({
-              center : currentPosition,  // 원의 중심좌표 입니다 
-              radius: 1500, // 미터 단위의 원의 반지름입니다 
-              fillColor: '#CFE7FF', // 채우기 색깔입니다
-              strokeWeight: 1,
-              fillOpacity: 0.2  // 채우기 불투명도 입니다  
-          }); 
+            center : currentPosition,  // 원의 중심좌표 입니다 
+            radius: 1500, // 미터 단위의 원의 반지름입니다 
+            fillColor: '#CFE7FF', // 채우기 색깔입니다
+            strokeWeight: 1,
+            fillOpacity: 0.2  // 채우기 불투명도 입니다  
+          })
 
 
           circle.setMap(self.map)
@@ -143,6 +143,7 @@ export default {
       const imageSize = new kakao.maps.Size(24, 24); 
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
       
+      // 모든 핀과 핀에 표시할 커스텀오버레이를 생성해서 지도에 표시해줄 순회문
       pins.forEach( pinInfo => {
         // 마커 이미지를 생성합니다 
         var position = new kakao.maps.LatLng(pinInfo.lat, pinInfo.lng)
@@ -154,51 +155,61 @@ export default {
             image : markerImage // 마커 이미지 
         })
 
+        this.pins.push(pin)
+
+        // 커스텀 오버레이 컨텐츠 생성
         var content = document.createElement('input');
         var yAnchor = 1.2
         content.type = 'button'
-        content.addEventListener('click', function(){
-          console.log(position)
-        })
 
         if (pinInfo.thumbnail) {
           content.style = `background: url(${self.imageServerPrefix + pinInfo.thumbnail.path}) no-repeat;background-size: 100%; border-radius: 30px; border: none;width: 100px;height: 100px;cursor: pointer;`
-				
         } else {
           content.style = `background-color: #0275db; background-size: 100%; border-radius: 10px; border: none;width: 100px;height: 30px;cursor: pointer; color: 	#FFFFFF; font-size: 12px; font-weight: bold;`
           content.value = '게시글 이동'
           yAnchor = 2
         }
       
+        // 커스텀 오버레이 이벤트 생성
+        content.addEventListener('click', ()=> {
+          self.$router.push({name: 'BindArticle', params: {
+            pinId: pinInfo.pinId
+          }})
+        })
 
         var overlay = new kakao.maps.CustomOverlay({
-            position: position,
-            content: content,
-            yAnchor: yAnchor,
-            clickable: true,
+          position: position,
+          content: content,
+          yAnchor: yAnchor,
+          clickable: true,
         })
 
         kakao.maps.event.addListener(pin, 'click', clickPin(self.map, overlay));
-        kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+        kakao.maps.event.addListener(self.map, 'click', () => {
           overlay.setMap(null)
-       });
+        })
         
-        function clickOverlay() {
-        }
-
       })
 
-      // 커스텀오버레이를 표시하는 클로저를 만드는 함수입니다 
-      function clickPin(map, overlay) {
-          return function() {
-            if (overlay.getMap()) {
-              overlay.setMap(null)
-            } else {
-              console.log(overlay)
-              overlay.setMap(map)
-            }
+      // 클러스터러 생성
+      var clusterer = new kakao.maps.MarkerClusterer({
+        map: self.map, // 마커들을 클러스터로 관리하고 표시할 지도 객체 
+        averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
+        minLevel: 4 // 클러스터 할 최소 지도 레벨 
+      })
 
-          };
+      // 클러스터러 적용
+      clusterer.addMarkers(self.pins)
+
+      // 커스텀오버레이를 표시하는 함수입니다 
+      function clickPin(map, overlay) {
+        return () => {
+          if (overlay.getMap()) {
+            overlay.setMap(null)
+          } else {
+            overlay.setMap(map)
+          }
+        }
       }
     },
   },
