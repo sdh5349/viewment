@@ -7,6 +7,11 @@
       md="4"
       sm="6"
     >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
       <validation-observer
         ref="observer"
         v-slot="{ invalid }"
@@ -41,6 +46,7 @@
   import firebase from 'firebase/app'
   import { required, email } from 'vee-validate/dist/rules'
   import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
+  import Alert from '@/components/common/Alert'
 
 
    // 유효성 검사 규칙 커스터마이징
@@ -58,14 +64,21 @@
   export default {
     name: 'ConfirmEmail',
     components: {
+      Alert,
       ValidationProvider,
       ValidationObserver,
     },
     data: () => ({
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
       email: '',
     }),
     methods: {
       submit () {
+        this.alert.alerted = false
         this.$refs.observer.validate()
 
         var auth = firebase.auth();
@@ -73,12 +86,14 @@
 
         auth.sendPasswordResetEmail(this.email)
         .then(()=> {
-          alert("입력하신 전자우편으로 인증메일을 발송하였습니다. 전자우편을 통해서 로그인을 완료하시기 바랍니다.");
+          this.alert.message = '인증메일을 발송하였습니다.</br>인증 완료 후 로그인하시기 바랍니다.'
+          this.alert.color = 'primary'
+          this.alert.alerted = true
+          setTimeout(() => this.$router.push({name:'Login'}), 2000)
         })
         .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
-          // self.$router.push({ name: 'Error' })
+          this.alert.message = err.message
+          this.alert.alerted = true
         })
       },
     },

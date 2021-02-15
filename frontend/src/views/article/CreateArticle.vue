@@ -29,7 +29,7 @@
         >
         
         <v-file-input
-          v-if="this.preview != []"
+          v-if="this.preview.length == 0"
           accept="image/*"
           multiple 
           v-model="files"
@@ -272,6 +272,7 @@ export default {
         lng: '',
         addressName: '',
         date: '',
+        pinId: '',
       }, 
       prac:'',
       search: '',
@@ -312,9 +313,17 @@ export default {
       this.$refs.menu.save(date)
     },
     savePosition(res) {
+
+      if (res.pinId) {
+        this.articleInfo.pinId = res.pinId
+      }
+      else{
+        this.articleInfo.pinId = ''
+      }
       this.articleInfo.addressName = res.addressName
-      this.articleInfo.lat = res.Ma
-      this.articleInfo.lng = res.La
+      this.articleInfo.lat = res.lat
+      this.articleInfo.lng = res.lng
+
     },
     onSumbit() {
       this.articleInfo.userId = sessionStorage.getItem('uid')
@@ -322,13 +331,12 @@ export default {
       this.articleInfo.hashtags = this.hashtags
       this.articleInfo.date = this.date
 
+
       this.articleImages = new FormData()
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      this.$router.push({name:'CreateArticleEtc', params: {
-        articleImages: this.articleImages
-      }})     
+      
 
       var headers = {
         headers: {
@@ -336,7 +344,14 @@ export default {
           'X-Authorization-Firebase': sessionStorage.getItem('jwt')
         },
       }
-      axios.post(`${SERVER_URL}/articles`, this.articleInfo, {
+      let pin =''
+      if (this.articleInfo.pinId){
+        pin = '/pin'
+      }
+      else {
+        pin = ''
+      }
+      axios.post(`${SERVER_URL}/articles${pin}`, this.articleInfo, {
         headers: {
             'X-Authorization-Firebase': sessionStorage.getItem('jwt'),
           }

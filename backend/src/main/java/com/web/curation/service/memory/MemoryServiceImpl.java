@@ -3,12 +3,14 @@ package com.web.curation.service.memory;
 import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
+import com.web.curation.domain.memory.MemoryPin;
 import com.web.curation.dto.memory.MemoryDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
+import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+/**
+ * com.web.curation.service.memory
+ * MemoryServiceImpl.java
+ * @date    2021-01-28
+ * @author  김종성
+ *
+ * @변경이력
+ * 이주희 21-02-09 기억하기 주변 핀 저장 기능 추가
+ **/
 
 @Service
 @RequiredArgsConstructor
@@ -40,41 +52,19 @@ public class MemoryServiceImpl implements MemoryService{
     }
 
     @Override
-    public Long createWithPin(String userId, MemoryDto memoryDto, Long pinId) {
+    public Long createMemory(String userId, MemoryDto memoryDto) {
         User user = getUser(userId);
-
-        Pin pin = pinRepository.findById(pinId).orElseThrow(
-                () -> { throw new ElementNotFoundException("Pin", pinId.toString());}
-        );
-
-        Memory memory = new Memory();
-        memory.setUser(user);
-        memory.setPin(pin);
-        memoryRepository.save(memory);
-        user.addMemory(memory);
-
-        return memory.getId();
-    }
-
-    @Override
-    public Long createWithoutPin(String userId, MemoryDto memoryDto) {
-        User user = getUser(userId);
-
-        Pin pin = new Pin();
-        pin.setAddress("추후에 수정");
-        pin.setLocation(memoryDto.getLat(), memoryDto.getLng());
-        pin.setType('m');
-        pinRepository.save(pin);
 
         Memory memory = new Memory();
         memory.setName(memoryDto.getName());
         memory.setUser(user);
-        memory.setPin(pin);
+        memory.setLocation(memoryDto.getLat(), memoryDto.getLng());
         memory.setRadius(memoryDto.getRadius());
+        memory.setNotification(false);
 
         memoryRepository.save(memory);
-        pin.getMemories().add(memory);
         user.addMemory(memory);
+        setNearbyPins(memory, memoryDto);
 
         return memory.getId();
     }
@@ -94,17 +84,24 @@ public class MemoryServiceImpl implements MemoryService{
     @Override
     public Long deleteMemory(Long memoryId) {
         Memory memory = getMemory(memoryId);
+        memory.resetUser();
+        memory.resetNearbyPins();
         memoryRepository.delete(memory);
-        memory.getUser().removeMemory(memory);
         return memoryId;
     }
 
     @Override
     public Long updateMemory(MemoryDto memoryDto) {
         Memory memory = getMemory(memoryDto.getMemoryId());
-        memory.setRadius(memoryDto.getRadius());
         memory.setName(memoryDto.getName());
-        memoryRepository.save(memory);
         return memory.getId();
+    }
+
+    private void setNearbyPins(Memory memory, MemoryDto memoryDto) {
+        pinRepository.findAll().stream()
+                .forEach(pin -> {
+                    if(memoryDto.getRadius() >= DistanceUtil.calcDistance(memoryDto.getLat(),memoryDto.getLng(),pin.getLocation().getY(),pin.getLocation().getX()))
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
+                });
     }
 }

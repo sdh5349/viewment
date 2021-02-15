@@ -30,14 +30,16 @@ public class ArticleSimpleDto {
     private ImageDto thumbnail;
     private String date;
     private String wdate;
-    private double distance;
+    private boolean following;
 
     public ArticleSimpleDto(Article article){
         this.articleId = article.getArticleId();
         this.user = new SimpleUserInfoDto(article.getUser());
-        this.pin = new PinDto(article.getPin());
-        if(article.getArticleImages().size()>0)
-            this.thumbnail = new ImageDto(article.getArticleImages().get(0).getImage());
+        this.pin = new PinDto(article.getPin(), article.getPin().getTrendArticleId());
+        if(article.getArticleImages().size()>0) {
+            this.thumbnail = new ImageDto();
+            this.thumbnail.setPath("thumbnail/"+articleId);
+        }
         this.date = article.getDate();
         this.wdate = article.getWdate().toString();
     }

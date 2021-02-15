@@ -41,7 +41,8 @@
               <!-- 사용자 아이콘, 닉네임 끝 -->
               
               <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 시작 -->
-              <v-menu 
+              <v-menu
+                v-if="loginUserId === articleInfo.user.userId"
                 transition="scroll-y-transition"
               >
                 <template v-slot:activator="{ on, attrs }">
@@ -112,7 +113,7 @@
             mouse-drag=true
           >
             <v-carousel-item 
-              v-for="(articleImage, idx) in articleInfo.images" 
+              v-for="(articleImage, idx) in articleInfo.images"
               :key="idx" 
               :src="imageServerPrefix +  articleImage.path">
             </v-carousel-item>
@@ -122,7 +123,7 @@
           <!-- 좋아요 버튼 시작 -->
           <v-btn 
             icon
-            class="bottom-left-position"
+            class="bottom-right-position"
             @click="onLikeButton"
           >        
             <v-icon v-if="articleInfo.liked" x-large color="error">mdi-heart</v-icon>
@@ -209,21 +210,16 @@
           :loginUserId="loginUserId"
           replyType="reply"
         />
-        <p 
-          v-else
-          class="text-caption pa-2"
-        >아직 댓글이 없어요... 첫 댓글을 달아주세요</p>
-        
       </v-card>
     </v-col>
   </v-row>
 </template>
 
 <script>
-  import axios from 'axios'
-  import UserProfileImage from '@/components/user/UserProfileImage'
-  import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
-  import ReplyList from '@/components/reply/ReplyList'
+import axios from 'axios'
+import UserProfileImage from '@/components/user/UserProfileImage'
+import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
+import ReplyList from '@/components/reply/ReplyList'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -293,7 +289,6 @@ export default {
       })
     },
     updateArticle(){
-      console.log(this.articleInfo)
       // this.$router.push({name: 'UpdateArticle', params: {
       //   articleId: this.articleId,
       //   hashtagArray: this.articleInfo.hashtags,
@@ -313,7 +308,7 @@ export default {
       })
     },
     clickHashtag(res){
-      this.$router.push({name: 'Search', params: {
+      this.$router.push({name: 'SearchHashtagGrid', params: {
         clickedHash: res
       }})
     },
@@ -326,8 +321,8 @@ export default {
         }
   
         axios.post(`${SERVER_URL}/replies`, params, this.getToken)
-        .then(()=> {
-          this.fetchData()
+        .then(res => {
+          this.articleInfo.replies.push(res.data)
         })
         .then(() => {
           this.commentInput = ''
@@ -389,10 +384,10 @@ export default {
 }
 
 /* 계정설정 버튼의 위치를 설정한다 */
-.bottom-left-position {
+.bottom-right-position {
   position: absolute; 
   bottom: 0.4rem; 
-  left: 0.4rem;
+  right: 0.4rem;
   z-index: 1;
 }
 

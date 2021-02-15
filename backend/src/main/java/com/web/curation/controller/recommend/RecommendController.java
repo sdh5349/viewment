@@ -3,6 +3,7 @@ package com.web.curation.controller.recommend;
 import com.web.curation.commons.PageRequest;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.service.recommend.RecommendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,9 +27,9 @@ public class RecommendController {
 
     @ApiOperation(value = "게시글 추천")
     @GetMapping("/recommendations/articles")
-    public ResponseEntity<Page<ArticleSimpleDto>> recommendArticle(Authentication authentication, PageRequest pageable){
+    public ResponseEntity<Page<ArticleFeedDto>> recommendArticle(Authentication authentication, PageRequest pageable){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
-        Page<ArticleSimpleDto> results = recommendService.recommendArticle(currentUserId, pageable.of());
+        Page<ArticleFeedDto> results = recommendService.recommendArticle(currentUserId, pageable.of());
         return ResponseEntity.ok().body(results);
     }
 

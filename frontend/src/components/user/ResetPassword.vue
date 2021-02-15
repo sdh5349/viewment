@@ -4,7 +4,11 @@
     md="4"
     sm="6"
   >
-    <h1>비밀번호 재설정</h1>
+    <Alert
+      v-if="alert.alerted"
+      :message="alert.message"
+      :color="alert.color ? alert.color : 'error'"
+    />
     <validation-observer
       ref="observer"
       v-slot="{ invalid }"
@@ -56,6 +60,7 @@
   import firebase from 'firebase/app'
   import { required, min } from 'vee-validate/dist/rules'
   import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
+  import Alert from '@/components/common/Alert'
 
 
   // 유효성 검사 규칙 커스터마이징
@@ -81,16 +86,23 @@
   export default {
     name: 'ResetPassword',
     components: {
+      Alert,
       ValidationProvider,
       ValidationObserver,
     },
     data: () => ({
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
       password: '',
       passwordConfirm: '',
       showPassword: false,
     }),
     methods: {
       submit () { // submit 버튼 클릭 시 발생 이벤트
+        this.alert.alerted = false
         this.$refs.observer.validate()
         
         var params = this.$route.query
@@ -102,22 +114,39 @@
 
         this.handleResetPassword(auth, actionCode, continueUrl, lang)
       },
+      onLogout() {
+        const self = this
+
+        firebase.auth().signOut()
+        .then(() => {
+          sessionStorage.removeItem('jwt')
+          sessionStorage.removeItem('uid')
+          self.$emit('logout')
+          self.$router.push({ name: 'Login' })
+        })
+        .catch(err => {
+          this.alert.message = err.message
+          this.alert.alerted = true
+        })
+      },
       handleResetPassword(auth, actionCode, continueUrl, lang) { // 계정을 찾는 사용자가 이메일 인증 후 유효한 비밀번호를 제출하면 firebase에 적용하는 함수
         const self = this
 
         auth.verifyPasswordResetCode(actionCode)
         .then(email => {
           auth.confirmPasswordReset(actionCode, self.password)
-          .then(resp => {
-            alert("비밀번호 변경이 완료되었습니다.");
-            self.$router.push({ name: 'Login' }) // 현재는 로그인 화면으로 전환되지만 사용자 UX 개선을 위해 login 토큰을 받아 바로 FeedMain으로 가게 끔 수정해야함
+          .then(res => {
+            this.alert.message = '비밀번호 변경이 완료되었습니다.'
+            this.alert.color = 'primary'
+            this.alert.alerted = true
+            setTimeout(() => this.onLogout, 2000)
           }).catch(err => {
-            alert("오류"); // TODO: 오류페이지로 변경
-            console.log('Error', err.message);
+            this.alert.message = err.message
+            this.alert.alerted = true
           })
         }).catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
+          this.alert.message = err.message
+          this.alert.alerted = true
         })
       }
     },

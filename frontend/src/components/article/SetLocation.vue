@@ -60,20 +60,20 @@ export default {
   }, 
   data() {
     return{
-      myLocation: '',
       addressName: '',
       address: '',
-      markerInfo: '',
+      pinInfo: '',
       container: '',
       options: '',
       map: '',
       position: '',
-      marker: '',
+      pin: '',
       coordinates: '',
       message: '',
       is_show: false,
       searchedLocations: '',
-      markers: [],
+      pins: [],
+      pinId: '',
     }
   },
   mounted() {
@@ -142,16 +142,16 @@ export default {
     },
     mapClick(mouseEvent) {
       const self = this
-      if (self.markerInfo !=''){
-        self.markerInfo.setMap(null)
+      if (self.pinInfo !=''){
+        self.pinInfo.setMap(null)
       }
       var latlng = mouseEvent.latLng
       self.coordinates = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
-      self.marker = new kakao.maps.Marker({
+      self.pin = new kakao.maps.Marker({
         map: self.map,
         position: self.coordinates
       })
-      self.markerInfo = self.marker      
+      self.pinInfo = self.pin      
       
       // 주소 넣기
       var geocoder = new kakao.maps.services.Geocoder()
@@ -162,19 +162,18 @@ export default {
       }
       geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
 
-      const markers = {
-        Ma: this.coordinates.Ma,
-        La: this.coordinates.La,
+      const clickInfo = {
+        lat: this.coordinates.Ma,
+        lng: this.coordinates.La,
         addressName: this.addressName
       }
-      this.$emit('onClick', markers)
+      this.$emit('onClick', clickInfo)
     },
     searchLocationModal() {
       this.is_show = !this.is_show
     },
     getLocation(res) {
       const self = this
-      console.log(res)
       var places = new kakao.maps.services.Places()
 
       var callback = function(result, status) {
@@ -184,32 +183,42 @@ export default {
       };
       places.keywordSearch(res, callback);
     },
-    articleMarkers() {   
+    articlePins() {   
       const self = this
       const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
       const imageSize = new kakao.maps.Size(24, 35)
-      const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+      const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       
       for (var i = 0; i < self.articles.length; i ++) {
         const position = new kakao.maps.LatLng(self.articles[i].lat, self.articles[i].lng)
-        var marker = new kakao.maps.Marker({
+        var pin = new kakao.maps.Marker({
             map: self.map, 
             position: position,
             title : self.articles[i].address_name,
-            image : markerImage
+            image : pinImage
         })
         
         const id = self.articles[i].pinId
-        kakao.maps.event.addListener(marker, 'click', articleMarkerClick(id))
-        this.markers.push(marker)
+        kakao.maps.event.addListener(pin, 'click', articlePinClick(id))
+        this.pins.push(pin)
       }
-      function articleMarkerClick(id) {
+      function articlePinClick(id) {
         return function() {
-          self.markerInfo.setMap(null)
+          
+          if (self.pinInfo){
+            self.pinInfo.setMap(null)
+          }
           axios.get(`${SERVER_URL}/pins/${id}`, self.getToken)
           .then((res)=> {
-            self.$emit('onClick', res.data)
+            const pinInfo = {
+              addressName: res.data.addressName,
+              lat: res.data.lat,
+              lng: res.data.lng,
+              pinId: res.data.pinId
+            }
+            self.$emit('onClick', pinInfo)
             alert('이 마커로 위치 지정 완료')
+            
           }) 
         }
       }
@@ -218,7 +227,7 @@ export default {
       averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
       minLevel: 8 // 클러스터 할 최소 지도 레벨 
       })
-      clusterer.addMarkers(self.markers)
+      clusterer.addMarkers(self.pins)
     },
     getArticle() {
       
@@ -227,7 +236,7 @@ export default {
       .then((res)=> {
         
         this.articles = res.data
-        this.articleMarkers()
+        this.articlePins()
       }) 
     },    
   },
@@ -266,7 +275,7 @@ export default {
 .map_wrap {
   position:relative;
   width:100%;
-  height:450px;
+  height:70vh;
   top: 100px;
 }
 

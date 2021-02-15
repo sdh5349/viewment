@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * com.web.curation.dto.article
@@ -43,15 +44,21 @@ public class ArticleInfoDto {
         this.articleId = article.getArticleId();
         this.user = new SimpleUserInfoDto(article.getUser());
         this.pin = new PinDto(article.getPin());
-        for (int i = 0; i < article.getArticleImages().size(); i++) {
-            this.images.add(new ImageDto(article.getArticleImages().get(i).getImage()));
-        }
-        for (int i = 0; i < article.getHashtags().size(); i++) {
-            this.hashtags.add(new HashtagDto(article.getHashtags().get(i)));
-        }
-        for (int i = 0; i < article.getReplies().size(); i++) {
-            this.replies.add(new ReplyDto(article.getReplies().get(i)));
-        }
+        this.images = article.getArticleImages().stream()
+                .map(articleImage -> {
+                    return new ImageDto(articleImage.getImage());
+                })
+                .collect(Collectors.toList());
+        this.hashtags = article.getHashtags().stream()
+                .map(hashtag -> {
+                    return new HashtagDto(hashtag);
+                })
+                .collect(Collectors.toList());
+        this.replies = article.getReplies().stream()
+                .map(reply -> {
+                    return new ReplyDto(reply);
+                })
+                .collect(Collectors.toList());
         this.contents = article.getContents();
         this.date = article.getDate();
         this.wdate = article.getWdate().toString();

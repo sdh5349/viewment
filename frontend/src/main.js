@@ -6,13 +6,15 @@ import store from './vuex/store'
 import vuetify from './plugins/vuetify'
 import './plugins/firebase'
 import VueGeolocation from 'vue-browser-geolocation';
+import firebase from "firebase/app";
+import "firebase/messaging";
+
 
 
 Vue.config.productionTip = false
 
 Vue.use(VueRouter)
 Vue.use(VueGeolocation);
-
 // TODO: beforeEnter로 토큰이 없으면 들어 갈 수 없는 페이지 구성
 
 const router = new VueRouter({
@@ -33,3 +35,8 @@ new Vue({
     vuetify,
     render: h => h(App)
 }).$mount('#app');
+
+const messaging = firebase.messaging();
+messaging.onMessage((payload) => {
+  console.log('Message received. ', payload);
+});

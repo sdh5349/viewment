@@ -13,11 +13,10 @@ import MemoryList from './views/memory/MemoryList.vue'
 import EditProfile from './views/user/EditProfile.vue'
 import EditAccount from './views/user/EditAccount.vue'
 import CreateArticle from './views/article/CreateArticle.vue'
-import CreateArticleEtc from './views/article/CreateArticleEtc.vue'
-import CreateArticleMap from './views/article/CreateArticleMap.vue'
 import DetailArticle from './views/article/DetailArticle.vue'
 import UpdateArticle from './views/article/UpdateArticle.vue'
 import BindArticle from './views/article/BindArticle.vue'
+import SearchHashtagGrid from './views/search/SearchHashtagGrid.vue'
 import Curation from './views/curation/Curation.vue'
 
 export default [
@@ -127,21 +126,16 @@ export default [
         component : BindArticle,
     }, 
     {
-        path : '/article/createetc',
-        name : 'CreateArticleEtc',
-        meta : { title: '게시물 생성'},
-        component : CreateArticleEtc,
-    },
-    {
-        path : '/article/createmap',
-        name : 'CreateArticleMap',
-        meta : { title: '게시물 생성'},
-        component : CreateArticleMap,
-    },  
-    {
         path : '/curation',
         name : 'Curation',
         meta : { title: '게시물 추천'},
         component : Curation,
+    },  
+    {
+        path : '/search/search-hashtag-grid/:clickedHash',
+        name : 'SearchHashtagGrid',
+        meta : { title: '검색'},
+        component : SearchHashtagGrid,
+        props: true,
     },  
 ]
