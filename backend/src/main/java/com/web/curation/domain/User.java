@@ -49,6 +49,15 @@ public class User {
     @CreationTimestamp
     private Timestamp joinDate;
 
+    @Column(columnDefinition = "boolean default true")
+    private boolean followNoti = true;
+
+    @Column(columnDefinition = "boolean default true")
+    private boolean memoryNoti = true;
+
+    @Column(columnDefinition = "boolean default true")
+    private boolean likeNoti = true;
+
     public User(){}
     public User(String id, String email, String nickname){
         this.id = id;

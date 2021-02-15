@@ -48,8 +48,6 @@ public class Memory {
     @ColumnDefault("50")
     private int radius;
 
-    private boolean notification;
-
     public void addNearbyPins(MemoryPin memoryPin) {
         nearbyPins.add(memoryPin);
         memoryPin.setMemory(this);

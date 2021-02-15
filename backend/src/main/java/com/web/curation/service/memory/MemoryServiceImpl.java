@@ -60,7 +60,6 @@ public class MemoryServiceImpl implements MemoryService{
         memory.setUser(user);
         memory.setLocation(memoryDto.getLat(), memoryDto.getLng());
         memory.setRadius(memoryDto.getRadius());
-        memory.setNotification(false);
 
         memoryRepository.save(memory);
         user.addMemory(memory);
