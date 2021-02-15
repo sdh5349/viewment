@@ -1,5 +1,6 @@
 package com.web.curation.service.article;
 
+import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
@@ -12,12 +13,14 @@ import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.event.NewArticleEvent;
+import com.web.curation.event.NewLikeEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
 import com.web.curation.repository.like.LikeRepository;
+import com.web.curation.repository.memory.MemoryPinRepository;
 import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
@@ -58,6 +61,7 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
     private final MemoryRepository memoryRepository;
+    private final MemoryPinRepository memoryPinRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
@@ -87,6 +91,10 @@ public class ArticleService {
 
         Article savedArticle = articleRepository.save(article);
 
+        memoryPinRepository.findByPin(pin).stream()
+                .forEach(memoryPin -> {
+                    System.out.println(memoryPin.getId());
+                });
         eventPublisher.publishEvent(new NewArticleEvent(savedArticle));
 
         return savedArticle;
@@ -238,6 +246,7 @@ public class ArticleService {
     }
 
     private void addMemoryPin(Pin pin) {
+        List<Memory> list =memoryRepository.findAll();
         memoryRepository.findAll().stream()
                 .forEach(memory -> {
                     if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
@@ -263,6 +272,9 @@ public class ArticleService {
 
         user.addLike(like);
         article.addLike(like);
+
+        if(article.getUser().isLikeNoti() && article.getUser().getId() != user.getId())
+            eventPublisher.publishEvent(new NewLikeEvent(user, article.getUser(), article));
     }
 
     @Transactional
