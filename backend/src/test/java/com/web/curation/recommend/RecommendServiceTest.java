@@ -4,6 +4,7 @@ import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.repository.article.ArticleRepository;
@@ -97,7 +98,7 @@ public class RecommendServiceTest {
 
         //when
 
-        List<ArticleSimpleDto> result = recommendService.recommendArticle("4");
+        List<ArticleFeedDto> result = recommendService.recommendArticle("4");
 
         //then
         System.out.println();
@@ -119,7 +120,7 @@ public class RecommendServiceTest {
 
         //when
 
-        List<ArticleSimpleDto> result = recommendService.recommendArticle("1");
+        List<ArticleFeedDto> result = recommendService.recommendArticle("1");
 
         //then
         result.forEach(articleInfoDto -> System.out.println(articleInfoDto.getArticleId()));

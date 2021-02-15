@@ -57,4 +57,11 @@ public class PinController {
         return ResponseEntity.ok().body(pins);
     }
 
+    @ApiOperation(value = "인기 게시글 추천에 노출될 핀 조회")
+    @GetMapping("/fortrend")
+    public ResponseEntity<?> getPinsForTrend(@RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+        List<PinDto> pins = pinService.getPinsForTrend(lat, lng);
+        return ResponseEntity.ok().body(pins);
+    }
+
 }

@@ -23,13 +23,15 @@
 
     </v-text-field>
   <!-- 탭 -->
-  <v-row>
+  <v-row >
 
     <v-tabs
       style="z-index: 10;"
       v-model="onTab"
       grow
     >
+      <!-- v-slide-group__prev -->
+      <!-- $slide-group-prev-basis=52px -->
       <v-tab
         v-for="tabItem in tabItems"
         :key="tabItem.tabId"

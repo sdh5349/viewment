@@ -39,4 +39,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Long countByUser(User user);
 
+    Long countByPinAndWdateAfter(Pin pin, Timestamp t);
 }

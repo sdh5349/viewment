@@ -148,7 +148,13 @@ export default {
         radius: '',
         lat: '',
         lng: ''
-      }
+      },
+      centerPosition: { // 지도의 중심좌표를 담을 변수
+        lat: '',
+        lng: '',
+      },
+      imageServerPrefix: `${SERVER_URL}/images/`, // 이미지를 쉽게 불러오기 위한 변수
+
     }
   },
   mounted() {
@@ -198,7 +204,7 @@ export default {
     mapClick(mouseEvent) {
         const self = this
         if (self.checkMemoryState){  
-          console.log(self.checkMemoryState)
+          
           var latlng = mouseEvent.latLng;   
           self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
           var pin = new kakao.maps.Marker({
@@ -264,6 +270,19 @@ export default {
             title : self.myMemories[i].name,
             image : pinImage
         })
+
+
+        
+        var circle = new kakao.maps.Circle({
+            center : position,  // 원의 중심좌표 입니다 
+            radius: myMemory.radius, // 미터 단위의 원의 반지름입니다 
+            fillColor: '#CFE7FF', // 채우기 색깔입니다
+            strokeWeight: 1,
+            fillOpacity: 0.2  // 채우기 불투명도 입니다  
+        }); 
+
+
+        circle.setMap(self.map)
         
     
         const content = `<div @onclick="closeOverlay()"> ` +
@@ -287,12 +306,38 @@ export default {
           // overlay.setMap(null);     
       }
 
+        var content = document.createElement('input')
+        var yAnchor = 2
+        content.type = 'button'
+        content.value = `${myMemory.name} 삭제`
+        content.style = `background-color: #E80909; 
+                         background-size: 100%; 
+                         border-radius: 60px; 
+                         border: none;
+                         width: 100px;
+                         height: 30px;
+                         cursor: pointer; 
+                         color: 	#FFFFFF; 
+                         font-size: 10px; 
+                         font-weight: bold;
+                        `
 
-        // customOverlay.setMap(self.map);
-        // kakao.maps.event.addListener(pin, 'click', memoryClickListener(self.map, pin, customOverlay))
-        
-        
-      }
+        content.addEventListener('click', function(){
+          
+          self.deleteMemoryDialog = true
+          self.delMemoryPinId = myMemory.memoryId
+          self.delMemoryName = myMemory.name
+        })
+
+      
+        const customOverlay = new kakao.maps.CustomOverlay({
+            position: position,
+            yAnchor: yAnchor,
+            content: content,    
+        })
+
+
+      kakao.maps.event.addListener(pin, 'click', memoryClickListener(self.map, customOverlay))        
 
 
       // function memoryClickListener(map, pin, customOverlay) {
@@ -336,7 +381,7 @@ export default {
         var pin = new kakao.maps.Marker({
             map: self.map, 
             position: position,
-            title : self.articles[i].address_name,
+            title : article.addressName,
             image : pinImage
         })
         
@@ -344,7 +389,49 @@ export default {
         kakao.maps.event.addListener(pin, 'click', articlePinClick(id))
         this.pins.push(pin)
 
+
+        var content = document.createElement('input');
+        var yAnchor = 1.2
+        content.type = 'button'
+
+
+        content.style = `background: url(${self.imageServerPrefix + article.thumbnail.path}) no-repeat;
+                        background-size: 100%; 
+                        border-radius: 30px; 
+                        border: none;
+                        width: 100px;
+                        height: 100px;
+                        cursor: pointer;`
+
+        content.addEventListener('click', function(){
+          
+          self.$router.push({name: 'BindArticle', params: {
+            pinId: article.pinId,
+          }})
+        })
+        var overlay = new kakao.maps.CustomOverlay({
+            position: position,
+            content: content,
+            yAnchor: yAnchor,
+            clickable: true,
+        })
+        kakao.maps.event.addListener(pin, 'click', clickPin(self.map, overlay));
+
+
+        self.pins.push(pin)      
+
+      function clickPin(map, overlay) {
+          return function() {
+
+            if (overlay.getMap()) {
+              overlay.setMap(null)
+            } else {
+              overlay.setMap(map)
+            }
+
+          }
       }
+
 
 
 
@@ -361,6 +448,12 @@ export default {
       minLevel: 8 // 클러스터 할 최소 지도 레벨 
       })
       clusterer.addMarkers(self.pins)
+
+
+
+
+
+
     },
     // 기억하기 저장
     saveMemory(res) {
