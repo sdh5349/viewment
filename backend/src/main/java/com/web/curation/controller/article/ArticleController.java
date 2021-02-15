@@ -3,9 +3,9 @@ package com.web.curation.controller.article;
 import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
-import com.web.curation.dto.article.FeedArticleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.service.article.ArticleService;
 import com.web.curation.service.image.ImageService;
@@ -83,7 +83,7 @@ public class ArticleController {
     @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회")
     @GetMapping("/feed/{userId}")
     public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
+        List<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
@@ -98,13 +98,6 @@ public class ArticleController {
     @GetMapping("/pins/period")
     public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
-        return ResponseEntity.ok().body(articleSimpleDtos);
-    }
-
-    @ApiOperation(value = "트렌드 게시글 및 팔로잉 게시글 조회")
-    @GetMapping("/trend/{userId}")
-    public ResponseEntity<?> getArticlesForTrend(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForTrend(userId, lat, lng);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 

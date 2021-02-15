@@ -1,7 +1,6 @@
 package com.web.curation.controller.recommend;
 
-import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.service.recommend.RecommendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,9 +23,9 @@ public class RecommendController {
 
     @ApiOperation(value = "게시글 추천")
     @GetMapping("/recommendations/articles")
-    public ResponseEntity<List<ArticleSimpleDto>> recommendArticle(Authentication authentication){
+    public ResponseEntity<List<ArticleFeedDto>> recommendArticle(Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
-        List<ArticleSimpleDto> results = recommendService.recommendArticle(currentUserId);
+        List<ArticleFeedDto> results = recommendService.recommendArticle(currentUserId);
         return ResponseEntity.ok().body(results);
     }
 
