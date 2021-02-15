@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div
+    class="d-flex align-center"
+  >
     <v-avatar
       :size="`${size}rem`"
     >
@@ -12,7 +14,7 @@
         src="@/assets/images/account.png"
       >
     </v-avatar>
-    <span :style="`font-size: ${fontSize}rem;`">{{nickname}}</span>
+    <span class="pl-1" :style="`font-size: ${fontSize}rem;`">{{nickname}}</span>
   </div>
 </template>
 
