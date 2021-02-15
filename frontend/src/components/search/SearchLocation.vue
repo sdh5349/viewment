@@ -51,6 +51,7 @@ export default {
     },
   },
   methods: {
+      // 카카오 api로 키워드 가져오기
       addKakaoMapScript() {
       const script = document.createElement("script");
       /* global kakao */
@@ -72,6 +73,7 @@ export default {
         places.keywordSearch(this.search, callback);
       }
     },
+    // 검색기록을 위한 localstorage 저장(중복제거)
     appendToStorage(History) {
       var tempArray
       if (localStorage.getItem('Historys') === null) {
@@ -87,6 +89,7 @@ export default {
       tempArray.push(History)
       localStorage.setItem('Historys', JSON.stringify(tempArray))   
     },
+    // click 시 뉴스피드로 데이터 포함해 이동
     goMap(searchedLocation) {
       this.History = 
         {

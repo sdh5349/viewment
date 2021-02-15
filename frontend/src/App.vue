@@ -3,11 +3,12 @@
     <v-app id="inspire">
       <!-- <v-card class="overflow-hidden"> -->
         <v-app-bar
+          v-if="$route.meta.title != '로그인'"
           fixed
           color="white"
           elevate-on-scroll
         >
-          <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
+          <!-- <v-app-ba></v-app-ba r-nav-icon> -->
           <v-btn icon>
             <v-icon
               large
@@ -23,13 +24,17 @@
   
     
           <v-btn 
+            v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
             icon
             @click="goAlarm"
           >
             <v-icon>mdi-bell</v-icon>
           </v-btn>
-  
+        
         </v-app-bar>
+        <h1 v-else>
+          {{ this.$route.meta.title }}
+        </h1>
         <!-- <v-sheet
           id="scrolling-techniques-7"
           class="overflow-y-auto"
@@ -43,7 +48,9 @@
           </v-container>
         <!-- </v-sheet> -->
       <!-- </v-card> -->
-       <v-bottom-navigation grow fixed>
+       <v-bottom-navigation grow fixed
+        v-if="$route.meta.title != '로그인' && $route.meta.title != '회원가입'"
+       >
         <v-btn
           icon
           @click="goCuration"
@@ -80,7 +87,7 @@
             fas fa-search
           </v-icon>
         </v-btn>
-          
+
         <v-btn
           icon
           @click="goProfile"
