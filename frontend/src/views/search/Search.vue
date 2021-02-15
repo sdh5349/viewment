@@ -94,13 +94,13 @@ export default {
   },
   methods: {
     onSearch(res) {
-      console.log(res)
+      // console.log(res)
       this.search = res
     }
   },
   watch: {
     onTab: function() {
-      console.log(this.onTab)
+      // console.log(this.onTab)
       // if (this.search === '' || this.search === null || this.search.value === 0){
       //       alert("검색해라")
       //   }
