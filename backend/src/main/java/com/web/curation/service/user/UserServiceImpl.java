@@ -68,12 +68,6 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<SimpleUserInfoDto> findUsersByNickname(String currentUserId, String nickname) {
-
-        return null;
-    }
-
-    @Override
     public Page<SimpleUserInfoDto> findUsersByNickname(String currentUserId, String nickname, Pageable pageable) {
         User currentUser = getUser(currentUserId);
 

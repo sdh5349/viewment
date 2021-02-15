@@ -3,6 +3,8 @@ package com.web.curation.repository.article;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findByUserId(String userId);
+    Page<Article> findByUserId(String userId, Pageable pageable);
 
     @Query("SELECT a FROM Article a JOIN a.hashtags h WHERE UPPER(h.contents) = UPPER(:contents)")
     List<Article> findByHashtag(@Param("contents") String contents);
@@ -36,6 +39,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByPin(Pin pin);
 
     List<Article> findByPinAndDateBetween(Pin pin, String start, String end);
+
+    List<Article> findByUserIn(Collection<User> list, Pageable pageable);
 
     Long countByUser(User user);
 

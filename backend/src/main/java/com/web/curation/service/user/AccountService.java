@@ -11,6 +11,6 @@ public interface AccountService {
     public String join(AccountDto userDto);
     public void validateDuplicateEmail(String email);
     public void validateDuplicateNickname(String nickname);
-    public String modify(AccountDto userDto);
+    public String modify(AccountDto userDto, String currentUserId);
     public void delete(String id);
 }

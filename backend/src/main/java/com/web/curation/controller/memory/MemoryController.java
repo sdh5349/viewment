@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -40,7 +41,7 @@ public class MemoryController {
 
     @ApiOperation(value = "회원의 기억하기 추가")
     @PostMapping("/users/{userId}/memories")
-    public ResponseEntity<?> createMemory(@PathVariable("userId") String userId,@RequestBody MemoryDto memoryDto){
+    public ResponseEntity<?> createMemory(@PathVariable("userId") String userId,final @Valid @RequestBody MemoryDto memoryDto){
         memoryService.createMemory(userId, memoryDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

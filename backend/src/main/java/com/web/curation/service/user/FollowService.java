@@ -6,14 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-/**
- * com.web.curation.service.user
- * FollowService.java
- * @date    2021-01-25 오전 11:19
- * @author  김종성
- *
- * @변경이력
- **/
 public interface FollowService{
 
     public Long follow(String userId, String targetUserId);

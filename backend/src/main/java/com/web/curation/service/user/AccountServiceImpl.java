@@ -14,6 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * com.web.curation.service.user
+ * AccountServiceImpl.java
+ * @date    2021-01-15 오후 10:11
+ * @author  김종성
+ *
+ * @변경이력
+ **/
+
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -56,18 +65,20 @@ public class AccountServiceImpl implements AccountService{
     public void validateDuplicateNickname(String nickname) {
         userRepository.findByNickname(nickname)
                 .ifPresent(m-> {throw new UserDuplicateException(null, nickname);}
-                );
+        );
     }
 
     @Override
-    public String modify(AccountDto userDto) {
-        validateDuplicateNickname(userDto.getNickname());
+    public String modify(AccountDto userDto, String currentUserId) {
+        User user = getUser(currentUserId);
 
-        User user = getUser(userDto.getUserId());
-        user.setNickname(userDto.getNickname());
+        if(!user.getNickname().equals(userDto.getNickname())){
+            validateDuplicateNickname(userDto.getNickname());
+            user.setNickname(userDto.getNickname());
+        }
         user.setMessage(userDto.getMessage());
-
         userRepository.save(user);
+
         return userDto.getUserId();
     }
 

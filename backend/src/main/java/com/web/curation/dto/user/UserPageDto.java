@@ -2,6 +2,7 @@ package com.web.curation.dto.user;
 
 import com.web.curation.domain.Image;
 import com.web.curation.domain.User;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

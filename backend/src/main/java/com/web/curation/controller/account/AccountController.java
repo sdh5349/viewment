@@ -11,8 +11,11 @@ import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 
 
 @Api(tags = {"1. Account"})
@@ -27,7 +30,7 @@ public class AccountController {
     @ApiOperation(value = "회원 가입")
     @ApiResponse(code = 201, message = "created")
     @PostMapping("")
-    public ResponseEntity<String> join(@RequestBody AccountDto userDto){
+    public ResponseEntity<String> join(final @Valid @RequestBody AccountDto userDto){
         accountService.join(userDto);
         return new ResponseEntity<String>("Created", HttpStatus.CREATED);
     }
@@ -35,9 +38,10 @@ public class AccountController {
 
     @ApiOperation(value = "회원 계정 수정")
     @PatchMapping("/{userId}")
-    public ResponseEntity<String> modify(@PathVariable("userId") String userId, @RequestBody AccountDto userDto){
+    public ResponseEntity<String> modify(@PathVariable("userId") String userId, @RequestBody AccountDto userDto, Authentication authentication){
+        final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
         userDto.setUserId(userId);
-        String modifyId = accountService.modify(userDto);
+        String modifyId = accountService.modify(userDto, currentUserId);
         return new ResponseEntity<String>("Modified: " + modifyId, HttpStatus.OK);
     }
 
