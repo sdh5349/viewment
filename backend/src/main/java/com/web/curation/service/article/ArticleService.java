@@ -5,10 +5,13 @@ import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.domain.connection.Likes;
 import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.domain.memory.MemoryPin;
 import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.event.NewArticleEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
@@ -21,12 +24,16 @@ import com.web.curation.repository.user.UserRepository;
 import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +62,8 @@ public class ArticleService {
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
 
@@ -76,9 +85,11 @@ public class ArticleService {
 
         setData(articleDto, article);
 
-        articleRepository.save(article);
+        Article savedArticle = articleRepository.save(article);
 
-        return article;
+        eventPublisher.publishEvent(new NewArticleEvent(savedArticle));
+
+        return savedArticle;
     }
 
     @Transactional(readOnly = true)
@@ -116,22 +127,29 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleSimpleDto> getArticlesForFeed(String userId, double lat, double lng) {
+    public List<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng) {
         Set<Article> articles = new HashSet<>();
 
-        getUser(userId).getMemories().stream()
+        User user = getUser(userId);
+        user.getMemories().stream()
                 .forEach(memory -> {
                     memory.getNearbyPins().stream()
-                            .forEach(pin -> {
-                                articles.addAll(pin.getArticles());
+                            .forEach(memoryPin -> {
+                                articles.addAll(memoryPin.getPin().getArticles());
                             });
                 });
 
-        List<ArticleSimpleDto> result = articles.stream()
+        List<ArticleFeedDto> result = articles.stream()
                 .map(article -> {
-                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
                     Point point = article.getPin().getLocation();
                     dto.setDistance(DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX()));
+
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -165,40 +183,6 @@ public class ArticleService {
         List<ArticleSimpleDto> result = articles.stream()
                 .map(article -> {
                     return new ArticleSimpleDto(article);
-                })
-                .collect(Collectors.toList());
-        return result;
-    }
-
-    public List<ArticleSimpleDto> getArticlesForTrend(String userId, double lat, double lng) {
-        Set<Article> articles = new HashSet<>();
-        List<Article> nearbyArticles = new ArrayList<>();
-
-        User user = getUser(userId);
-        followRepository.findByFrom(user).stream()
-                .forEach(follow -> {
-                    articles.addAll(follow.getTo().getArticles());
-                });
-
-        pinRepository.findAll().stream()
-                .forEach(pin -> {
-                    Point point = pin.getLocation();
-                    if (1500 > DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX())) {
-                        nearbyArticles.addAll(pin.getArticles());
-                    }
-                });
-
-        Collections.sort(nearbyArticles, (a1, a2) -> a2.getLikes().size() - a1.getLikes().size());
-
-        if(nearbyArticles.size()>0)
-            articles.addAll(nearbyArticles.subList(0, Math.min(nearbyArticles.size(), Math.max(10,articles.size()/3))));
-
-        List<ArticleSimpleDto> result = articles.stream()
-                .map(article -> {
-                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
-                    if (!followRepository.findByUserIdAndTargetUserId(userId, article.getUser().getId()).isEmpty())
-                        dto.setFollowing(true);
-                    return dto;
                 })
                 .collect(Collectors.toList());
         return result;
@@ -241,12 +225,11 @@ public class ArticleService {
         article.setDate(articleDto.getDate());
     }
 
-
     private void addMemoryPin(Pin pin) {
         memoryRepository.findAll().stream()
                 .forEach(memory -> {
                     if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
-                        memory.addNearbyPins(pin);
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
                 });
     }
 

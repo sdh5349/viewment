@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface MemoryRepository extends JpaRepository<Memory, Long> {
 
-    public List<Memory> findByUser(User user);
+    List<Memory> findByUser(User user);
     Long countByUser(User user);
 }

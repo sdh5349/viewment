@@ -3,6 +3,7 @@ package com.web.curation.service.memory;
 import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
+import com.web.curation.domain.memory.MemoryPin;
 import com.web.curation.dto.memory.MemoryDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
@@ -59,10 +60,11 @@ public class MemoryServiceImpl implements MemoryService{
         memory.setUser(user);
         memory.setLocation(memoryDto.getLat(), memoryDto.getLng());
         memory.setRadius(memoryDto.getRadius());
-        setNearbyPins(memory, memoryDto);
+        memory.setNotification(false);
 
         memoryRepository.save(memory);
         user.addMemory(memory);
+        setNearbyPins(memory, memoryDto);
 
         return memory.getId();
     }
@@ -99,7 +101,7 @@ public class MemoryServiceImpl implements MemoryService{
         pinRepository.findAll().stream()
                 .forEach(pin -> {
                     if(memoryDto.getRadius() >= DistanceUtil.calcDistance(memoryDto.getLat(),memoryDto.getLng(),pin.getLocation().getY(),pin.getLocation().getX()))
-                        memory.addNearbyPins(pin);
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
                 });
     }
 }

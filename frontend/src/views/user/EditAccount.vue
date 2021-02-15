@@ -7,58 +7,66 @@
       md="4"
       sm="6"
     >
-
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
     <!-- 계정 설정 버튼 시작 -->
-    <v-btn 
-      class="my-1 justify-start v-btn-text" 
-      text 
-      x-large 
-      block
-      @click="onChangePasswordButton"
-    >
-      <v-icon
-        class="mr-4"
-        left
-        large
+      <v-btn 
+        class="my-1 justify-start v-btn-text" 
+        text 
+        x-large 
+        block
+        @click="onChangePasswordButton"
       >
-        mdi-account-edit
-      </v-icon>
-      비밀번호 변경
-    </v-btn>
-    <v-btn 
-      class="my-1 justify-start v-btn-text" 
-      text 
-      x-large 
-      block
-      @click="onLogoutButton"
-    >
-      <v-icon
-        class="mr-4"
-        left
-        large
+        <v-icon
+          class="mr-4"
+          left
+          large
+        >
+          mdi-account-edit
+        </v-icon>
+        비밀번호 변경
+      </v-btn>
+      <v-btn 
+        class="my-1 justify-start v-btn-text" 
+        text 
+        x-large 
+        block
+        @click="onLogoutButton"
       >
-        mdi-logout
-      </v-icon>
-      로그아웃
-    </v-btn>
-    <v-btn 
-      class="my-1 justify-start v-btn-text" 
-      text 
-      x-large 
-      block
-      @click="onAccountDelete"
-    >
-      <v-icon
-        class="mr-4"
-        left
-        large
+        <v-icon
+          class="mr-4"
+          left
+          large
+        >
+          mdi-logout
+        </v-icon>
+        로그아웃
+      </v-btn>
+      <v-btn 
+        class="my-1 justify-start v-btn-text" 
+        text 
+        x-large 
+        block
+        @click="onAccountDelete"
       >
-        mdi-delete
-      </v-icon>
-      회원탈퇴
-    </v-btn>
+        <v-icon
+          class="mr-4"
+          left
+          large
+        >
+          mdi-delete
+        </v-icon>
+        회원탈퇴
+      </v-btn>
+      <Confirm 
+        v-if="confirm.confirmed"
+        :message="confirm.message"
+        @on-confirmed="onDeleteConfirmed"
+      />
     <!-- 계정 설정 버튼 끝 -->
-
     </v-col>
   </v-row>
 </template>
@@ -66,13 +74,28 @@
 <script>
 import axios from 'axios'
 import firebase from 'firebase/app'
+import Alert from '@/components/common/Alert'
+import Confirm from '@/components/common/Confirm'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'EditAccount',
+  components: {
+    Alert,
+    Confirm,
+  },
   data() {
     return {
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
+      confirm: {
+        confirmed: false,
+        message: '',
+      },
       profileUserId: sessionStorage.getItem('uid'),
     }
   },
@@ -95,42 +118,53 @@ export default {
     onLogoutButton() {
       const self = this
 
-      firebase.auth().signOut().then(function() {
+      firebase.auth().signOut()
+      .then(() => {
         sessionStorage.removeItem('jwt')
         sessionStorage.removeItem('uid')
         self.$emit('logout')
         self.$router.push({ name: 'Login' })
-      }).catch(function(error) {
-        // An error happened.
-      });
+      })
+      .catch(err => {
+        this.alert.message = err.message
+        this.alert.alerted = true
+      })
     },
     onAccountDelete() {
-      // TODO: firebase 재인증 후 회원탈퇴
-      if (confirm("정말 회원탈퇴 하시겠습니까?")) {
+      this.confirm.confirmed = true
+      this.confirm.message = '정말 회원탈퇴 하시겠습니까?'
+    },
+    onDeleteConfirmed(confirmed) {
+      console.log(confirmed)
+      if (confirmed) {
         // 서버 DB에서 삭제
         axios.delete(`${SERVER_URL}/accounts/${this.profileUserId}`, this.getToken)
         .then(() => {
           var user = firebase.auth().currentUser;
-          console.log(user)
           const self = this
 
           // firebase DB에서 삭제
           user.delete()
           .then(() => {
-            alert("그동안 이용해주셔서 감사합니다.");
-            self.onLogoutButton()
+            self.alert.message = '그동안 이용해주셔서 감사합니다.!'
+            self.alert.color = 'primary'
+            self.alert.alerted = true
+            self.confirm.confirmed = false
+            setTimeout(() => self.onLogoutButton(), 2000)
           })
           .catch(err => {
-            alert("오류"); // TODO: 오류페이지로 변경
-            console.log('Error', err.message);
-            // self.$router.push({ name: 'Error' })
+            self.alert.message = err.message
+            self.alert.alerted = true
+            self.confirm.confirmed = false
           });
         })
         .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
-          // self.$router.push({ name: 'Error' })
+          this.alert.message = err.message
+          this.alert.alerted = true
+          this.confirm.confirmed = false
         })
+      } else {
+        this.confirm.confirmed = false
       }
     }
   }

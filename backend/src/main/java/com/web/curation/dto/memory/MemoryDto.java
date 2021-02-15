@@ -22,6 +22,7 @@ public class MemoryDto {
     private Long memoryId;
     private String name;
     private int radius;
+    private boolean notification;
 
     private double lat;
     private double lng;
@@ -32,7 +33,7 @@ public class MemoryDto {
         this.memoryId = memory.getId();
         this.name = memory.getName();
         this.radius = memory.getRadius();
-
+        this.notification = memory.isNotification();
         this.lat = memory.getLocation().getY();//위도
         this.lng = memory.getLocation().getX();//경도
     }

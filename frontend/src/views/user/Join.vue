@@ -7,9 +7,17 @@
         md="4"
         sm="6"
     >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
       <validation-observer ref="observer" v-slot="{ invalid }">
         <form @submit.prevent="submit">
-          <validation-provider rules="required|email" v-slot="{ errors }">
+          <validation-provider 
+            mode="aggressive"
+            rules="required|email" 
+            v-slot="{ errors }">
             <v-text-field
               v-model="email" 
               id="email" 
@@ -20,7 +28,10 @@
             </v-text-field>
           </validation-provider>
 
-          <validation-provider rules="required|max:8" v-slot="{ errors }">
+          <validation-provider
+            mode="aggressive"
+            rules="required|max:8" 
+            v-slot="{ errors }">
             <v-text-field
               v-model="nickname" 
               id="nickname" 
@@ -71,7 +82,6 @@
           <v-btn
             class="mr-4"
             @click="submit(email, password, nickname)"
-            @keypress.enter="submit(email, password, nickname)"
             :disabled="invalid"
             block
           >
@@ -88,6 +98,7 @@ import axios from 'axios'
 import firebase from 'firebase/app'
 import { required, email, min, max } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
+import Alert from '@/components/common/Alert'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -109,30 +120,33 @@ extend('min', {
   message: '비밀번호는 8자이상이여야 합니다.'
 })
 
-
 extend('max', {
   ...max,
   message: '닉네임은 8자이하 입니다.'
 })
-
 
 extend('email', {
     ...email,
     message: '이메일 형식이 아닙니다.'
 })
 
-
 export default {
   components: {
+    Alert,
     ValidationProvider,
     ValidationObserver
   },
   data: () => {
     return {
-      email: "",
-      password: "",
-      passwordConfirm: "",
-      nickname: "",
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
+      email: '',
+      password: '',
+      passwordConfirm: '',
+      nickname: '',
       showPassword: false,
       isTerm: false,
       isLoading: false,
@@ -142,6 +156,7 @@ export default {
   },
   methods: {
     submit(email, password, nickname) {
+      this.alert.alerted = false
       firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(res => {
         const createdUser = res.user
@@ -156,20 +171,28 @@ export default {
         .then(() => {
           createdUser.sendEmailVerification()
           .then(() => {
-            alert('인증메일 발송 이메일을 확인해주세요')
-            this.$router.push({name:'Login'})
+            this.alert.message = '인증메일 발송 이메일을 확인해주세요'
+            this.alert.color = 'primary'
+            this.alert.alerted = true
+            setTimeout(() => this.$router.push({name:'Login'}), 2000)
           })
-          .catch((err) => {
-            alert('인증메일 발송 실패')
+          .catch(err => {
+            this.alert.message = '인증메일 발송 실패'
+            this.alert.alerted = true
           })
         })
-        .catch(() => {
-          alert('server 계정생성 오류')
+        .catch(err => {
+          this.alert.message = 'Server 계정생성 오류' 
+          this.alert.alerted = true
+          // this.alert.message = '해당 닉네임은 이미 존재합니다' 
           createdUser.delete()
         })
       })
       .catch(err => {
-        alert('firebase 계정생성 오류')
+        if (err.code === 'auth/email-already-in-use') {
+          this.alert.message = '해당 이메일은 이미 존재합니다.' 
+          this.alert.alerted = true
+        }
       })
     }
   }

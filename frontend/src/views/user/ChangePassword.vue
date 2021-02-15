@@ -7,6 +7,11 @@
       md="4"
       sm="6"
     >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
       <validation-observer
         ref="observer"
         v-slot="{ invalid }"
@@ -71,6 +76,8 @@
   import firebase from 'firebase/app'
   import { required, min } from 'vee-validate/dist/rules'
   import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
+  import Alert from '@/components/common/Alert'
+
 
 
   // 유효성 검사 규칙 커스터마이징
@@ -122,10 +129,16 @@
   export default {
     name: 'ChangePassword',
     components: {
+      Alert,
       ValidationProvider,
       ValidationObserver,
     },
     data: () => ({
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
       currentPassword: '',
       password: '',
       passwordConfirm: '',
@@ -133,6 +146,7 @@
     }),
     methods: {
       submit () { // submit 버튼 클릭 시 발생 이벤트
+        this.alert.alerted = false
         this.$refs.observer.validate()
 
         var user = firebase.auth().currentUser;
@@ -140,12 +154,14 @@
 
         user.updatePassword(self.password)
         .then(() => {
-          alert("비밀번호 변경이 완료되었습니다.");
-          self.onLogout()
+          this.alert.message = '비밀번호 변경이 완료되었습니다.'
+          this.alert.color = 'primary'
+          this.alert.alerted = true
+          setTimeout(() => self.onLogout(), 2000)
         })
         .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
+          this.alert.message = err.message
+          this.alert.alerted = true
         })
       },
       onLogout() {

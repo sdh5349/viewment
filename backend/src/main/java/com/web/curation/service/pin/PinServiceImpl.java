@@ -58,7 +58,7 @@ public class PinServiceImpl implements PinService {
     public List<PinDto> getPinsAll() {
         List<PinDto> pins = pinRepository.findAll().stream()
                 .map(pin -> {
-                    return new PinDto(pin);
+                    return new PinDto(pin, pin.getTrendArticleId());
                 })
                 .collect(Collectors.toList());
         return pins;
@@ -88,7 +88,10 @@ public class PinServiceImpl implements PinService {
 
         getUser(userId).getMemories().stream()
                 .forEach(memory -> {
-                    pins.addAll(memory.getNearbyPins());
+                    memory.getNearbyPins().stream()
+                            .forEach(memoryPin -> {
+                                pins.add(memoryPin.getPin());
+                            });
                 });
 
         List<PinDto> result = pins.stream()

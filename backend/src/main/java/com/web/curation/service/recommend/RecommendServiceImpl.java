@@ -2,23 +2,21 @@ package com.web.curation.service.recommend;
 
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.recommend.recommender.ArticleRecommender;
 import com.web.curation.repository.article.ArticleRepository;
+import com.web.curation.repository.like.LikeRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * com.web.curation.service.recommend
@@ -37,9 +35,10 @@ public class RecommendServiceImpl implements RecommendService{
     private final ArticleRecommender articleRecommender;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
+    private final LikeRepository likeRepository;
 
     @Override
-    public List<ArticleSimpleDto> recommendArticle(String userId) {
+    public List<ArticleFeedDto> recommendArticle(String userId) {
         User user = userRepository.findById(userId).orElseThrow(()->{
             throw new UserNotFoundException();
         });
@@ -58,10 +57,17 @@ public class RecommendServiceImpl implements RecommendService{
 
         List<Article> articles = articleRepository.findByArticleIdIn(recommend);
 
-        List<ArticleSimpleDto> result = articles.stream()
+        List<ArticleFeedDto> result = articles.stream()
                 .filter(article -> !article.getUser().getId().equals(userId))
                 .map(article -> {
-                    return new ArticleSimpleDto(article);
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
+
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+
+                    return dto;
                 })
                 .collect(Collectors.toList());
 

@@ -92,7 +92,6 @@ export default {
         this.$router.push({ name: 'Profile', params: { profileUserId : History.HistoryContent }})
       }
       else if (History.HistoryProperty === "Map") {
-        // this.appendToStorage(History)
         this.$router.push({ name: 'NewsFeed', params: {lng: History.HistoryContent, lat: History.HistoryContent2} })
       }
       else if (History.HistoryProperty === "Hashtag") {

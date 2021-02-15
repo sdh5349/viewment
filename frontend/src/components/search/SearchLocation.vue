@@ -93,14 +93,10 @@ export default {
           HistoryIcon:"mdi-map-marker",
           HistoryProperty: "Map",
         }
+      console.log(searchedLocation.x)
+      console.log(searchedLocation.y)
       this.$router.push({ name: 'NewsFeed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
-      this.appendToStorage(this.History)
-    },
-    scrolling (event) {
-      const scrollInfo = event.target
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
-        this.readMore()
-      }
+      this.appendToStorage(this.Historys)
     },
   },
   watch: {
