@@ -88,7 +88,10 @@ public class PinServiceImpl implements PinService {
 
         getUser(userId).getMemories().stream()
                 .forEach(memory -> {
-                    pins.addAll(memory.getNearbyPins());
+                    memory.getNearbyPins().stream()
+                            .forEach(memoryPin -> {
+                                pins.add(memoryPin.getPin());
+                            });
                 });
 
         List<PinDto> result = pins.stream()

@@ -1,6 +1,7 @@
 package com.web.curation.domain;
 
 import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.domain.memory.MemoryPin;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -41,17 +42,17 @@ public class Memory {
 
     private Point location;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "memory_pin",
-            joinColumns = @JoinColumn(name = "memory_id"),
-            inverseJoinColumns = @JoinColumn(name = "pin_id"))
-    private List<Pin> nearbyPins = new ArrayList<>();
+    @OneToMany(mappedBy = "memory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<MemoryPin> nearbyPins = new ArrayList<>();
 
     @ColumnDefault("50")
     private int radius;
 
-    public void addNearbyPins(Pin pin) {
-        nearbyPins.add(pin);
+    private boolean notification;
+
+    public void addNearbyPins(MemoryPin memoryPin) {
+        nearbyPins.add(memoryPin);
+        memoryPin.setMemory(this);
     }
 
     public void setLocation(double lat, double lng) {
