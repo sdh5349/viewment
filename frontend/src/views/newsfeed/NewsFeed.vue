@@ -7,6 +7,11 @@
         md="4"
         sm="6"
       >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
       <!-- 뉴스 피드에서 지도기능과 피드기능을 선택할수 있게 만들어 주는 지도탭과 피드탭(시작) -->
         <v-row>   
           <v-tabs 
@@ -70,12 +75,14 @@
 import Map from '@/components/newsfeed/Map.vue' // 지도화면 컴포넌트
 import Feed from '@/components/newsfeed/Feed.vue' // 피드화면 컴포넌트
 import axios from 'axios' // back에 axios 요청을 위한 라이브러리
+import Alert from '@/components/common/Alert'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL // 기본 서버 URL 제일 위의 파일보면 .env파일에 해당
 
 export default {
   components: { // 컴포넌트 등록
     Map, // 지도화면 컴포넌트
     Feed, // 피드화면 컴포넌트
+    Alert, // alert 컴포넌트
   },
   data() { // 뉴스 피드에서 사용할 data(변수)들
     return {
@@ -83,7 +90,12 @@ export default {
       centerPosition: { // 중심좌표를 담을 변수
         lat: '', // 위도
         lng: '', // 경도
-      }
+      },
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
     }
   },
   methods: {
@@ -99,15 +111,18 @@ export default {
     // 지도 컴포넌트(자식) 에서 emit으로 기억하기에 대한 정보를 넘겨주고
     // 이 method에서 기억하기를 등록해줌
     // res에는 lat(위도), lng(경도), name(기억하기 이름), radius(반경)가 담겨있음
-    saveMemory(res) {     
+    saveMemory(res) {    
+      this.alert.alerted = false 
       const userId = sessionStorage.getItem('uid') // uid를 저장할 변수 axios요청에 uid가 사용되기 때문에
       
       // 기억 하기 요청 axios 
       // post(url, 기억하기 정보, uid) 가 들어감 
       axios.post(`${SERVER_URL}/users/${userId}/memories`, res, this.getToken)
       .then(()=> {
-        alert('이 장소를 기억했습니다.') // alert로 기억했다고 알려주는 것
-        this.$router.go() // 기억 완료했으면 새로고침 해줌
+        this.alert.message = '기억이 완료되었습니다.'
+        this.alert.color = 'primary'
+        this.alert.alerted = true
+        // this.$router.go() // 기억 완료했으면 새로고침 해줌
       })
       .catch((err)=> { // 에러가 났을때
         console.log(err) // 에러 출력

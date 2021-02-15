@@ -171,6 +171,7 @@ export default {
         lng: '',
       },
       imageServerPrefix: `${SERVER_URL}/images/`, // 이미지를 쉽게 불러오기 위한 변수
+
     }
   },
   mounted() {
@@ -245,7 +246,7 @@ export default {
     mapClick(mouseEvent) {
         const self = this
         if (self.checkMemoryState){  
-          console.log(self.checkMemoryState)
+          
           var latlng = mouseEvent.latLng;   
           self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
           var pin = new kakao.maps.Marker({
@@ -313,6 +314,18 @@ export default {
             image : pinImage
         })
 
+
+        
+        var circle = new kakao.maps.Circle({
+            center : position,  // 원의 중심좌표 입니다 
+            radius: myMemory.radius, // 미터 단위의 원의 반지름입니다 
+            fillColor: '#CFE7FF', // 채우기 색깔입니다
+            strokeWeight: 1,
+            fillOpacity: 0.2  // 채우기 불투명도 입니다  
+        }); 
+
+
+        circle.setMap(self.map)
         
 
         var content = document.createElement('input')
@@ -336,7 +349,6 @@ export default {
           self.deleteMemoryDialog = true
           self.delMemoryPinId = myMemory.memoryId
           self.delMemoryName = myMemory.name
-          //self.deleteMemory(myMemory.memoryId)
         })
 
       
@@ -346,7 +358,7 @@ export default {
             content: content,    
         })
 
-      
+
       kakao.maps.event.addListener(pin, 'click', memoryClickListener(self.map, customOverlay))        
 
       })
@@ -391,7 +403,7 @@ export default {
         var pin = new kakao.maps.Marker({
             map: self.map, 
             position: position,
-            title : article.address_name,
+            title : article.addressName,
             image : pinImage
         })
 
@@ -423,12 +435,20 @@ export default {
         })
         kakao.maps.event.addListener(pin, 'click', clickPin(self.map, overlay));
 
-        ////
-        // var id = article.pinId
-        // kakao.maps.event.addListener(pin, 'click', articlePinClick(id))
+
         self.pins.push(pin)      
 
+      function clickPin(map, overlay) {
+          return function() {
 
+            if (overlay.getMap()) {
+              overlay.setMap(null)
+            } else {
+              overlay.setMap(map)
+            }
+
+          }
+      }
 
 
 
@@ -451,17 +471,7 @@ export default {
       })
       clusterer.addMarkers(self.pins)
 
-      function clickPin(map, overlay) {
-          return function() {
-            console.log(overlay.getMap())
-            if (overlay.getMap()) {
-              overlay.setMap(null)
-            } else {
-              overlay.setMap(map)
-            }
 
-          };
-      }
 
 
 
