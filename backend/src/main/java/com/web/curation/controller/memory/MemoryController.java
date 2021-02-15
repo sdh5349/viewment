@@ -1,11 +1,13 @@
 package com.web.curation.controller.memory;
 
+import com.web.curation.commons.PageRequest;
 import com.web.curation.dto.memory.MemoryDto;
 import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.service.memory.MemoryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,13 @@ public class MemoryController {
     @GetMapping("/users/{userId}/memories")
     public ResponseEntity<List<MemoryDto>> getMemories(@PathVariable("userId") String userId){
         List<MemoryDto> memories = memoryService.getMemories(userId);
+        return ResponseEntity.ok().body(memories);
+    }
+
+    @ApiOperation(value = "회원의 기억하기 가져오기 - 페이징")
+    @GetMapping("/users/{userId}/memories/pg")
+    public ResponseEntity<Page<MemoryDto>> getMemories(@PathVariable("userId") String userId, PageRequest pageRequest){
+        Page<MemoryDto> memories = memoryService.getMemories(userId, pageRequest);
         return ResponseEntity.ok().body(memories);
     }
 
