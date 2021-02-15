@@ -3,16 +3,17 @@
     <v-card-title
       class="justify-space-between px-0 py-1"
     >
-      <div>
-
+      
       <!-- 사용자 아이콘 / 이름 / 작성 시간이 들어갈 곳! -->
+      <div
+        class="mouse-hover"
+        @click="onProfileImage"
+      >
         <UserProfileImage
           :profileImage="articleInfo.user.profileImage"
           :nickname="articleInfo.user.nickname"
         />
-        
       </div>
-      
       <!-- 사용자 아이콘 / 이름 / 작성 시간이 들어갈 곳! -->
 
       <!-- 추천 글이면 추천 표시! -->
@@ -52,7 +53,7 @@
   </v-card-subtitle>
 
   <!-- 사진 들어갈 곳 -->
-  <v-card-actions class="pa-0">
+  <v-card-actions class="pa-0 mouse-hover">
     <v-img
       :src="imageServerPrefix + articleInfo.thumbnail.path"
       :lazy-src="imageServerPrefix + articleInfo.thumbnail.path"
@@ -80,7 +81,7 @@
       class="bottom-right-position"
       @click="onLikeButton"
     >        
-      <v-icon v-if="true" x-large color="error">mdi-heart</v-icon>
+      <v-icon v-if="articleInfo.liked" x-large color="error">mdi-heart</v-icon>
       <v-icon v-else x-large color="white">mdi-heart-outline</v-icon>
     </v-btn>
   </v-card-actions>
@@ -108,6 +109,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import UserProfileImage from '@/components/user/UserProfileImage'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
@@ -135,7 +137,19 @@ export default {
   },
   data() {
     return {
-      imageServerPrefix: `${SERVER_URL}/images/`
+      imageServerPrefix: `${SERVER_URL}/images/`,
+      loginUserId: sessionStorage.getItem('uid')
+    }
+  },
+  computed: {
+    getToken(){
+      const token = sessionStorage.getItem('jwt')
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
     }
   },
   methods: {
@@ -146,7 +160,53 @@ export default {
       })
     },
     onLikeButton() {
-
+      if (this.articleInfo.liked) {
+        axios.delete(`${SERVER_URL}/articles/${this.articleInfo.articleId}/unlike`, this.getToken)
+        .then(res => {
+          this.articleInfo.liked = !this.articleInfo.liked
+          this.articleInfo.likes -= 1 
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      } else {
+        axios.post(`${SERVER_URL}/articles/${this.articleInfo.articleId}/like`, {}, this.getToken)
+        .then(res => {
+          this.articleInfo.liked = !this.articleInfo.liked
+          this.articleInfo.likes += 1 
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      }
+    },
+    onFollowButton (targetUser) {      
+      if (targetUser.followed) {
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
+        .then(() => {
+          this.articleInfo.user.followed = !this.articleInfo.user.followed
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      } else {
+        var params = {'targetUserId' : targetUser.userId }
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
+        .then(() => {
+          this.articleInfo.user.followed = !this.articleInfo.user.followed
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      }
+    },
+    onProfileImage() {
+      console.log(">>")
+      this.$router.push({name: 'Profile', params: { profileUserId: this.articleInfo.user.userId }})
     }
   }
 }
@@ -159,5 +219,10 @@ export default {
   bottom: 0.8rem; 
   right: 0.4rem;
   z-index: 1;
+}
+
+/* 마우스 호버 시 커서 포인터로 전환 */
+.mouse-hover:hover {
+  cursor: pointer;
 }
 </style>

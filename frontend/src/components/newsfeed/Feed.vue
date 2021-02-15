@@ -37,6 +37,7 @@ export default {
   },
   props: {
     feedType: String,
+    centerPosition: Object
   },
   data() {
     return {
@@ -64,16 +65,18 @@ export default {
   methods: {
     readMore() {
       // 필요한 데이터 가져오기
+      console.log(this.centerPosition)
       this.loading = true
       const loginUserId = sessionStorage.getItem('uid')
       // feedType이 recommand 인지 newsfeed인지에 따라 요청 url을 변경한다.
-      const url = this.feedType === 'recommend' ? `${SERVER_URL}/recommendations/articles` :  `${SERVER_URL}/articles/feed/${loginUserId}`
+      const url = this.feedType === 'recommend' ? 
+      `${SERVER_URL}/recommendations/articles` :  `${SERVER_URL}/articles/feed/${loginUserId}?lat=${this.centerPosition.lat}&lng=${this.centerPosition.lng}`
 
       axios.get(url, this.getToken)
       .then(res => {
         console.log("url 확인", url, res.data)
         this.feedItems.push(...res.data)
-        console.log(this.feedItems)
+        console.log("피드아이템들",this.feedItems)
 
         this.page += 1
         this.last = res.data.last
@@ -96,5 +99,4 @@ export default {
 </script>
 
 <style>
-
 </style>
