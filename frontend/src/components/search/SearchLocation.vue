@@ -2,18 +2,14 @@
   <v-row
     justify="center"
   >
-    <v-col
-      lg="4"
-      md="4"
-      sm="6"
-    >
+    <v-col>
       <v-card
         class="mx-auto mt-5"
         flat
       >
         <v-list>
           <v-list-item
-            v-for="(searchedLocation, i) in searchedLocations.slice(0,9)"
+            v-for="(searchedLocation, i) in searchedLocations"
             :key="i"
             @click="goMap(searchedLocation,searchedLocation.address_name,searchedLocation.place_name)"
           >
@@ -39,7 +35,7 @@ export default {
   data() {
     return {
       searchedLocations: "",
-      Historys: [],
+      History: {},
     }
   },
   mounted() {
@@ -76,31 +72,20 @@ export default {
         places.keywordSearch(this.search, callback);
       }
     },
-    appendToStorage(Historys) {
-      var str = localStorage.getItem("Historys");
-      var obj = {};
-      var limitMax = 6;
-      try {
-        obj = JSON.parse(str);
-      } catch {
-        obj = {};
+    appendToStorage(History) {
+      var tempArray
+
+      if (localStorage.getItem('Historys') === null) {
+        tempArray = [];
+      } else {
+        tempArray = JSON.parse(localStorage.getItem('Historys'))
       }
-      if(!obj){
-        obj = {};
-        obj["Historys"] = [];
-      }
-      obj["Historys"].push(Historys);
-      if (limitMax && limitMax < obj["Historys"].length) {
-        let tempList = [];
-        for(let i = obj["Historys"].length-limitMax; i < obj["Historys"].length; i++) {
-          tempList.push(obj["Historys"][i]);
-        }
-        obj["Historys"] = tempList;
-      }
-      localStorage.setItem("Historys", JSON.stringify(obj));
+
+      tempArray.push(History);
+      localStorage.setItem('Historys', JSON.stringify(tempArray));    
     },
     goMap(searchedLocation) {
-      this.Historys = 
+      this.History = 
         {
           HistoryTitle: searchedLocation.place_name,
           HistoryContent: searchedLocation.x, 
@@ -108,8 +93,14 @@ export default {
           HistoryIcon:"mdi-map-marker",
           HistoryProperty: "Map",
         }
-      this.$router.push({ name: 'Feed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
-      this.appendToStorage(this.Historys)
+      this.$router.push({ name: 'NewsFeed', params: {lng: searchedLocation.x, lat: searchedLocation.y} })
+      this.appendToStorage(this.History)
+    },
+    scrolling (event) {
+      const scrollInfo = event.target
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+        this.readMore()
+      }
     },
   },
   watch: {
