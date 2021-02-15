@@ -127,6 +127,18 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ArticleSimpleDto> findByUserId(String userId, Pageable pageable) {
+        Page<Article> articles = articleRepository.findByUserId(userId, pageable);
+
+        Page<ArticleSimpleDto> result = articles
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                });
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
     public List<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng) {
         Set<Article> articles = new HashSet<>();
 

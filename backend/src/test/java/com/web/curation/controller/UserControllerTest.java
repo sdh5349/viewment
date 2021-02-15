@@ -66,7 +66,7 @@ public class UserControllerTest {
         AccountDto accountDto = new AccountDto();
         accountDto.setUserId("aaa");
         accountDto.setEmail("aaa@aaa");
-        accountDto.setNickname("nickname");
+        accountDto.setNickname("nickname1");
 
         String content = mapper.writeValueAsString(accountDto);
 
@@ -85,7 +85,7 @@ public class UserControllerTest {
         AccountDto accountDto = new AccountDto();
         accountDto.setUserId("aaa");
         accountDto.setEmail("a");
-        accountDto.setNickname("nickname");
+        accountDto.setNickname("nickname1");
 
         String content = mapper.writeValueAsString(accountDto);
 

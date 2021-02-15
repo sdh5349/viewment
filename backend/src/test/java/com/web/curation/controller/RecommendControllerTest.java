@@ -1,33 +1,37 @@
-package com.web.curation.recommend;
+package com.web.curation.controller;
 
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
-import com.web.curation.dto.article.ArticleFeedDto;
-import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.dto.article.ArticleSimpleDto;
-import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.service.article.ArticleService;
-import com.web.curation.service.recommend.RecommendService;
+import com.web.curation.service.user.FollowService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
-public class RecommendServiceTest {
+@AutoConfigureMockMvc
+@Transactional
+public class RecommendControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
 
     @Autowired
     UserRepository userRepository;
@@ -39,29 +43,21 @@ public class RecommendServiceTest {
     PinRepository pinRepository;
 
     @Autowired
-    RecommendService recommendService;
+    FollowService followService;
 
     @BeforeEach
     void setUp(){
-
         for(int i = 1; i<=5; i++){
             User user = new User();
             user.setId(i+"");
             user.setEmail(i+"@");
             user.setNickname(i+"User");
-
             userRepository.save(user);
         }
 
-    }
-
-    @Test
-    void 좋아요_있는_사용자에게_추천() throws Exception{
-        //given
         Pin pin = new Pin();
         pin.setLocation(0.111, 1.111);
-        pin.setAddress("aaaa");
-
+        pin.setAddress("aad aa");
         pinRepository.save(pin);
 
         List<Article> articles = new ArrayList<>();
@@ -69,7 +65,6 @@ public class RecommendServiceTest {
             ArticleDto articleDto = setArticleData("4", pin.getPinId(), "content" + i, "tag1", "tag2");
             Article article = articleService.write(articleDto);
             articles.add(article);
-            System.out.println(article.getArticleId());
         }
         for(int i = 3; i<=7; i++){
             ArticleDto articleDto = setArticleData("5", pin.getPinId(), "content" + i, "tag1", "tag2");
@@ -97,38 +92,47 @@ public class RecommendServiceTest {
 
         articleService.like("5", articles.get(0).getArticleId());
         articleService.like("5", articles.get(2).getArticleId());
-        articleService.like("5", articles.get(5).getArticleId());
-        articleService.like("5", articles.get(6).getArticleId());
-
-        //when
-
-        List<ArticleFeedDto> result = recommendService.recommendArticle("4", PageRequest.of(0, 10)).getContent();
-
-        //then
-        System.out.println();
-        result.forEach(articleInfoDto -> System.out.println(articleInfoDto.getArticleId()));
     }
 
     @Test
-    void 좋아요_없는_사용자에게_추천() throws Exception{
+    @WithMockUser(username = "1", password = "")
+    void 추천_성공() throws Exception{
         //given
-        Pin pin = new Pin();
-        pin.setLocation(0.111, 1.111);
-        pin.setAddress("aaaa");
+        followService.follow("1", "5");
+        //when
+        MvcResult result = mockMvc.perform(get("/api/v1/recommendations/articles?page=0&size=10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        //then
+    }
 
-        pinRepository.save(pin);
-
-        ArticleDto articleDto = setArticleData("2", pin.getPinId(), "content", "tag1", "tag2");
-        Article article = articleService.write(articleDto);
-
+    @Test
+    @WithMockUser(username = "1", password = "")
+    void 추천_결과가_없음() throws Exception{
+        //given
 
         //when
-
-        List<ArticleFeedDto> result = recommendService.recommendArticle("1", PageRequest.of(0, 10)).getContent();
-
+        MvcResult result = mockMvc.perform(get("/api/v1/recommendations/articles?page=0&size=10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
         //then
-        result.forEach(articleInfoDto -> System.out.println(articleInfoDto.getArticleId()));
     }
+
+    @Test
+    @WithMockUser(username = "1", password = "")
+    void 추천_페이징_테스트() throws Exception{
+        //given
+        followService.follow("1", "5");
+        //when
+        MvcResult result = mockMvc.perform(get("/api/v1/recommendations/articles?page=1&size=4"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        //then
+    }
+
 
 
     public static ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
@@ -143,4 +147,5 @@ public class RecommendServiceTest {
         articleDto.setContents(contents);
         return articleDto;
     }
+
 }

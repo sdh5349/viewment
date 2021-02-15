@@ -16,6 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * com.web.curation.service.user
+ * FollowServiceImpl.java
+ * @date    2021-01-25 오전 11:19
+ * @author  김종성
+ *
+ * @변경이력
+ **/
+
 @Service
 @Transactional
 @RequiredArgsConstructor

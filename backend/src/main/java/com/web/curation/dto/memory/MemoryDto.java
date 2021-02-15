@@ -5,6 +5,7 @@ import com.web.curation.domain.Memory;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.*;
 
 
 /**
@@ -20,11 +21,19 @@ import lombok.Setter;
 @Setter
 public class MemoryDto {
     private Long memoryId;
+
+    @NotBlank
     private String name;
+
+    @DecimalMax(value = "100")
+    @DecimalMin(value = "1")
     private int radius;
+
     private boolean notification;
 
+    @Positive
     private double lat;
+    @Positive
     private double lng;
 
     public MemoryDto(){}

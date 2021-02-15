@@ -1,10 +1,15 @@
 package com.web.curation.controller.recommend;
 
+import com.web.curation.commons.PageRequest;
+import com.web.curation.dto.article.ArticleInfoDto;
+import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.service.recommend.RecommendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +28,9 @@ public class RecommendController {
 
     @ApiOperation(value = "게시글 추천")
     @GetMapping("/recommendations/articles")
-    public ResponseEntity<List<ArticleFeedDto>> recommendArticle(Authentication authentication){
+    public ResponseEntity<Page<ArticleFeedDto>> recommendArticle(Authentication authentication, PageRequest pageable){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
-        List<ArticleFeedDto> results = recommendService.recommendArticle(currentUserId);
+        Page<ArticleFeedDto> results = recommendService.recommendArticle(currentUserId, pageable.of(Sort.by(Sort.Direction.DESC, "wdate")));
         return ResponseEntity.ok().body(results);
     }
 

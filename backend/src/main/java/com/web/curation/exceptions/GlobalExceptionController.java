@@ -3,8 +3,13 @@ package com.web.curation.exceptions;
 import com.web.curation.commons.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * com.web.curation.exceptions
@@ -42,6 +47,14 @@ public class GlobalExceptionController {
         final String code = "nonexistence.element.exception";
         ErrorResponse errorResponse = new ErrorResponse(msg, code);
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        Map<String, String> errorResponse = new HashMap<>();
+        e.getBindingResult().getAllErrors()
+                .forEach(error->errorResponse.put(((FieldError) error).getField(), error.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
 }
