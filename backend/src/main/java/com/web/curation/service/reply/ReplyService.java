@@ -33,7 +33,7 @@ public class ReplyService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    public Reply writeReply(ReplyDto replyDto) {
+    public ReplyDto writeReply(ReplyDto replyDto) {
         Reply reply = new Reply();
 
         User findUser = userRepository.findById(replyDto.getUserId()).orElseThrow(() -> {
@@ -51,7 +51,7 @@ public class ReplyService {
         reply.setContents(replyDto.getContents());
 
         Reply savedReply = replyRepository.save(reply);
-        return savedReply;
+        return new ReplyDto(savedReply);
     }
 
     public void updateReply(ReplyDto replyDto) {

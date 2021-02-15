@@ -73,6 +73,7 @@ export default {
       document.head.appendChild(script);
     },
     initMap(pins) {
+      console.log(pins)
       const self = this
       // 사용자의 현재 위치를 기반으로 맵 보여준다.
       if (navigator.geolocation) {
@@ -111,7 +112,6 @@ export default {
               fillOpacity: 0.2  // 채우기 불투명도 입니다  
           }); 
 
-          console.log(circle)
 
           circle.setMap(self.map)
           
@@ -184,7 +184,6 @@ export default {
        });
         
         function clickOverlay() {
-           console.log("오버레이클릭하셨음!, "  )   
         }
 
       })
@@ -192,14 +191,11 @@ export default {
       // 커스텀오버레이를 표시하는 클로저를 만드는 함수입니다 
       function clickPin(map, overlay) {
           return function() {
-            console.log(overlay.getMap())
             if (overlay.getMap()) {
               overlay.setMap(null)
-              console.log("닫힘")
             } else {
               console.log(overlay)
               overlay.setMap(map)
-              console.log("열림")
             }
 
           };

@@ -20,6 +20,8 @@ public class ImageDto {
 
     private String path;
 
+    public ImageDto() {}
+
     public ImageDto(Image image) {
         id = image.getId();
         path = image.getPath();

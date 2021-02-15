@@ -7,6 +7,10 @@
       md="4"
       sm="6"
     >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+      />
       <validation-observer
         ref="observer"
         v-slot="{ invalid }"
@@ -75,6 +79,7 @@
 import firebase from 'firebase/app';
 import { required, email, min } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
+import Alert from '@/components/common/Alert'
 
 // 유효성 검사 규칙 커스터마이징
 extend('email', {
@@ -93,19 +98,25 @@ extend('min', {
 })
 
 export default {
-  data: () => {
-    return {
-      email: "",
-      password: "",
-      showPassword: false,
-    }
-  },
   components: {
+    Alert,
     ValidationProvider,
     ValidationObserver,
   },
+  data: () => {
+    return {
+      alert: {
+        alerted: false,
+        message: ''
+      },
+      email: '',
+      password: '',
+      showPassword: false,
+    }
+  },
   methods: {
     submit () {
+      this.alert.alerted = false
       const self = this
       // 1시간 단위로 만료되는 토큰을 세션 종료 전(브라우저 창을 닫는 행위로)이나 직접 로그아웃을 할때 까지 유지
       firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
@@ -125,28 +136,37 @@ export default {
               self.$router.push({ name: 'Curation' })
             })
             .catch(err => {
-              alert("오류"); // TODO: 오류페이지로 변경
-              console.log('Error', err.message);
+              this.alert.alerted = true
+              this.alert.message = 'FireBase 오류'
             })}
           else{
             user.sendEmailVerification()
             .then(() => {
-              alert('이메일 인증이 안되어있습니다.\n이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요.')
+              this.alert.alerted = true
+              this.alert.message = '이메일 인증이 안되어있습니다.</br>이메일 인증메일을 재발송 했습니다. 이메일을 확인해주세요.'
             })
             .catch((err) => {
-              alert('인증메일이 발송된지 얼마지나지 않았습니다.\n이메일에서 인증메일을 확인해주세요.')
+              this.alert.alerted = true
+              this.alert.message = '인증메일이 발송된지 얼마지나지 않았습니다.</br>이메일에서 인증메일을 확인해주세요.'
             })
           } 
   
         })
         .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          this.status = 400
-          console.log('Error', err.message);
+          this.alert.alerted = true
+
+          if (err.code === 'auth/user-not-found') {
+            this.alert.message = '해당 ID는 존재하지 않습니다.'
+          } else if (err.code === 'auth/wrong-password') {
+            this.alert.message = '비밀번호가 틀렸습니다.'
+          } else if (err.code === 'auth/too-many-requests') {
+            this.alert.message = '비정상적인 로그인 시도가 있었습니다.</br>잠시 후 다시 시도해주세요.'
+          }
         })  
       })
       .catch(err => {
-
+        this.alert.alerted = true
+        this.alert.message = 'FireBase 오류'
       })
     },
     onResetPassword() {

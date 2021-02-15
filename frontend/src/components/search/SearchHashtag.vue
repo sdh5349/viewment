@@ -53,9 +53,9 @@ export default {
     onTab : {
       type: Number, 
     },
-    limitMax: {
-      type: Number,
-    },
+    // limitMax: {
+    //   type: Number,
+    // },
   },
   computed: {
     getToken() {
@@ -71,18 +71,21 @@ export default {
   },
   methods: {
     getHashtags() {
-      axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
-        .then((res) => {
-        console.log(res) 
-        console.log(res.data)
-        this.hashtags = res.data      
-        })
-        .catch((err)=> {
-          alert('error'+err.message)
-        })
+      if(this.search){
+        axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+          .then((res) => {
+          console.log(res) 
+          console.log(res.data)
+          this.hashtags = res.data
+          })
+          .catch((err)=> {
+            alert('error'+err.message)
+          })
+      }
     },
     goGrid(hash) {
       console.log(hash.contents)
+      this.$router.push({name: 'SearchHashtagGrid', params: {clickedHash: hash.contents}})
       this.Historys = 
         {
           HistoryTitle: hash.contents,
@@ -117,20 +120,20 @@ export default {
     },
   },
   watch: {
-    search: function() {
-      console.log("해쉬a")
-      if(this.onTab===2){
-        this.getHashtags()
-        
+    onTab: {
+      immediate: true,
+      handler(onTab) {
+        fetch(`/${onTab}`).then((data) => {
+          this.getHashtags()
+        })
       }
-
     },
-    onTab: function() {
-      console.log("해쉬b")
+    search: function() {
       if(this.onTab===2){
-        this.getHashtags()
+        console.log("해쉬a")
+        this.getHashtags()       
       }
-    }
+    },
   },
 }
 </script>

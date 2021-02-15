@@ -37,8 +37,10 @@ public class ArticleSimpleDto {
         this.articleId = article.getArticleId();
         this.user = new SimpleUserInfoDto(article.getUser());
         this.pin = new PinDto(article.getPin());
-        if(article.getArticleImages().size()>0)
-            this.thumbnail = new ImageDto(article.getArticleImages().get(0).getImage());
+        if(article.getArticleImages().size()>0) {
+            this.thumbnail = new ImageDto();
+            this.thumbnail.setPath("thumbnail/"+articleId);
+        }
         this.date = article.getDate();
         this.wdate = article.getWdate().toString();
     }

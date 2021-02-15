@@ -128,8 +128,8 @@ public class ImageUtil {
                 newWidth = maxWidth;
             }
         } else if ("thumbnail".equals(type)) {
-            newHeigt = 400;
-            newWidth = 400;
+            newHeigt = 300;
+            newWidth = 300;
         }
 
         // 이미지 리사이즈
