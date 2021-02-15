@@ -9,6 +9,4 @@ import java.util.List;
 
 public interface RecommendService {
     Page<ArticleFeedDto> recommendArticle(String userId, Pageable pageable);
-
-    List<SimpleUserInfoDto> recommendUser(String userId);
 }

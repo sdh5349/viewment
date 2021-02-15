@@ -1,11 +1,8 @@
 package com.web.curation.service.recommend;
 
-import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.connection.Follow;
 import com.web.curation.dto.article.ArticleFeedDto;
-import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.recommend.recommender.ArticleRecommender;
 import com.web.curation.repository.article.ArticleRepository;
@@ -16,12 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -101,10 +96,5 @@ public class RecommendServiceImpl implements RecommendService{
         Collections.sort(result, (a, b)->Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
 
         return new PageImpl<ArticleFeedDto> (result, pageable, result.size()) ;
-    }
-
-    @Override
-    public List<SimpleUserInfoDto> recommendUser(String userId) {
-        return null;
     }
 }
