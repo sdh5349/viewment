@@ -92,7 +92,7 @@ public class ReplyServiceTest {
                 }
         );
 
-        Assertions.assertEquals(savedReply, new ReplyDto(findReply));
+        Assertions.assertEquals(savedReply.getArticleId(), findReply.getArticle().getArticleId());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ReplyServiceTest {
                 }
         );
 
-        Assertions.assertEquals(savedReply, updateReplyDto);
+        Assertions.assertEquals(savedReply.getArticleId(), updatedReply.getArticle().getArticleId());
     }
 
     @Test

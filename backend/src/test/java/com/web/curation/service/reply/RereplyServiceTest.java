@@ -99,7 +99,7 @@ public class RereplyServiceTest {
                 }
         );
 
-        Assertions.assertEquals(savedRereply, new RereplyDto(findRereply));
+        Assertions.assertEquals(savedRereply.getRereplyId(), new RereplyDto(findRereply).getRereplyId());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class RereplyServiceTest {
                 }
         );
 
-        Assertions.assertEquals(updatedRereply, newRereplyDto);
+        Assertions.assertEquals(updatedRereply.getRereplyId(), newRereplyDto.getRereplyId());
     }
 
     @Test
