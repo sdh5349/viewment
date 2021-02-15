@@ -20,6 +20,7 @@
     "firebase": "^8.2.2",
     "firebase-admin": "^9.4.2",
     "local-lib": "^0.1.0",
+    "lodash": "^4.17.20",
     "node-sass": "^4.13.0",
     "password-validator": "^5.0.3",
     "sass-loader": "^8.0.0",
