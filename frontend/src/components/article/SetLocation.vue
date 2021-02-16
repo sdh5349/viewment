@@ -1,5 +1,10 @@
 <template>
   <div>
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
     <v-container class="py-0">
       <v-row >
             <v-text-field 
@@ -53,10 +58,11 @@
 
 <script>
 import axios from 'axios'
+import Alert from '@/components/common/Alert'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   components: {
-    
+    Alert
   }, 
   data() {
     return{
@@ -74,6 +80,11 @@ export default {
       searchedLocations: '',
       pins: [],
       pinId: '',
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
     }
   },
   mounted() {
@@ -93,28 +104,45 @@ export default {
     },
     initMap() {
       const self = this
-      self.options = {
-        
-        center: new kakao.maps.LatLng(36.3586873, 127.30278400),
-        level: 5
+      if (navigator.geolocation) {
+        self.$getLocation()
+        .then(coordinates => {
+          self.centerPosition = coordinates
+          self.createMap()
+        })
       }
-      self.container = document.getElementById("map")
-      self.map = new kakao.maps.Map(self.container, self.options)
-
-      
-      var geocoder = new kakao.maps.services.Geocoder()
-      var callback = function(result, status) {
-        if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name
+      else {
+        self.centerPosition = { // 센터 좌표를 직접 설정해준다. 지금은 대전 자취방 좌표
+          lat : 36.3586873,
+          lng : 127.30278400
         }
+        self.createMap()
       }
-      geocoder.coord2RegionCode(127.30278400, 36.3586873, callback)
+
+    },
+    createMap(){
+      const self = this
+      self.options = {
+          
+          center: new kakao.maps.LatLng(self.centerPosition.lat, self.centerPosition.lng),
+          level: 5
+        }
+        self.container = document.getElementById("map")
+        self.map = new kakao.maps.Map(self.container, self.options)
+
+        
+        var geocoder = new kakao.maps.services.Geocoder()
+        var callback = function(result, status) {
+          if (status === kakao.maps.services.Status.OK) {
+              self.addressName = result[0].address_name
+          }
+        }
+        geocoder.coord2RegionCode(self.centerPosition.lng, self.centerPosition.lat, callback)
 
 
-      kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
-      self.mapClick(mouseEvent)
-      })
-
+        kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
+        self.mapClick(mouseEvent)
+        })
     },
     searchAddress(res) {
       const self = this
@@ -227,8 +255,9 @@ export default {
               pinId: res.data.pinId
             }
             self.$emit('onClick', pinInfo)
-            alert('이 마커로 위치 지정 완료')
-            
+              self.alert.message = '해당핀으로 위치 지정 완료.'
+              self.alert.color = 'primary'
+              self.alert.alerted = true  
           }) 
         }
       }

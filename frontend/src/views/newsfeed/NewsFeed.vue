@@ -182,16 +182,17 @@ export default {
 
 /* 뉴스피드 전체를 담을 컨테이너 */
 .news-feed-container{
-   display: flex; /* flex설정은 가로 정렬을 위한것 block형태 이므로 선언안해주면 한줄한줄 쌓인다.*/
-   justify-content: center;  /* 플렉스 요소의 수평 방향 정렬 방식을 설정하는것 */
-   align-items: center; /* 플렉스 요소의 수직 방향 정렬 방식을 설정 */
+  display: flex; /* flex설정은 가로 정렬을 위한것 block형태 이므로 선언안해주면 한줄한줄 쌓인다.*/
+  justify-content: center;  /* 플렉스 요소의 수평 방향 정렬 방식을 설정하는것 */
+  align-items: center; /* 플렉스 요소의 수직 방향 정렬 방식을 설정 */
+
 }
 .map-feed-row {
   position: relative;
   display: flex; 
   justify-content: center; 
   align-items: center;
-  height: 100%;
+  
 }
 .map-drawer-row {
   position: relative;
