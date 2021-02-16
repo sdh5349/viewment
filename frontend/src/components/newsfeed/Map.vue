@@ -1,8 +1,8 @@
 <template>
   <v-row 
     class="map-container"
-    >
-    <v-col>
+  >
+    <v-col class="py-0">
   
   
       <!-- 내 위치로 이동, 기억하기 핀 그리고 기억하기로 이동 버튼들 (시작) -->
@@ -574,7 +574,6 @@ export default {
 
       axios.delete(`${SERVER_URL}/memories/${memoryId}`, this.getToken)
       .then((res) => {
-        console.log('삭제')
         this.$router.go()
       })
       .catch((err) => {
@@ -636,15 +635,15 @@ export default {
 <style scoped>
 .map-container {
   position: relative;
-  margin: 0;
-  height: 70vh;
+  height: 100vh;
 }
 
 .map {
   position: absolute;
   width: 100%;
-  height: 80vh;
+  height: 81vh;
   z-index: 0;
+  top: 0;
   margin: 0;
   
 }
@@ -652,7 +651,6 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  
 }
 
 </style>

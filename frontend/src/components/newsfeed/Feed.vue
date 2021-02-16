@@ -27,6 +27,7 @@
   </v-alert>
   <v-virtual-scroll
     v-else
+    class="mx-3"
     :items="feedItems"
     item-height="500"
     max-height="80vh"
@@ -79,7 +80,6 @@ export default {
   methods: {
     readMore() {
       // 필요한 데이터 가져오기
-      this.loading = true
       const loginUserId = sessionStorage.getItem('uid')
       // feedType이 recommand 인지 newsfeed인지에 따라 요청 url을 변경한다.
       const url = this.feedType === 'recommend' ? 
@@ -89,7 +89,6 @@ export default {
       .then(res => {
         this.feedItems.push(...res.data.content)
         this.page += 1
-        console.log(res.data)
         this.last = res.data.last
       })
       .then(() => {
@@ -102,8 +101,7 @@ export default {
     scrolling (event) {
       const scrollInfo = event.target
 
-      // console.log(this.last)
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop <= scrollInfo.clientHeight && !this.last) {
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop < scrollInfo.clientHeight && !this.last) {
         this.readMore()
       }
     },
@@ -111,5 +109,5 @@ export default {
 }
 </script>
 
-<style>
+<style >
 </style>

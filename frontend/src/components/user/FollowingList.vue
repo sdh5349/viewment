@@ -15,7 +15,7 @@
     v-else
     :items="followings"
     :item-height="50"
-    max-height="80vh"
+    class="scroll-container"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
