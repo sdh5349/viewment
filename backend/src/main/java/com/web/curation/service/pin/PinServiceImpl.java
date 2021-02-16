@@ -9,6 +9,7 @@ import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
+import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,10 +111,15 @@ public class PinServiceImpl implements PinService {
         Timestamp t = new Timestamp(time);
 
         List<Long[]> pins = pinRepository.findAll().stream()
+                .filter(pin -> {
+                    return 1500 >= DistanceUtil.calcDistance(lat, lng, pin.getLocation().getY(), pin.getLocation().getX());
+                })
                 .map(pin -> {
                     return new Long[] {pin.getPinId(), articleRepository.countByPinAndWdateAfter(pin, t)};
                 })
                 .collect(Collectors.toList());
+
+
 
         Collections.sort(pins, new Comparator<Long[]>() {
             @Override
