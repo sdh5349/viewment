@@ -30,7 +30,7 @@ public class NewFollowerEventListener {
                         .build())
                 .setTopic("follow-" + newFollowerEvent.getTo().getId())
                 .build();
-        System.out.println("이벤트 발생: " + "follow-" + newFollowerEvent.getTo().getId());
+//        System.out.println("이벤트 발생: " + "follow-" + newFollowerEvent.getTo().getId());
         FirebaseMessaging.getInstance().send(message);
         saveNotification(newFollowerEvent);
     }

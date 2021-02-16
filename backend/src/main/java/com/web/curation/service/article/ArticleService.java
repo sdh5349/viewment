@@ -103,10 +103,6 @@ public class ArticleService {
 
         Article savedArticle = articleRepository.save(article);
 
-        memoryPinRepository.findByPin(pin).stream()
-                .forEach(memoryPin -> {
-                    System.out.println(memoryPin.getId());
-                });
         eventPublisher.publishEvent(new NewArticleEvent(savedArticle));
 
         return savedArticle;
