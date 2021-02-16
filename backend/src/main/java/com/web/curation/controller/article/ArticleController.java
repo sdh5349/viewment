@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -108,16 +109,20 @@ public class ArticleController {
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
-    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지")
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 => 수정버전!", notes = "start 혹은 end가 공백이거나 null일 경우 전체 조회, 반대의 경우 기간 조회를 합니다")
     @GetMapping("/pins")
-    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, String start, String end) {
+        List<ArticleSimpleDto> articleSimpleDtos = null;
+        if(start == null || start.length() == 0 || end == null || end.length() == 0 )
+             articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+        else
+             articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
-    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 (기간조회)")
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 => 이전버전")
     @GetMapping("/pins/period")
-    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
+    public ResponseEntity<?> getArticlesByPinsPeriod(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
