@@ -13,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,7 +78,7 @@ public class ArticleController {
     @ApiOperation(value = "user id로 게시글 조회, 사용자 프로필 피드 탭에 사용 - 페이징")
     @GetMapping("/searchbyuserid/{userId}/pg")
     public ResponseEntity<?> getArticleByUserId(@PathVariable("userId") String userId, PageRequest pageRequest){
-        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId, pageRequest);
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId, pageRequest.of(Sort.by("wdate").descending()));
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
@@ -105,7 +106,7 @@ public class ArticleController {
     @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회 - 페이징")
     @GetMapping("/feed/{userId}/pg")
     public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng, PageRequest pageRequest) {
-        Page<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng, pageRequest);
+        Page<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng, pageRequest.of());
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
