@@ -3,7 +3,6 @@
     class="mx-auto mt-5"
     flat
   >
-
       <v-virtual-scroll
         :items="scrollUsers"
         :item-height="50"

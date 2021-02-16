@@ -11,6 +11,20 @@
       color="primary"
     ></v-progress-circular>
   </v-row>
+  <v-alert
+    v-else-if="feedItems.length === 0 && feedType === 'recommend'"
+    v-html="'다른 회원을 팔로우하거나<br/>마음에 드는 게시글에 좋아요를 눌러 주세요.'"
+    class="ma-0 pa-2 text-center"
+    type="info"
+  >
+  </v-alert>
+  <v-alert
+    v-else-if="feedItems.length === 0 && feedType === 'newsfeed'"
+    v-html="'기억하기 장소 주변에 게시물이 없거나</br>기억하는 장소가 없습니다.'"
+    class="ma-0 pa-2 text-center"
+    type="info"
+  >
+  </v-alert>
   <v-virtual-scroll
     v-else
     :items="feedItems"
@@ -19,21 +33,21 @@
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
-      <FeedItem :article-info="item"/>
+      <ArticleContents :article="item" />
     </template>
   </v-virtual-scroll>
 </template>
 
 <script>
 import axios from 'axios'
-import FeedItem from './FeedItem.vue'
+import ArticleContents from '../article/ArticleContents.vue'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
   name: 'Feed',
   components: {
-    FeedItem,
+    ArticleContents,
   },
   props: {
     feedType: String,
@@ -44,7 +58,7 @@ export default {
       loading: true,
       feedItems: [],
       page: 0,
-      size: 10,
+      size: 2,
       last: false,
     }
   },
@@ -65,20 +79,17 @@ export default {
   methods: {
     readMore() {
       // 필요한 데이터 가져오기
-      console.log(this.centerPosition)
       this.loading = true
       const loginUserId = sessionStorage.getItem('uid')
       // feedType이 recommand 인지 newsfeed인지에 따라 요청 url을 변경한다.
       const url = this.feedType === 'recommend' ? 
-      `${SERVER_URL}/recommendations/articles` :  `${SERVER_URL}/articles/feed/${loginUserId}?lat=${this.centerPosition.lat}&lng=${this.centerPosition.lng}`
+      `${SERVER_URL}/recommendations/articles?page=${this.page}&size=${this.size}` :  `${SERVER_URL}/articles/feed/${loginUserId}/pg?lat=${this.centerPosition.lat}&lng=${this.centerPosition.lng}&page=${this.page}&size=${this.size}`
 
       axios.get(url, this.getToken)
       .then(res => {
-        console.log("url 확인", url, res.data)
-        this.feedItems.push(...res.data)
-        console.log("피드아이템들",this.feedItems)
-
+        this.feedItems.push(...res.data.content)
         this.page += 1
+        console.log(res.data)
         this.last = res.data.last
       })
       .then(() => {
@@ -90,7 +101,9 @@ export default {
     },
     scrolling (event) {
       const scrollInfo = event.target
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+
+      // console.log(this.last)
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop <= scrollInfo.clientHeight && !this.last) {
         this.readMore()
       }
     },
