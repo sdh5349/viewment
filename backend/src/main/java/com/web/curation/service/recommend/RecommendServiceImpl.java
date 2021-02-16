@@ -12,6 +12,7 @@ import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +73,7 @@ public class RecommendServiceImpl implements RecommendService{
                 })
                 .collect(Collectors.toList());
 
-        List<ArticleFeedDto> followingsArticles = articleRepository.findByUserIn(followings, pageable).stream()
+        List<ArticleFeedDto> followingsArticles = articleRepository.findByUserIn(followings).stream()
                 .map(article -> {
                     ArticleFeedDto dto = new ArticleFeedDto(article);
                     int likes = likeRepository.countByArticle(article).intValue();
@@ -87,14 +88,17 @@ public class RecommendServiceImpl implements RecommendService{
         int s = pageable.getPageNumber();
         int e = pageable.getPageSize();
 
-        int fromIdx = s*e<result.size() ? (s*e) : result.size();
-        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+        int total = result.size() + followingsArticles.size();
 
-        result = result.subList(fromIdx, toIdx);
         result.addAll(followingsArticles);
 
         Collections.sort(result, (a, b)->Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
 
-        return new PageImpl<ArticleFeedDto> (result, pageable, result.size()) ;
+        int fromIdx = s*e<result.size() ? (s*e) : result.size();
+        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+
+        result = result.subList(fromIdx, toIdx);
+
+        return new PageImpl<ArticleFeedDto> (result, pageable, total) ;
     }
 }
