@@ -5,7 +5,7 @@
       class="ma-0 row justify-space-between align-top"
     >
       <div style="width: 100%;" class="d-flex">
-        <UserProfileImage 
+        <UserProfileImage
           class="py-1"
           :profile-image="replyInfo.user.profileImage"
           :size="2.3"
@@ -16,6 +16,7 @@
         <!-- 댓글 수정 시작 -->
         <v-text-field
           v-model="updateContent"
+          autofocus
           class="pt-0 px-2"
           append-icon="mdi-pencil"
           dense
@@ -30,21 +31,36 @@
       class="ma-0 row justify-space-between align-top"
     >
       <div :style="loginUserId !== replyInfo.user.userId ? 'width: 100%;' : 'width: 88%;'" class="d-flex">
-        <UserProfileImage 
-          class="py-1"
-          :profile-image="replyInfo.user.profileImage"
-          :size="2.3"
-          :font-size="1"
-        />
+        <div 
+          class="mouse-hover"
+          @click="onProfileImage">
+          <UserProfileImage 
+            class="py-1"
+            :profile-image="replyInfo.user.profileImage"
+            :size="2.3"
+            :font-size="1"
+          />
+        </div>
         <div style="width: 90%;" :class="replyType === 'rereply' ? 'align-self-center' : ''">
-          <p class="mb-0"><span style="font-weight: bold;">{{replyInfo.user.nickname}}</span> {{replyInfo.contents }}</p>
+          <p class="mb-0">
+            <span 
+              style="font-weight: bold;" 
+              class="mouse-hover"
+              @click="onProfileImage"
+            >
+              {{replyInfo.user.nickname}}
+            </span>
+            {{replyInfo.contents }}
+          </p>
           <span 
             v-if="replyType === 'reply'" 
-            class="text-caption"
+            class="text-caption mr-2"
             style="cursor: pointer"
-            @click="showInput=!showInput">댓글 달기</span>
+            @click="showInput = !showInput">댓글 달기</span>
+            <span class="text-caption" style="color: grey;">{{ replyInfo.wdate | dateFormat()}}</span>
             <v-text-field
               v-if="showInput"
+              autofocus
               v-model="commentInput"
               class="pt-0"
               append-icon="mdi-pencil"
@@ -72,10 +88,10 @@
           </template>
           <v-list class="py-0">
             <v-list-item>
-              <v-list-item-title @click='onUpdateReply'>수정</v-list-item-title>
+              <v-list-item-title class="mouse-hover" @click='onUpdateReply'>수정</v-list-item-title>
             </v-list-item>
             <v-list-item>
-              <v-list-item-title @click='onDeleteReply'>삭제</v-list-item-title>
+              <v-list-item-title class="mouse-hover" @click='onDeleteReply'>삭제</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -220,13 +236,19 @@ export default {
         alert(err)
       })
     },
+    onProfileImage() {
+      this.$router.push({ 
+        name: 'Profile', 
+        params: { profileUserId : this.replyInfo.user.userId }
+      })
+    },
   },
 }
 </script>
 
 <style scoped>
-/* 컨테이너를 relative position으로 바꾼다. */
-.relative-container {
-  position: relative
+/* 마우스를 버튼에 올리면 포인터로 활성화 된다 */
+.mouse-hover:hover {
+  cursor: pointer;
 }
 </style>

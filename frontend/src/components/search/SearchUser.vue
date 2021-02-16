@@ -27,6 +27,18 @@
       <v-list-item
         @click="goProfile(item)"
       > 
+      <v-virtual-scroll
+        :items="scrollUsers"
+        :item-height="50"
+        max-height="80vh"
+        @scroll="scrolling"
+        id="scroll"
+      >
+      <template v-slot:default="{ item }">
+        <v-list-item
+          @click="goProfile(item)"
+        >
+          
         <v-list-item-content>
           <v-list-item-title >
             <div class="d-flex justify-space-between">

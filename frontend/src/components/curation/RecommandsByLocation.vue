@@ -14,7 +14,6 @@ export default {
   name: 'RecommandsByLocation',
   data() {
     return {
-      loading: true,
       imageServerPrefix: `${SERVER_URL}/images/`,
       map: null,
       lat: 0,
@@ -81,16 +80,11 @@ export default {
     },
     initMap(pins, lat, lng) {
       const self = this
-      console.log("1")
 
       const currentPosition = new kakao.maps.LatLng(lat, lng) //
-      console.log("2")
       const imageSrc = require('@/assets/images/currentPosition.png'); 
-      console.log("3")
       const imageSize = new kakao.maps.Size(15, 15); 
-      console.log("4")
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
-      console.log("5")
 
       // 지도 그리기 시작
       const requestOptions = { 
@@ -99,7 +93,6 @@ export default {
       }
       const container = document.getElementById("map")
 
-      console.log(container)
       self.map = new kakao.maps.Map(container, requestOptions)
       // 지도 그리기 끝
       // 현재 위치 표시 시작

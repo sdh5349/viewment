@@ -1,5 +1,7 @@
 <template>
-  <v-row class="map-container">
+  <v-row 
+    class="map-container"
+    >
     <v-col>
   
   
@@ -7,7 +9,7 @@
       <v-btn-toggle>
 
         <!-- 내 위치로 이동 버튼 (시작) -->
-        <v-btn icon color="black" @click="moveMyLocation" position: absolute style="z-index: 9999; top:7px;">
+        <v-btn icon color="black" @click="moveMyLocation" position: absolute style="z-index: 1; top:7px;">
           <v-icon>
             mdi-apple-safari
           </v-icon>
@@ -16,7 +18,7 @@
   
         <!-- 기억하기 핀 버튼 (시작) -->
         <v-btn icon color="black" @click="checkMemory" class="d-flex" position: absolute
-          style="z-index: 9999; left: 50px; top:7px;">
+          style="z-index: 1; left: 50px; top:7px;">
           <v-icon>
             mdi-pin
           </v-icon>
@@ -30,7 +32,7 @@
 
             <!-- 기억하기로 이동 버튼 (시작) -->
             <v-btn icon color="black" class="d-flex" v-bind="attrs" v-on="on" position: absolute
-              style="z-index: 9999; left: 99px; top:7px;">
+              style="z-index: 1; left: 99px; top:7px;">
               <v-icon>
                 mdi-book
               </v-icon>
@@ -43,10 +45,10 @@
           <v-card>
             <v-card-title>기억하기 선택</v-card-title>
             <v-divider></v-divider>
-            <v-card-text style="height: 300px;">
+            <v-card-text style="height: 300px;" class="pa-1">
               <v-list dense>
                 <v-list-item-group color="primary">
-                  <v-list-item v-for="(memory, i) in myMemories" :key="i">
+                  <v-list-item class="pa-2" v-for="(memory, i) in myMemories" :key="i">
                     <!-- <v-list-item-icon>
                     <v-icon v-text="item.icon"></v-icon>
                   </v-list-item-icon> -->
@@ -61,7 +63,7 @@
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
-              <v-btn color="blue darken-1" text @click="moveMemoryDialog = false">
+              <v-btn text @click="moveMemoryDialog = false">
                 닫기
               </v-btn>
   
@@ -78,6 +80,7 @@
   
   
       <!-- 기억하기핀 버튼을 누르고 map을 누르면 기억하기를 저장할때 이름과 반경을 정할수 있는 카드 (시작) -->
+
       <v-row justify="center">
         <v-dialog v-model="saveMemoryDialog" persistent max-width="290">
           <template v-slot:activator="{ on, attrs }" v-if="pinInfo">
@@ -86,17 +89,52 @@
             </v-btn>
           </template>
   
+  <!-- v-slot="{ invalid }" -->
           <v-card>
+            
             <v-card-title class="headline">
               기억할 장소의 이름과 반경을 적어주세요
             </v-card-title>
             <v-card-text>
               <v-col cols='12'>
                 <div class="modal-card">
-                  <v-text-field v-model="memoryName" label='기억하기 이름' @click="resetMemoryName"></v-text-field>
-                  <v-text-field v-model="memoryRadius" label='반경(m)' @click="resetMemoryRadius"></v-text-field>
-                  <v-btn @click='saveMemory' text color='primary'>기억 저장</v-btn>
+                  <validation-observer
+                    ref="observer"
+                    v-slot="{ invalid }"
+                  >
+                  <validation-provider
+                    mode="aggressive"
+                    rules="required|max:10"
+                    v-slot="{ errors }"
+                  >
+                  <v-text-field 
+                    v-model="memoryName" 
+                    label='기억하기 이름' 
+                    @click="resetMemoryName"
+                    :error-messages="errors"
+                    ></v-text-field>
+                  </validation-provider>
+
+                  <validation-provider
+                    mode="aggressive"
+                    rules="required|max_value:1500"
+                    v-slot="{ errors }"
+                  >
+                  <v-text-field 
+                    v-model="memoryRadius" 
+                    label='반경(m)' 
+                    @click="resetMemoryRadius"
+                    :error-messages="errors"
+                  ></v-text-field>
+                  </validation-provider>
+
+                  <v-btn 
+                    @click='saveMemory' 
+                    text color='primary'
+                    :disabled="invalid"
+                  >기억 저장</v-btn>
                   <v-btn @click="saveMemoryDialog = false" text color="red">닫기</v-btn>
+                  </validation-observer>
                 </div>
               </v-col>
             </v-card-text>
@@ -130,11 +168,29 @@
 
 <script>
 import axios from 'axios' // back에 axios 요청을 위한 라이브러리
+import { required, min, max, max_value } from 'vee-validate/dist/rules'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL  // 기본 서버 URL 제일 위의 파일보면 .env파일에 해당
+extend('required', {
+  ...required,
+  message: '필수 입력 항목입니다.'
+})
+extend('max', {
+  ...max,
+  message: '기억하기 이름은 10글자 이하이어야 합니다.'
+})
+extend('max_value', {
+  ...max_value,
+  message: '기억하기 반경은 1500m 이하이어야 합니다.'
+})
 
 
 export default {
   name: 'Map',
+  components: {
+    ValidationProvider,
+    ValidationObserver,
+  },
   props: {
     searchedCenterPosition: Object // 검색하기에서 넘어온 중심 좌표 뉴스피드(부모)에서 내려받은 변수
   },
@@ -200,11 +256,25 @@ export default {
         this.updateCenterPosition(temp.lat, temp.lng) // 중심좌표를 업데이트 해준다.
       }
       else{ // 뉴스피드 버튼을 눌러서 일때 
-        self.centerPosition = { // 센터 좌표를 직접 설정해준다. 지금은 대전 자취방 좌표
-          lat : 36.3586873,
-          lng : 127.30278400
+        
+        if (navigator.geolocation) {
+          self.$getLocation()
+          .then(coordinates => {
+            self.centerPosition = coordinates
+            self.createMap()
+          })
+        }
+        else {
+          self.centerPosition = { // 센터 좌표를 직접 설정해준다. 지금은 대전 자취방 좌표
+            lat : 36.3586873,
+            lng : 127.30278400
+          }
+          self.createMap()
         }
       }
+    },
+    createMap() {
+      const self = this
       self.options = { // 좌표 옵션 센터 + 확대 레벨
           center: new kakao.maps.LatLng(self.centerPosition.lat, self.centerPosition.lng),
           level: 5 
@@ -234,6 +304,7 @@ export default {
       kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
         self.mapClick(mouseEvent) // 맵 클릭 method를 실행할때 마우스 이벤트를 보내준다.
       })
+
     },
     // 중심좌표를 업데이트 해주는 method argument값으로 lat(위도)와 lng(경도)가 들어간다.
     updateCenterPosition(lat, lng) {
@@ -561,17 +632,20 @@ export default {
 }
 </script>
 
+
 <style scoped>
 .map-container {
   position: relative;
+  margin: 0;
+  height: 70vh;
 }
 
 .map {
   position: absolute;
   width: 100%;
-  height: 70vh;
+  height: 80vh;
   z-index: 0;
-  margin: 0%;
+  margin: 0;
   
 }
 .memory-location-modar {

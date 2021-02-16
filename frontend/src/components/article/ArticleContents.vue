@@ -1,5 +1,19 @@
 <template>
-  <div>
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </v-row>
+  <div
+    v-else
+  >
     <!-- 게시물 헤더 부분 시작 -->
     <v-list-item
       class="pa-0"
@@ -42,13 +56,20 @@
               </template>
               <v-list class="py-0">
                 <v-list-item>
-                  <v-list-item-title @click='updateArticle'>수정</v-list-item-title>
+                  <v-list-item-title class="mouse-hover" @click='updateArticle'>수정</v-list-item-title>
                 </v-list-item>
                 <v-list-item>
-                  <v-list-item-title @click='deleteArticle'>삭제</v-list-item-title>
+                  <v-list-item-title class="mouse-hover" @click='deleteArticle'>삭제</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
+            <v-chip
+              v-else-if="articleInfo.recommanded"
+              label
+              color="yellow lighten-2"
+            >
+              추천
+            </v-chip>
             <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 끝 -->
           </v-row>
         </v-list-item-action>
@@ -116,7 +137,7 @@
       <!-- 해시태그 끝 -->
 
       <!-- 게시글 내용 시작 -->
-      <p class="pa-2 mb-0 text-body-1">
+      <p v-if="articleInfo.contents" class="pa-2 mb-0 text-body-1">
         {{articleInfo.contents}}
       </p>
       <!-- 게시글 내용 끝 -->
@@ -143,11 +164,19 @@
             </v-btn>
           </template>
           <v-card>
-            <v-card-text class="like-user-container">  
+            <v-card-title>좋아요</v-card-title>
+            <v-divider></v-divider>
+            <v-card-text class="pa-1 like-user-container">  
               <ArticleLikeUserList 
                 :article-id="articleInfo.articleId"
               />
             </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn text @click="dialog=false">
+                닫기
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
         <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 끝 -->
@@ -200,6 +229,7 @@ export default {
   },
   data() {
     return{
+      loading: true,
       dialog: false,
       imageServerPrefix: `${SERVER_URL}/images/`,
       articleInfo: '',
@@ -219,7 +249,7 @@ export default {
   },
   created() {
     this.articleInfo = this.article
-    console.log("이거임", this.articleInfo)
+    this.loading = false
   },
   methods: {
     updateArticle(){
@@ -293,7 +323,8 @@ export default {
 
 /* 게시글 좋아요 누른 사람들을 보여줄 모달 창의 컨테이너 */
 .like-user-container {
-  height: 70vh;
-  padding: 12px 0 12px 0 !important;
+  /* height: 70vh;
+  padding: 12px 0 12px 0 !important; */
+  height: 300px;
 }
 </style>
