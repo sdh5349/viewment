@@ -35,9 +35,9 @@
       >
         <p class="text-caption mb-1">회원님의 활동을 기반으로 추천해드립니다.</p>
 
-      <Feed 
+      <!-- <Feed 
         feed-type="recommend" 
-      />
+      /> -->
       </div>
 
     </v-col>
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import Feed from '@/components/newsfeed/Feed'
+// import Feed from '@/components/newsfeed/Feed'
 import RecommandsByLocation from '@/components/curation/RecommandsByLocation'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
@@ -53,7 +53,7 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   name: 'Curation',
   components:{
-    Feed,
+    // Feed,
     RecommandsByLocation
   },
   data() {

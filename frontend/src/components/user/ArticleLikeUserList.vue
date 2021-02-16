@@ -15,6 +15,7 @@
     v-else
     :items="articleLikeUsers"
     :item-height="50"
+    max-height="80vh"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">
