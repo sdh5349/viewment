@@ -2,7 +2,6 @@ package com.web.curation.service.article;
 
 import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.Image;
-import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
@@ -25,10 +24,8 @@ import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.like.LikeRepository;
 import com.web.curation.repository.memory.MemoryPinRepository;
 import com.web.curation.repository.memory.MemoryRepository;
-import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
-import com.web.curation.service.notification.NotificationService;
 import com.web.curation.util.DistanceUtil;
 import com.web.curation.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +73,6 @@ public class ArticleService {
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
     private final ImageRepository imageRepository;
-    private final NotificationRepository notificationRepository;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -289,7 +285,6 @@ public class ArticleService {
         findArticle.resetHashtag();
         findArticle.resetUser();
         findArticle.resetPin();
-        notificationRepository.deleteByArticle(findArticle);
         articleRepository.delete(findArticle);
 
         if(pin.getArticles().size() == 0) {
