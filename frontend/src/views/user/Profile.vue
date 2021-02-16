@@ -148,7 +148,7 @@
     <!-- 탭 끝 -->
 
     <!-- 탭 선택에 따라 보여줄 컴포넌트 -->
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" touchless>
       <v-tab-item v-for="tabItem in tabItems" :key="tabItem.tabIcon">
         <!-- keep-alive 태그를 통해 탭 컴포넌트를 바꿀 때마다 재 생성하는 것이 아닌 데이터를 캐시해두고 다시 볼수있도록 하는 태그 -->
         <!-- TODO: 일단 없이 해보고 필요하다면 사용할 것임 -->
