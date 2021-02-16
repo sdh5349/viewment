@@ -25,7 +25,7 @@ public class MemoryDto {
     @NotBlank
     private String name;
 
-    @DecimalMax(value = "100")
+    @DecimalMax(value = "1500")
     @DecimalMin(value = "1")
     private int radius;
 

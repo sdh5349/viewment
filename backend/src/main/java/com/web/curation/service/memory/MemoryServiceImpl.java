@@ -9,6 +9,7 @@ import com.web.curation.dto.memory.MemoryDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.memory.MemoryRepository;
+import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.util.DistanceUtil;
@@ -39,6 +40,7 @@ public class MemoryServiceImpl implements MemoryService {
     private final MemoryRepository memoryRepository;
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
+    private final NotificationRepository notificationRepository;
 
     public User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -102,6 +104,7 @@ public class MemoryServiceImpl implements MemoryService {
         Memory memory = getMemory(memoryId);
         memory.resetUser();
         memory.resetNearbyPins();
+        notificationRepository.deleteByMemory(memory);
         memoryRepository.delete(memory);
         return memoryId;
     }

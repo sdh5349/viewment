@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.TopicManagementResponse;
 import com.web.curation.domain.User;
+import com.web.curation.domain.article.Article;
 import com.web.curation.dto.notification.NotiListDto;
 import com.web.curation.dto.notification.NotiSettingsDto;
 import com.web.curation.dto.notification.UserNotiDto;
@@ -32,16 +33,16 @@ public class NotificationService {
         tokenList.add(notiSettingsDto.getRegiToken());
 
         TopicManagementResponse response1 = FirebaseMessaging.getInstance().subscribeToTopic(tokenList, "memory-" + notiSettingsDto.getUserId());
-        System.out.println(response1.getSuccessCount() +"  "+response1.getFailureCount()+"  "+response1.getErrors().size());
-        response1.getErrors().stream().forEach(error -> System.out.println(error.toString()));
+//        System.out.println(response1.getSuccessCount() +"  "+response1.getFailureCount()+"  "+response1.getErrors().size());
+//        response1.getErrors().stream().forEach(error -> System.out.println(error.toString()));
 
         TopicManagementResponse response2 = FirebaseMessaging.getInstance().subscribeToTopic(tokenList, "follow-" + notiSettingsDto.getUserId());
-        System.out.println(response2.getSuccessCount() +"  "+response2.getFailureCount()+"  "+response2.getErrors().size());
-        response2.getErrors().stream().forEach(error -> System.out.println(error.toString()));
+//        System.out.println(response2.getSuccessCount() +"  "+response2.getFailureCount()+"  "+response2.getErrors().size());
+//        response2.getErrors().stream().forEach(error -> System.out.println(error.toString()));
 
         TopicManagementResponse response3 = FirebaseMessaging.getInstance().subscribeToTopic(tokenList, "like-" + notiSettingsDto.getUserId());
-        System.out.println(response3.getSuccessCount() +"  "+response3.getFailureCount()+"  "+response3.getErrors().size());
-        response3.getErrors().stream().forEach(error -> System.out.println(error.toString()));
+//        System.out.println(response3.getSuccessCount() +"  "+response3.getFailureCount()+"  "+response3.getErrors().size());
+//        response3.getErrors().stream().forEach(error -> System.out.println(error.toString()));
 
         User user = getUser(notiSettingsDto.getUserId());
         user.setMemoryNoti(true);
@@ -67,10 +68,10 @@ public class NotificationService {
             default:
                 throw new TypeNotDefineException(notiSettingsDto.getType());
         }
-        System.out.println("이벤트 구독: " + notiSettingsDto.getType() + "-" + notiSettingsDto.getUserId());
+//        System.out.println("이벤트 구독: " + notiSettingsDto.getType() + "-" + notiSettingsDto.getUserId());
         TopicManagementResponse response = FirebaseMessaging.getInstance().subscribeToTopic(tokenList, notiSettingsDto.getType() + "-" + notiSettingsDto.getUserId());
-        System.out.println(response.getSuccessCount() +"  "+response.getFailureCount()+"  "+response.getErrors().size());
-        response.getErrors().stream().forEach(error -> System.out.println(error.toString()));
+//        System.out.println(response.getSuccessCount() +"  "+response.getFailureCount()+"  "+response.getErrors().size());
+//        response.getErrors().stream().forEach(error -> System.out.println(error.toString()));
     }
 
     public void unsubscribe(NotiSettingsDto notiSettingsDto) throws FirebaseMessagingException {
@@ -92,11 +93,11 @@ public class NotificationService {
                 throw new TypeNotDefineException(notiSettingsDto.getType());
         }
 
-        System.out.println("이벤트 구독 해제:" + notiSettingsDto.getType() + "-" + notiSettingsDto.getUserId());
-        System.out.println(notiSettingsDto.getRegiToken());
+//        System.out.println("이벤트 구독 해제:" + notiSettingsDto.getType() + "-" + notiSettingsDto.getUserId());
+//        System.out.println(notiSettingsDto.getRegiToken());
         TopicManagementResponse response = FirebaseMessaging.getInstance().unsubscribeFromTopic(tokenList, notiSettingsDto.getType() + "-" + notiSettingsDto.getUserId());
-        System.out.println(response.getSuccessCount() +"  "+response.getFailureCount()+"  "+response.getErrors().size());
-        response.getErrors().stream().forEach(error -> System.out.println(error.toString()));
+//        System.out.println(response.getSuccessCount() +"  "+response.getFailureCount()+"  "+response.getErrors().size());
+//        response.getErrors().stream().forEach(error -> System.out.println(error.toString()));
     }
 
     public UserNotiDto getNotiInfo(String userId) {
@@ -138,6 +139,5 @@ public class NotificationService {
         );
         return user;
     }
-
 
 }

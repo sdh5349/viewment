@@ -65,7 +65,9 @@ public class Memory {
     }
 
     public void resetNearbyPins() {
-        nearbyPins.clear();
+        nearbyPins.stream().forEach(memoryPin -> {
+            memoryPin.setPin(null);
+        });
     }
 
     public void resetUser() {

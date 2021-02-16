@@ -30,7 +30,7 @@ public class NewLikeEventListener {
                         .build())
                 .setTopic("like-" + newLikeEvent.getTo().getId())
                 .build();
-        System.out.println("이벤트 발생: " + "like-" + newLikeEvent.getTo().getId());
+//        System.out.println("이벤트 발생: " + "like-" + newLikeEvent.getTo().getId());
         FirebaseMessaging.getInstance().send(message);
         saveNotification(newLikeEvent);
     }
