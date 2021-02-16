@@ -157,4 +157,13 @@ public class ImageUtil {
         fos.close();
         return file;
     }
+
+    public static void delete(String path) {
+        File file = new File(path);
+        System.out.println(path);
+        if(file.exists())
+            file.delete();
+        else
+            System.out.println("없음");
+    }
 }
