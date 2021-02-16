@@ -118,6 +118,14 @@ export default {
     this.loginUserId = sessionStorage.getItem('uid')
     this.readMore()
   },
+    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
+  scrolling (event) {
+    console.log(123)
+    const scrollInfo = event.target
+    if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+      this.readMore()
+    }
+  },
   methods: {
     // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드
     readMore() {
@@ -138,13 +146,6 @@ export default {
         console.log('Error', err.message);
         // self.$router.push({ name: 'Error' })
       })
-    },
-    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
-    scrolling (event) {
-      const scrollInfo = event.target
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
-        this.readMore()
-      }
     },
     // 팔로워의 프로필로 이동하는 메서드
     onProfileListItem (targetUserId) {

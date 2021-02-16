@@ -42,6 +42,7 @@ export default [
     {
         path : '/user/find',
         name : 'ConfirmEmail',
+        meta : {title: '비밀번호 재설정'},
         component : ConfirmEmail
     },
     {
@@ -111,13 +112,14 @@ export default [
     {
         path : '/article/:articleId',
         name : 'DetailArticle',
-        meta : { title: '게시글 수정'},
+        meta : { title: '게시글 상세'},
         component : DetailArticle,
         props: true,
     }, 
     {
         path : '/article/update/:articleId',
         name : 'UpdateArticle',
+        meta : { title: '게시글 수정'},
         component : UpdateArticle,
     }, 
     {

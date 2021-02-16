@@ -131,7 +131,17 @@ export default {
             self.addressName = result[0].address_name
         }
       }
+      if (self.pinInfo !=''){
+        self.pinInfo.setMap(null)
+      }
       geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
+      self.pin = new kakao.maps.Marker({
+        map: self.map,
+        position: self.coordinates
+      })
+      self.pinInfo = self.pin  
+      
+      
       self.address = ''
       self.searchedLocations = []
       
@@ -265,18 +275,25 @@ export default {
 <style scoped>
 .address-search-field {
   position: absolute;
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
 }
 .address-list-card {
   position: absolute;
   top: 50px;
   z-index: 9999;
-  height: 600px;
+  height:30vh;
+  padding: 0;
+  margin: 0;
 }
 .map_wrap {
+  padding: 0;
   position:relative;
   width:100%;
-  height:70vh;
+  height:35vh;
   top: 100px;
+  margin: 0;
 }
 
 .map {
@@ -297,7 +314,7 @@ export default {
 }
 #centerAddr {
   display:block;
-  margin-top:2px;
+  /* margin-top:2px; */
   font-weight: normal;
   font-size: 10%
 }

@@ -304,7 +304,7 @@ export default {
       axios.delete(`${SERVER_URL}/articles/`+ this.articleId, this.getToken )
       .then((res) => {
         alert('게시물 삭제 완료')
-        this.$router.push({name: 'Feed'})
+        this.$router.push({name: 'NewsFeed'})
       })
     },
     clickHashtag(res){

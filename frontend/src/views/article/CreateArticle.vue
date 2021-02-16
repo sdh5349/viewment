@@ -6,28 +6,62 @@
     <v-col
       lg="4"
       md="4"
-      sm="6"
+      sm="6"      
     >
 
   <v-stepper
+    class="stepper-container"
     v-model="e6"
     vertical
+    
   >
-    <v-stepper-step
-      :complete="e6 > 1"
-      step="1"
-      @click="e6 = 1"
-    >
-      사진 추가하기
-      <small>설명 추가할께 있나?</small>
-    </v-stepper-step>
+
+      <v-stepper-step
+        :complete="e6 > 1"
+        step="1"
+      >
+        사진
+        
+      </v-stepper-step>
+
 
     <v-stepper-content step="1" >
 
+  
+
         <v-card
           class="img-card-container"
+          elevation='0'
         >
-        
+
+
+        <v-row 
+          v-if="this.preview.length != 0"
+          class="d-flex justify-space-between text-center m-t-3">
+          <v-col cols="3" class="close-button">
+            <v-btn text @click='imageDelete(index)' color="black">
+              <v-icon>
+                mdi-close
+              </v-icon>
+            </v-btn> 
+          </v-col>
+
+          <v-col cols="3">
+            <v-file-input
+              color="black"
+              accept="image/*"
+              v-model="files"
+              multiple 
+              @change="previewImg"   
+              prepend-icon = mdi-camera 
+              hide-input  
+              >
+            </v-file-input> 
+          </v-col>
+
+        </v-row>
+
+
         <v-file-input
           v-if="this.preview.length == 0"
           accept="image/*"
@@ -46,7 +80,7 @@
           :show-arrows="false"
           hide-delimiter-background
           delimiter-icon="mdi-checkbox-blank-circle-outline"
-          height="100%"
+          height="250px"
         >
         
         <v-carousel-item
@@ -54,47 +88,39 @@
           :key="index"
           :src="file.url"             
           >   
-          <v-row class="d-flex justify-space-between text-center">
-            <v-col cols="6">
-              <v-btn text @click='imageDelete(index)' color="black">
-                <v-icon>
-                  mdi-close
-                </v-icon>
-              </v-btn> 
-            </v-col>
 
-            <v-col cols="6">
-              <v-btn icon color="black">
-                <v-icon>mdi-plus
-                <v-file-input
-                  accept="image/*"
-                  v-model="files"
-                  multiple 
-                  @change="previewImg"    
-                  hide-input  
-                  >
-                </v-file-input> 
-                </v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
           </v-carousel-item>
         </v-carousel>
       </v-card>
+      
 
-
-      <v-btn
-        color="primary"
-        @click="e6 = 2"
-      >
-        다음
-      </v-btn>
-      <v-btn 
-        @click="goHome"
-      >
-        취소
-      </v-btn>
+      <v-row class="button-container">
+        <v-col cols="6">
+          <v-btn 
+            block
+            @click="goHome"
+          >
+            취소
+          </v-btn>
+        </v-col>
+        
+        <v-col cols="6">
+          <v-btn 
+            :disabled="this.preview.length == 0"
+            block
+            color="primary"
+            @click="e6 = 2"
+            
+          >
+            다음
+          </v-btn>
+        </v-col>
+      </v-row>
+          
+      
     </v-stepper-content>
+
+
 
 
 
@@ -102,10 +128,9 @@
     <v-stepper-step
       :complete="e6 > 2"
       step="2"
-      @click="e6 = 2"
     >
-      게시글 해시태그 날짜
-      <small>설명 추가할께 있나?</small>
+      정보
+      
     </v-stepper-step>
 
     <v-stepper-content step="2">
@@ -113,11 +138,12 @@
         color="lighten-1"
         class="mb-12"
         height="350px"
+        elevation='0'
       >
-        <validation-provider rules="required" v-slot="{ errors }">
-          <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" :error-messages="errors"
+        
+          <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" 
           outlined></v-textarea>
-        </validation-provider>
+        
       
         <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search">
           <template v-slot:selection="data">
@@ -173,49 +199,69 @@
 
 
       </v-card>
-      <v-btn
-        color="primary"
-        @click="e6 = 3"
-      >
-        다음
-      </v-btn>
-      <v-btn 
-        @click="goHome"
-      >
-        이전
-      </v-btn>
+
+
+      <v-row class="button-container">
+        <v-col cols="6">
+          <v-btn 
+            block
+            @click="goHome"
+          >
+            이전
+          </v-btn>
+        </v-col>
+        <v-col cols="6">
+          <v-btn
+            :disabled="this.contents.length == 0"
+            block
+            color="primary"
+            @click="e6 = 3"
+          >
+            다음
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-stepper-content>
 
     <v-stepper-step
       :complete="e6 > 3"
       step="3"
-      @click="e6 = 3"
     >
-      위치 지정
-      <small>설명 추가할께 있나?</small>
+      위치
+      
     </v-stepper-step>
 
     <v-stepper-content step="3">
       <v-card
         color="lighten-1"
-        class="mb-12"
-        height="600px"
+        class="mb-0"
+        height="50vh"
+        elevation='0'
       >
       
       <SetLocation @onClick="savePosition"></SetLocation>
       
       </v-card>
-      <v-btn
-        color="primary"
-        @click="onSumbit"
-      >
-        완료
-      </v-btn>
-      <v-btn 
-        @click="e6 = 2"
-      >
-        이전
-      </v-btn>
+      <v-row class="button-container">
+        <v-col cols="6">
+          <v-btn 
+            block
+            @click="e6 = 2"
+          >
+            이전
+          </v-btn>
+        </v-col>
+        <v-col cols="6">
+          <v-btn
+            :disabled="this.articleInfo.lat == ''"
+            block
+            color="primary"
+            @click="onSumbit"
+          >
+            완료
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-stepper-content>
 
 
@@ -232,8 +278,8 @@
 <script>
 import axios from 'axios'
 import SetLocation from "@/components/article/SetLocation.vue" 
-import { required } from 'vee-validate/dist/rules'
-import { extend, setInteractionMode, ValidationProvider } from 'vee-validate'
+import { required, min, max } from 'vee-validate/dist/rules'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 import { mdiCloseCircleOutline } from '@mdi/js'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -242,7 +288,7 @@ const request = axios.CancelToken.source()
 
 
 // https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-setInteractionMode('eager') // 유효성 검사의 시기
+// setInteractionMode('eager') // 유효성 검사의 시기
 
 extend('required', {
   ...required,
@@ -251,7 +297,6 @@ extend('required', {
 
 export default {
   components: {
-    ValidationProvider,
     SetLocation,
   },
   data: () => {
@@ -396,9 +441,13 @@ export default {
 </script>
 
 <style scoped>
+.stepper-container{
+  height: 85vh;
+}
 .img-card-container {
   position: relative;
-  height: 300px; 
+  height: 40vh; 
+
 }
 
 .file-input {
@@ -413,6 +462,11 @@ export default {
   margin-top: -15px;
   z-index: 9999;
 }
-
-
+.button-container{
+  justify-content: space-between;
+}
+.close-button {
+  /* margin-bottom: 0;
+  padding-bottom: 0;  */
+}
 </style>
