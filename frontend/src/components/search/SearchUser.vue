@@ -7,7 +7,7 @@
       <v-virtual-scroll
         :items="scrollUsers"
         :item-height="50"
-        class="scroll-container"
+        max-height="80vh"
         @scroll="scrolling"
         id="scroll"
       >

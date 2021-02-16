@@ -205,7 +205,6 @@ export default {
       }
     },
     onProfileImage() {
-      console.log(">>")
       this.$router.push({name: 'Profile', params: { profileUserId: this.articleInfo.user.userId }})
     }
   }

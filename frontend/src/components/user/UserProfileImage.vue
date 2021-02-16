@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d-flex align-center"
+    class="d-flex"
   >
     <v-avatar
       :size="`${size}rem`"
@@ -14,7 +14,10 @@
         src="@/assets/images/account.png"
       >
     </v-avatar>
-    <span class="pl-1" :style="`font-size: ${fontSize}rem;`">{{nickname}}</span>
+    <div class="pl-1 align-self-center">
+      <span :style="`font-size: ${fontSize}rem;`">{{nickname}}</span>
+      <p class="mb-0 text-caption" style="color: grey;" v-if="writeDate">{{writeDate}}</p>
+    </div>
   </div>
 </template>
 
@@ -37,7 +40,8 @@ export default {
     fontSize: {
       type: Number,
       default: 1,
-    }
+    },
+    writeDate: String
   },
   data() {
     return {
