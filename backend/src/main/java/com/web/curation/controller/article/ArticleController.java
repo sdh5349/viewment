@@ -46,7 +46,7 @@ public class ArticleController {
 
     @ApiOperation(value = "게시글 작성, 핀X", notes = "adressName, contents, hashtags, lat, lng, userId 필수 \n 해시태그가 없을 경우 비어있는 배열이라도 보내주세요")
     @PostMapping({""})
-    public ResponseEntity<?> writeArticleNoPin(@RequestBody ArticleDto articleDto) throws Exception {
+    public ResponseEntity<Long> writeArticleNoPin(@RequestBody ArticleDto articleDto) throws Exception {
 
         Article savedArticle = articleService.write(articleDto);
         return ResponseEntity.ok().body(savedArticle.getArticleId());
@@ -54,14 +54,14 @@ public class ArticleController {
 
     @ApiOperation(value = "게시글 작성, 핀O", notes = "adressName, contents, hashtags, pinId, userId 필수 \n 해시태그가 없을 경우 비어있는 배열이라도 보내주세요")
     @PostMapping({"/pin"})
-    public ResponseEntity<?> writeArticlewithPin(@RequestBody ArticleDto articleDto) throws Exception {
+    public ResponseEntity<Long> writeArticlewithPin(@RequestBody ArticleDto articleDto) throws Exception {
         Article savedArticle = articleService.write(articleDto);
         return ResponseEntity.ok().body(savedArticle.getArticleId());
     }
 
     @ApiOperation(value = "article id로 게시글 조회, 상세페이지에 사용")
     @GetMapping("/{articleId}")
-    public ResponseEntity<?> getArticleByArticleId(@PathVariable("articleId") Long articleId, Authentication authentication){
+    public ResponseEntity<ArticleInfoDto> getArticleByArticleId(@PathVariable("articleId") Long articleId, Authentication authentication){
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
 
         ArticleInfoDto articleInfoDto = articleService.findByArticleId(currentUserId, articleId);
@@ -70,49 +70,49 @@ public class ArticleController {
 
     @ApiOperation(value = "user id로 게시글 조회, 사용자 프로필 피드 탭에 사용")
     @GetMapping("/searchbyuserid/{userId}")
-    public ResponseEntity<?> getArticleByUserId(@PathVariable("userId") String userId){
+    public ResponseEntity<List<ArticleSimpleDto>> getArticleByUserId(@PathVariable("userId") String userId){
         List<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId);
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
     @ApiOperation(value = "user id로 게시글 조회, 사용자 프로필 피드 탭에 사용 - 페이징")
     @GetMapping("/searchbyuserid/{userId}/pg")
-    public ResponseEntity<?> getArticleByUserId(@PathVariable("userId") String userId, PageRequest pageRequest){
+    public ResponseEntity<Page<ArticleSimpleDto>> getArticleByUserId(@PathVariable("userId") String userId, PageRequest pageRequest){
         Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId, pageRequest.of(Sort.by("wdate").descending()));
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
     @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용")
     @GetMapping("/searchbyhashtag/{hashtag}")
-    public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag) {
+    public ResponseEntity<List<ArticleSimpleDto>> getArticlesByHashtag(@PathVariable("hashtag") String hashtag) {
         List<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag);
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
     @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용 - 페이징")
     @GetMapping("/searchbyhashtag/{hashtag}/pg")
-    public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag, PageRequest pageRequest) {
+    public ResponseEntity<Page<ArticleSimpleDto>> getArticlesByHashtag(@PathVariable("hashtag") String hashtag, PageRequest pageRequest) {
         Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag, pageRequest);
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
     @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회")
     @GetMapping("/feed/{userId}")
-    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+    public ResponseEntity<List<ArticleFeedDto>> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
         List<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
     @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회 - 페이징")
     @GetMapping("/feed/{userId}/pg")
-    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng, PageRequest pageRequest) {
+    public ResponseEntity<Page<ArticleFeedDto>> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng, PageRequest pageRequest) {
         Page<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng, pageRequest.of());
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
     @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 => 수정버전!", notes = "start 혹은 end가 공백이거나 null일 경우 전체 조회, 반대의 경우 기간 조회를 합니다")
     @GetMapping("/pins")
-    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, String start, String end) {
+    public ResponseEntity<List<ArticleSimpleDto>> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, String start, String end) {
         List<ArticleSimpleDto> articleSimpleDtos = null;
         if(start == null || start.length() == 0 || end == null || end.length() == 0 )
              articleSimpleDtos = articleService.getArticlesByPins(pinIds);
@@ -123,7 +123,7 @@ public class ArticleController {
 
     @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 => 이전버전")
     @GetMapping("/pins/period")
-    public ResponseEntity<?> getArticlesByPinsPeriod(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
+    public ResponseEntity<List<ArticleSimpleDto>> getArticlesByPinsPeriod(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
