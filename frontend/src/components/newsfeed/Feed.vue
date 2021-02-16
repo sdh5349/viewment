@@ -15,7 +15,7 @@
     v-else
     :items="feedItems"
     item-height="500"
-    class="scroll-container"
+    max-height="80vh"
     @scroll.native="scrolling"
   >
     <template v-slot:default="{ item }">

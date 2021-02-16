@@ -1,5 +1,8 @@
 package com.web.curation.service.article;
 
+import com.web.curation.commons.PageRequest;
+import com.web.curation.domain.Image;
+import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
@@ -12,28 +15,35 @@ import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.event.NewArticleEvent;
+import com.web.curation.event.NewLikeEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
+import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.like.LikeRepository;
+import com.web.curation.repository.memory.MemoryPinRepository;
 import com.web.curation.repository.memory.MemoryRepository;
+import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
+import com.web.curation.service.notification.NotificationService;
 import com.web.curation.util.DistanceUtil;
+import com.web.curation.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -53,14 +63,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArticleService {
 
+    @Value("${image.path}")
+    private String DIR;
+
     private final ArticleRepository articleRepository;
 
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
     private final MemoryRepository memoryRepository;
+    private final MemoryPinRepository memoryPinRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
+    private final ImageRepository imageRepository;
+    private final NotificationRepository notificationRepository;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -108,11 +124,21 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public List<ArticleSimpleDto> findByHashtag(String hashtag) {
-        List<Article> articles = articleRepository.findByHashtag(hashtag);
-        List<ArticleSimpleDto> result = new ArrayList<>();
-        for (int i = 0; i < articles.size(); i++) {
-            result.add(new ArticleSimpleDto(articles.get(i)));
-        }
+        List<ArticleSimpleDto> result = articleRepository.findByHashtag(hashtag).stream()
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ArticleSimpleDto> findByHashtag(String hashtag, PageRequest pageable) {
+        Page<Article> articles = articleRepository.findByHashtag(hashtag, pageable.of(Sort.by("wdate").descending()));
+        Page<ArticleSimpleDto> result = articles
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                });
         return result;
     }
 
@@ -127,8 +153,8 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ArticleSimpleDto> findByUserId(String userId, Pageable pageable) {
-        Page<Article> articles = articleRepository.findByUserId(userId, pageable);
+    public Page<ArticleSimpleDto> findByUserId(String userId, PageRequest pageable) {
+        Page<Article> articles = articleRepository.findByUserId(userId, pageable.of(Sort.by("wdate").descending()));
 
         Page<ArticleSimpleDto> result = articles
                 .map(article -> {
@@ -166,6 +192,46 @@ public class ArticleService {
                 })
                 .collect(Collectors.toList());
         return result;
+    }
+
+    public Page<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng, PageRequest pageRequest) {
+        Set<Article> articles = new HashSet<>();
+
+        User user = getUser(userId);
+        user.getMemories().stream()
+                .forEach(memory -> {
+                    memory.getNearbyPins().stream()
+                            .forEach(memoryPin -> {
+                                articles.addAll(memoryPin.getPin().getArticles());
+                            });
+                });
+
+        List<ArticleFeedDto> result = articles.stream()
+                .map(article -> {
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
+                    Point point = article.getPin().getLocation();
+                    dto.setDistance(DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX()));
+
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        Collections.sort(result, (a, b)-> Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
+
+        Pageable pageable = pageRequest.of();
+        int s = pageable.getPageNumber();
+        int e = pageable.getPageSize();
+
+        int fromIdx = s*e<result.size() ? (s*e) : result.size();
+        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+        result = result.subList(fromIdx, toIdx);
+
+        return new PageImpl<ArticleFeedDto>(result, pageable, result.size()) ;
     }
 
     @Transactional(readOnly = true)
@@ -212,9 +278,39 @@ public class ArticleService {
 
     public void delete(Long articleId) {
         Article findArticle = getArticle(articleId);
+        Pin pin = getPin(findArticle.getPin().getPinId());
+        List<Hashtag> hashtags = findArticle.getHashtags();
+        List<Image> images = findArticle.getArticleImages().stream()
+                .map(articleImage -> {
+                    return articleImage.getImage();
+                })
+                .collect(Collectors.toList());
+
         findArticle.resetHashtag();
         findArticle.resetUser();
+        findArticle.resetPin();
+        notificationRepository.deleteByArticle(findArticle);
         articleRepository.delete(findArticle);
+
+        if(pin.getArticles().size() == 0) {
+            List<MemoryPin> memoryPins = memoryPinRepository.findByPin(pin);
+            memoryPins.stream().forEach(memoryPin -> {
+                memoryPin.resetMemoryPin();
+                memoryPinRepository.delete(memoryPin);
+            });
+            pinRepository.delete(pin);
+        }
+
+        hashtags.stream().forEach(hashtag -> {
+            if(hashtag.getArticles().size() == 0)
+                hashtagRepository.delete(hashtag);
+        });
+
+        ImageUtil.delete(DIR + "thumbnail/" + articleId);
+        images.stream().forEach(image -> {
+            ImageUtil.delete(DIR + image.getPath());
+            imageRepository.delete(image);
+        });
     }
 
     public void setData(ArticleDto articleDto, Article article) {
@@ -263,6 +359,9 @@ public class ArticleService {
 
         user.addLike(like);
         article.addLike(like);
+
+        if(article.getUser().isLikeNoti() && article.getUser().getId() != user.getId())
+            eventPublisher.publishEvent(new NewLikeEvent(user, article.getUser(), article));
     }
 
     @Transactional
@@ -324,4 +423,6 @@ public class ArticleService {
         );
         return pin;
     }
+
+
 }

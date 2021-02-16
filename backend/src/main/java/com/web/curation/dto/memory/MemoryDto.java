@@ -25,7 +25,7 @@ public class MemoryDto {
     @NotBlank
     private String name;
 
-    @DecimalMax(value = "100")
+    @DecimalMax(value = "1500")
     @DecimalMin(value = "1")
     private int radius;
 
@@ -42,7 +42,6 @@ public class MemoryDto {
         this.memoryId = memory.getId();
         this.name = memory.getName();
         this.radius = memory.getRadius();
-        this.notification = memory.isNotification();
         this.lat = memory.getLocation().getY();//위도
         this.lng = memory.getLocation().getX();//경도
     }

@@ -3,11 +3,14 @@ package com.web.curation.service.user;
 import com.web.curation.domain.User;
 import com.web.curation.domain.connection.Follow;
 import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.event.NewArticleEvent;
+import com.web.curation.event.NewFollowerEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,8 @@ public class FollowServiceImpl implements FollowService{
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     public User getUser(String userId){
         User user = userRepository.findById(userId).orElseThrow(
                 ()->{throw new UserNotFoundException(); }
@@ -50,6 +55,9 @@ public class FollowServiceImpl implements FollowService{
         follow.setTo(to);
 
         followRepository.save(follow);
+
+        if(to.isFollowNoti())
+            eventPublisher.publishEvent(new NewFollowerEvent(from, to));
 
         return follow.getId();
     }

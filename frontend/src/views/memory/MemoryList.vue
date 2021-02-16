@@ -20,17 +20,10 @@
       md="4"
       sm="6"
     >
-      <!-- <div v-if="loading" class="d-flex justify-center align-center">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-        ></v-progress-circular>
-      </div> -->
-
       <v-virtual-scroll
         :items="memories"
         :item-height="50"
-        class="scroll-container"
+        max-height="80vh"
         @scroll.native="scrolling"
       >
         <template v-slot:default="{ item }">
@@ -130,6 +123,7 @@ export default {
     },
     // 현재는 데이터를 한번에 받아 사용하지 않지만 추후 데이터를 특정 개수씩 받아오면 필요함
     scrolling (event) {
+      console.log(">>>>")
       const scrollInfo = event.target
       if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
         // 
@@ -168,7 +162,6 @@ export default {
   .scroll-container {
     width: 100%;
     height: 100%;
-    overflow: hidden;
     margin-bottom: 50px;
   }
 </style>

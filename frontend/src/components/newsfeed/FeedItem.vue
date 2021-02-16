@@ -28,7 +28,7 @@
   </v-card-title>
 
   <v-divider></v-divider>
-  <p class="text-overline mb-0">{{articleInfo.wdate | dateFormat()}}</p>
+  <p class="text-body-1 mb-0">{{articleInfo.wdate | dateFormat()}}</p>
   <!-- <v-row class="ma-0"> -->
   <!-- </v-row> -->
 
@@ -205,7 +205,6 @@ export default {
       }
     },
     onProfileImage() {
-      console.log(">>")
       this.$router.push({name: 'Profile', params: { profileUserId: this.articleInfo.user.userId }})
     }
   }

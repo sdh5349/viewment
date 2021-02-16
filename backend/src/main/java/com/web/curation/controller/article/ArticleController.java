@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,10 +74,24 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
+    @ApiOperation(value = "user id로 게시글 조회, 사용자 프로필 피드 탭에 사용 - 페이징")
+    @GetMapping("/searchbyuserid/{userId}/pg")
+    public ResponseEntity<?> getArticleByUserId(@PathVariable("userId") String userId, PageRequest pageRequest){
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId, pageRequest);
+        return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
     @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용")
     @GetMapping("/searchbyhashtag/{hashtag}")
     public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag) {
         List<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag);
+        return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
+    @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용 - 페이징")
+    @GetMapping("/searchbyhashtag/{hashtag}/pg")
+    public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag, PageRequest pageRequest) {
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag, pageRequest);
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
@@ -87,16 +102,27 @@ public class ArticleController {
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
-    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지")
-    @GetMapping("/pins")
-    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+    @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회 - 페이징")
+    @GetMapping("/feed/{userId}/pg")
+    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng, PageRequest pageRequest) {
+        Page<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng, pageRequest);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
-    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 (기간조회)")
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 => 수정버전!", notes = "start 혹은 end가 공백이거나 null일 경우 전체 조회, 반대의 경우 기간 조회를 합니다")
+    @GetMapping("/pins")
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, String start, String end) {
+        List<ArticleSimpleDto> articleSimpleDtos = null;
+        if(start == null || start.length() == 0 || end == null || end.length() == 0 )
+             articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+        else
+             articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 => 이전버전")
     @GetMapping("/pins/period")
-    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
+    public ResponseEntity<?> getArticlesByPinsPeriod(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }

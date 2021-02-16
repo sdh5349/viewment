@@ -5,10 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NotiDto {
+public class NotiSettingsDto {
 
     private String regiToken;
     private String userId;
-    private Long memoryId;
+    private String type;
 
 }

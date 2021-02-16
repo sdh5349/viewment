@@ -57,7 +57,6 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   data() {
     return {
-      loading: false,
       Historys: [],
       profileImageUrl: `${SERVER_URL}/images/`,
     }
@@ -74,17 +73,21 @@ export default {
     }
   },
   methods: {
+    // 검색기록
     getSearchedlog() {
+      // this.loading = true
       var record = JSON.parse(localStorage.getItem('Historys'))
       if (record) {
         this.Historys = record.reverse()
       }
     },
+    // 검색기록 삭제
     removeHistory(History) {
       const targetHistoryIdx = this.Historys.indexOf(History)
       this.Historys.splice(targetHistoryIdx, 1)
       localStorage.setItem("Historys", JSON.stringify(this.Historys))
     },
+    // 검색기록 click시 가장 위로(최근검색)으로 올려주고 각 page로 이동
     goPage(History) {
       var tempArray
       tempArray = JSON.parse(localStorage.getItem('Historys'))
@@ -106,6 +109,7 @@ export default {
     },
   },
   created() {
+    this.loginUserId = sessionStorage.getItem('uid')
     this.getSearchedlog()
   },
   watch: {

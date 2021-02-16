@@ -3,13 +3,14 @@
     class="mx-auto mt-5"
     flat
   >
+
       <v-virtual-scroll
         :items="scrollUsers"
         :item-height="50"
-        class="scroll-container"
-        @scroll.native="scrolling"
+        max-height="80vh"
+        @scroll="scrolling"
+        id="scroll"
       >
-      
       <template v-slot:default="{ item }">
         <v-list-item
           @click="goProfile(item)"
@@ -59,7 +60,7 @@
 <script>
 import axios from 'axios'
 import UserProfileImage from '@/components/user/UserProfileImage'
-import { mdiChessBishop } from '@mdi/js'
+// import { mdiChessBishop } from '@mdi/js'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -78,12 +79,12 @@ export default {
   },
   data() {
     return {
-      users: [],
+      // users: [],
       scrollUsers: [],
       profileImageUrl: `${SERVER_URL}/images/`,
       loginUserId: sessionStorage.getItem('uid'),
       page: 0,
-      size: 200,
+      size: 5,
       last: false,
     }
   },
@@ -102,13 +103,12 @@ export default {
   methods: {
     // User정보 가져오기
     getUsers() {
-      var params = {page:this.page, size:10}
+      var params = {page:this.page, size:this.size}
+      console.log(this.page)
         if(this.search){
           axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
             .then(res => {
-              console.log(res)
-              
-              // this.users = res.data.content
+              console.log(res.data)
               this.scrollUsers.push(...res.data.content)
               console.log(this.scrollUsers)
               this.page += 1
@@ -160,12 +160,12 @@ export default {
     },
     // follow 기능
     onFollowButton (targetUser) {
-      const targetUserIdx = this.users.indexOf(targetUser)
+      const targetUserIdx = this.scrollUsers.indexOf(targetUser)
       
       if (targetUser.followed) {
         axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
-          this.users[targetUserIdx].followed = !this.users[targetUserIdx].followed
+          this.scrollUsers[targetUserIdx].followed = !this.scrollUsers[targetUserIdx].followed
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -176,7 +176,7 @@ export default {
         var params = {'targetUserId' : targetUser.userId }
         axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
-          this.users[targetUserIdx].followed = !this.users[targetUserIdx].followed 
+          this.scrollUsers[targetUserIdx].followed = !this.scrollUsers[targetUserIdx].followed 
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -188,10 +188,22 @@ export default {
     // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
     scrolling (event) {
       const scrollInfo = event.target
+      console.log(event)
+      // console.log(scrollInfo)
+      // var elemHeight = $("#container")[0].scrollHeight;
+      // var scrollHeight = $("#scrollbars")[0].scrollHeight;
+      console.log(document.getElementById("scroll"))
       if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
         this.getUsers()
       }
+      // this.getUsers()
     },
+  },
+  created () {
+    window.addEventListener('scroll', this.scrolling);
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.scrolling);
   },
   watch: {
     onTab: {
@@ -204,6 +216,8 @@ export default {
     },
     search() {
       if(this.onTab===3){
+        this.page = 0
+        this.scrollUsers = []
         this.getUsers()  
       }
     },
@@ -212,11 +226,11 @@ export default {
 </script>
 
 <style scoped>
+/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
 .scroll-container {
   width: 100%;
-  height: 500px;
+  height: 80vh;
   overflow: hidden;
   margin-bottom: 50px;
 }
-
 </style>

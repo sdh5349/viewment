@@ -1,5 +1,6 @@
 package com.web.curation.service.memory;
 
+import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
@@ -8,10 +9,13 @@ import com.web.curation.dto.memory.MemoryDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.memory.MemoryRepository;
+import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,32 +26,36 @@ import java.util.stream.Collectors;
 /**
  * com.web.curation.service.memory
  * MemoryServiceImpl.java
- * @date    2021-01-28
- * @author  김종성
  *
- * @변경이력
- * 이주희 21-02-09 기억하기 주변 핀 저장 기능 추가
+ * @author 김종성
+ * @date 2021-01-28
+ * @변경이력 이주희 21-02-09 기억하기 주변 핀 저장 기능 추가
  **/
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class MemoryServiceImpl implements MemoryService{
+public class MemoryServiceImpl implements MemoryService {
 
     private final MemoryRepository memoryRepository;
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
+    private final NotificationRepository notificationRepository;
 
-    public User getUser(String userId){
+    public User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> { throw new UserNotFoundException();}
+                () -> {
+                    throw new UserNotFoundException();
+                }
         );
         return user;
     }
 
-    public Memory getMemory(Long memoryId){
+    public Memory getMemory(Long memoryId) {
         return memoryRepository.findById(memoryId).orElseThrow(
-                ()->{ throw new ElementNotFoundException("Memory", memoryId.toString());}
+                () -> {
+                    throw new ElementNotFoundException("Memory", memoryId.toString());
+                }
         );
     }
 
@@ -60,7 +68,6 @@ public class MemoryServiceImpl implements MemoryService{
         memory.setUser(user);
         memory.setLocation(memoryDto.getLat(), memoryDto.getLng());
         memory.setRadius(memoryDto.getRadius());
-        memory.setNotification(false);
 
         memoryRepository.save(memory);
         user.addMemory(memory);
@@ -82,10 +89,22 @@ public class MemoryServiceImpl implements MemoryService{
     }
 
     @Override
+    public Page<MemoryDto> getMemories(String userId, PageRequest pageRequest) {
+        User user = getUser(userId);
+
+        Page<MemoryDto> result = memoryRepository.findByUser(user, pageRequest.of(Sort.by("id").descending()))
+                .map(memory -> {
+                    return new MemoryDto(memory);
+                });
+        return result;
+    }
+
+    @Override
     public Long deleteMemory(Long memoryId) {
         Memory memory = getMemory(memoryId);
         memory.resetUser();
         memory.resetNearbyPins();
+        notificationRepository.deleteByMemory(memory);
         memoryRepository.delete(memory);
         return memoryId;
     }
@@ -100,8 +119,8 @@ public class MemoryServiceImpl implements MemoryService{
     private void setNearbyPins(Memory memory, MemoryDto memoryDto) {
         pinRepository.findAll().stream()
                 .forEach(pin -> {
-                    if(memoryDto.getRadius() >= DistanceUtil.calcDistance(memoryDto.getLat(),memoryDto.getLng(),pin.getLocation().getY(),pin.getLocation().getX()))
-                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
+                    if (memoryDto.getRadius() >= DistanceUtil.calcDistance(memoryDto.getLat(), memoryDto.getLng(), pin.getLocation().getY(), pin.getLocation().getX()))
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory, pin));
                 });
     }
 }

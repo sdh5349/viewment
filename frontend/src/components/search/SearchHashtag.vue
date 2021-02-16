@@ -40,6 +40,9 @@ export default {
     return {
       hashtags: [],
       Historys: [],
+      page: 0,
+      size: 200,
+      last: false,
     }
   },
   props: {
@@ -66,12 +69,14 @@ export default {
     }
   },
   methods: {
+    // Hashtag 가져오기
     getHashtags() {
       if(this.search){
         axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
           .then((res) => {
           console.log(res) 
           console.log(res.data)
+          console.log(res.data.last)
           this.hashtags = res.data
           })
           .catch((err)=> {
@@ -79,6 +84,7 @@ export default {
           })
       }
     },
+    // 그리드로 page로 데이터 포함해 이동
     goGrid(hash) {
       console.log(hash.contents)
       this.$router.push({name: 'SearchHashtagGrid', params: {clickedHash: hash.contents}})
@@ -91,6 +97,7 @@ export default {
         }
       this.appendToStorage(this.History)
     },
+    // 검색기록을 위한 localstorage 저장(중복제거)
     appendToStorage(History) {
       var tempArray
       if (localStorage.getItem('Historys') === null) {
@@ -105,6 +112,13 @@ export default {
       }
       tempArray.push(History)
       localStorage.setItem('Historys', JSON.stringify(tempArray))   
+    },
+    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
+    scrolling (event) {
+      const scrollInfo = event.target
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+        this.getHashtags()
+      }
     },
   },
   watch: {
