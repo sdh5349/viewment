@@ -1,277 +1,170 @@
 <template>
-  <v-row
-    justify="center"
-    position: relative
-  >
-    <v-col
-      lg="4"
-      md="4"
-      sm="6"      
-    >
-
-  <v-stepper
-    class="stepper-container"
-    v-model="e6"
-    vertical
-    
-  >
-
-      <v-stepper-step
-        :complete="e6 > 1"
-        step="1"
-      >
-        사진
-        
-      </v-stepper-step>
-
-
-    <v-stepper-content step="1" >
-
+  <v-row justify="center" position: relative>
+    <v-col lg="4" md="4" sm="6">
   
-
-        <v-card
-          class="img-card-container"
-          elevation='0'
-        >
-
-
-        <v-row 
-          v-if="this.preview.length != 0"
-          class="d-flex justify-space-between text-center m-t-3">
-          <v-col cols="3" class="close-button">
-            <v-btn text @click='imageDelete(index)' color="black">
-              <v-icon>
-                mdi-close
-              </v-icon>
-            </v-btn> 
-          </v-col>
-
-          <v-col cols="3">
-            <v-file-input
-              color="black"
-              accept="image/*"
-              v-model="files"
-              multiple 
-              @change="previewImg"   
-              prepend-icon = mdi-camera 
-              hide-input  
-              >
-            </v-file-input> 
-          </v-col>
-
-        </v-row>
-
-
-        <v-file-input
-          v-if="this.preview.length == 0"
-          accept="image/*"
-          multiple 
-          v-model="files"
-          @change="previewImg"
-          hide-input  
-          prepend-icon = mdi-camera
-          class="file-input"
-          
-          ></v-file-input> 
-
-
-        <v-carousel
-          class="carousel-container"
-          :show-arrows="false"
-          hide-delimiter-background
-          delimiter-icon="mdi-checkbox-blank-circle-outline"
-          height="250px"
-        >
-        
-        <v-carousel-item
-          v-for="(file, index) in preview" 
-          :key="index"
-          :src="file.url"             
-          >   
-
-          </v-carousel-item>
-        </v-carousel>
-      </v-card>
-      
-
-      <v-row class="button-container">
-        <v-col cols="6">
-          <v-btn 
-            block
-            @click="goHome"
-          >
-            취소
-          </v-btn>
-        </v-col>
-        
-        <v-col cols="6">
-          <v-btn 
-            :disabled="this.preview.length == 0"
-            block
-            color="primary"
-            @click="e6 = 2"
-            
-          >
-            다음
-          </v-btn>
-        </v-col>
-      </v-row>
-          
-      
-    </v-stepper-content>
-
-
-
-
-
-
-    <v-stepper-step
-      :complete="e6 > 2"
-      step="2"
-    >
-      정보
-      
-    </v-stepper-step>
-
-    <v-stepper-content step="2">
-      <v-card
-        color="lighten-1"
-        class="mb-12"
-        height="350px"
-        elevation='0'
-      >
-        
-          <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" 
-          outlined></v-textarea>
-        
-      
-        <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search">
-          <template v-slot:selection="data">
-            <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
-              :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
-              <v-avatar class="accent white--text" left v-text="'#'" ></v-avatar>
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-combobox> 
-      
-      <v-menu
-        ref="menu"
-        v-model="menu"
-        :close-on-content-click="false"
-        :return-value.sync="date"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-            v-model="date"
-            label="날짜 선택"
-            prepend-icon="mdi-calendar"
-            readonly
-            v-bind="attrs"
-            v-on="on"
-          ></v-text-field>
-        </template>
-        <v-date-picker
-          v-model="date"
-          no-title
-          scrollable
-        >
-          <v-spacer></v-spacer>
-          <v-btn
-            text
-            color="primary"
-            @click="menu = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            text
-            color="primary"
-            @click="$refs.menu.save(date)"
-          >
-            OK
-          </v-btn>
-        </v-date-picker>
-      </v-menu>
-
-
-      </v-card>
-
-
-      <v-row class="button-container">
-        <v-col cols="6">
-          <v-btn 
-            block
-            @click="goHome"
-          >
-            이전
-          </v-btn>
-        </v-col>
-        <v-col cols="6">
-          <v-btn
-            :disabled="this.contents.length == 0"
-            block
-            color="primary"
-            @click="e6 = 3"
-          >
-            다음
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-stepper-content>
-
-    <v-stepper-step
-      :complete="e6 > 3"
-      step="3"
-    >
-      위치
-      
-    </v-stepper-step>
-
-    <v-stepper-content step="3">
-      <v-card
-        color="lighten-1"
-        class="mb-0"
-        height="50vh"
-        elevation='0'
-      >
-      
-      <SetLocation @onClick="savePosition"></SetLocation>
-      
-      </v-card>
-      <v-row class="button-container">
-        <v-col cols="6">
-          <v-btn 
-            block
-            @click="e6 = 2"
-          >
-            이전
-          </v-btn>
-        </v-col>
-        <v-col cols="6">
-          <v-btn
-            :disabled="this.articleInfo.lat == ''"
-            block
-            color="primary"
-            @click="onSumbit"
-          >
-            완료
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-stepper-content>
-
-
-
-
-  </v-stepper>
-
-
-
-     </v-col>
+      <v-stepper class="stepper-container" v-model="e6" vertical>
+  
+        <v-stepper-step :complete="e6 > 1" step="1">
+          사진
+  
+        </v-stepper-step>
+  
+  
+        <v-stepper-content step="1">
+  
+  
+  
+  
+          <v-card class="img-card-container" elevation='0'>
+  
+  
+            <v-row v-if="this.preview.length != 0" class="d-flex justify-space-between text-center m-t-3">
+              <v-col cols="3" class="close-button">
+                <v-btn text @click='imageDelete(index)' color="black">
+                  <v-icon>
+                    mdi-close
+                  </v-icon>
+                </v-btn>
+              </v-col>
+  
+              <v-col cols="3">
+                <v-file-input color="black" accept="image/*" v-model="files" multiple @change="previewImg"
+                  prepend-icon=mdi-camera hide-input>
+                </v-file-input>
+              </v-col>
+  
+            </v-row>
+  
+  
+  
+            <v-file-input v-if="this.preview.length == 0" accept="image/*" multiple v-model="files" @change="previewImg"
+              hide-input prepend-icon=mdi-camera class="file-input"></v-file-input>
+  
+  
+            <v-carousel class="carousel-container" :show-arrows="false" hide-delimiter-background
+              delimiter-icon="mdi-checkbox-blank-circle-outline" height="250px">
+  
+              <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url">
+  
+              </v-carousel-item>
+            </v-carousel>
+          </v-card>
+  
+  
+          <v-row class="button-container">
+            <v-col cols="6">
+              <v-btn block @click="goHome">
+                취소
+              </v-btn>
+            </v-col>
+  
+            <v-col cols="6">
+  
+              <v-btn :disabled="this.preview.length == 0" block color="primary" @click="e6 = 2">
+                다음
+              </v-btn>
+            </v-col>
+          </v-row>
+  
+  
+        </v-stepper-content>
+  
+  
+  
+  
+  
+  
+        <v-stepper-step :complete="e6 > 2" step="2">
+          정보
+  
+        </v-stepper-step>
+  
+        <v-stepper-content step="2">
+          <v-card color="lighten-1" class="mb-12" height="350px" elevation='0'>
+  
+            <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" outlined></v-textarea>
+  
+  
+            <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup"
+              :search-input.sync="search" :delimiters="[' ']">
+  
+              <template v-slot:selection="data">
+                <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
+                  :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
+                  <v-avatar class="accent white--text" left v-text="'#'"></v-avatar>
+                  {{ data.item }}
+                </v-chip>
+              </template>
+            </v-combobox>
+  
+            <v-menu ref="menu" v-model="menu" :close-on-content-click="false" :return-value.sync="date"
+              transition="scale-transition" offset-y min-width="auto">
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field v-model="date" label="날짜 선택" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on">
+                </v-text-field>
+              </template>
+              <v-date-picker v-model="date" no-title scrollable>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="menu = false">
+                  Cancel
+                </v-btn>
+                <v-btn text color="primary" @click="$refs.menu.save(date)">
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
+  
+  
+          </v-card>
+  
+  
+          <v-row class="button-container">
+            <v-col cols="6">
+              <v-btn block @click="goHome">
+                이전
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn :disabled="this.contents.length == 0" block color="primary" @click="e6 = 3">
+                다음
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+  
+        <v-stepper-step :complete="e6 > 3" step="3">
+          위치
+  
+        </v-stepper-step>
+  
+        <v-stepper-content step="3">
+          <v-card color="lighten-1" class="mb-0" height="50vh" elevation='0'>
+  
+            <SetLocation @onClick="savePosition"></SetLocation>
+  
+          </v-card>
+          <v-row class="button-container">
+            <v-col cols="6">
+              <v-btn block @click="e6 = 2">
+                이전
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn :disabled="this.articleInfo.lat == ''" block color="primary" @click="onSumbit">
+                완료
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+  
+  
+  
+  
+      </v-stepper>
+  
+  
+  
+    </v-col>
   </v-row>
 </template>
 
@@ -325,11 +218,16 @@ export default {
     }
   },
   methods: {
+    spaceEvent() {
+      this.search = this.search+'enter'
+    },
     hashKeyup(){
       this.getHashtags()
     },
     getHashtags() {
       if (this.search){
+        this.search.replace(" ","")
+        
       axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
         .then((res) => {
           
@@ -371,6 +269,10 @@ export default {
 
     },
     onSumbit() {
+      var index = this.hashtags.indexOf('')
+      if (index!=-1){
+        this.hashtags.splice(index, 1)
+      }
       this.articleInfo.userId = sessionStorage.getItem('uid')
       this.articleInfo.contents = this.contents
       this.articleInfo.hashtags = this.hashtags
@@ -421,10 +323,6 @@ export default {
     goHome() {
       this.$router.push({ name:'Feed' })
     },
-    updateTags(res) {
-      console.log(res)
-      console.log(this.hashtags)
-    },
   },
   computed: {
     getToken(){
@@ -435,7 +333,7 @@ export default {
         }
       }
       return config
-    }
+    },
   },
 }
 </script>
