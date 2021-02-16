@@ -1,30 +1,40 @@
 <template>
-  <v-card
-    class="mx-auto mt-5"
-    flat
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
   >
-
-      <v-virtual-scroll
-        :items="scrollUsers"
-        :item-height="50"
-        max-height="80vh"
-        @scroll="scrolling"
-        id="scroll"
-      >
-      <template v-slot:default="{ item }">
-        <v-list-item
-          @click="goProfile(item)"
-        >
-          
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </v-row>
+    <!-- <v-card
+      class="mx-auto mt-5"
+      flat
+    > -->
+  <v-virtual-scroll
+    v-else
+    class="mx-auto mt-5"
+    :items="scrollUsers"
+    :item-height="50"
+    max-height="80vh"
+    @scroll="scrolling"
+  >
+    <template v-slot:default="{ item }">
+      <v-list-item
+        @click="goProfile(item)"
+      > 
         <v-list-item-content>
           <v-list-item-title >
-          <div class="d-flex justify-space-between">
-            <UserProfileImage 
-              :profile-image="item.profileImage"
-              :nickname="item.nickname"
-              :size="2.7"
-            />
-          
+            <div class="d-flex justify-space-between">
+              <UserProfileImage 
+                :profile-image="item.profileImage"
+                :nickname="item.nickname"
+                :size="2.7"
+              />
               <v-btn
                 v-if="item.followed && item.userId !== loginUserId"
                 small 
@@ -46,15 +56,13 @@
               >
                 팔로우
               </v-btn>
-
-          <!-- </v-row> -->
-           </div>
-           </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        </template>
-      </v-virtual-scroll>
-  </v-card>
+            </div>
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </template>
+  </v-virtual-scroll>
+    <!-- </v-card> -->
 </template>
 
 <script>
@@ -80,11 +88,12 @@ export default {
   data() {
     return {
       // users: [],
+      loading: true,
       scrollUsers: [],
       profileImageUrl: `${SERVER_URL}/images/`,
       loginUserId: sessionStorage.getItem('uid'),
       page: 0,
-      size: 5,
+      size: 20,
       last: false,
     }
   },
@@ -103,21 +112,29 @@ export default {
   methods: {
     // User정보 가져오기
     getUsers() {
+      if(!this.search) {
+        this.loading=false
+      }
+      else {
+        this.loading = true
       var params = {page:this.page, size:this.size}
-      console.log(this.page)
         if(this.search){
           axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
             .then(res => {
-              console.log(res.data)
+              console.log("res.data",res.data)
               this.scrollUsers.push(...res.data.content)
               console.log(this.scrollUsers)
               this.page += 1
               this.last = res.data.last
             })
+            .then(() => {
+              this.loading = false
+            })
             .catch((err)=> {
               alert('error'+err.message)
             })
         }
+      }
     },
     // click시 데이터 포함하여 프로필로 이동
     goProfile(user) {
@@ -188,22 +205,11 @@ export default {
     // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
     scrolling (event) {
       const scrollInfo = event.target
-      console.log(event)
-      // console.log(scrollInfo)
-      // var elemHeight = $("#container")[0].scrollHeight;
-      // var scrollHeight = $("#scrollbars")[0].scrollHeight;
-      console.log(document.getElementById("scroll"))
+        console.log('스크롤', scrollInfo.scrollHeight - scrollInfo.scrollTop, scrollInfo.clientHeight)
       if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
         this.getUsers()
       }
-      // this.getUsers()
     },
-  },
-  created () {
-    window.addEventListener('scroll', this.scrolling);
-  },
-  destroyed () {
-    window.removeEventListener('scroll', this.scrolling);
   },
   watch: {
     onTab: {
@@ -216,9 +222,10 @@ export default {
     },
     search() {
       if(this.onTab===3){
-        this.page = 0
-        this.scrollUsers = []
-        this.getUsers()  
+          console.log('22')
+          this.page = 0
+          this.scrollUsers = []
+          this.getUsers()
       }
     },
   },
