@@ -25,8 +25,10 @@ import com.web.curation.repository.image.ImageRepository;
 import com.web.curation.repository.like.LikeRepository;
 import com.web.curation.repository.memory.MemoryPinRepository;
 import com.web.curation.repository.memory.MemoryRepository;
+import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
+import com.web.curation.service.notification.NotificationService;
 import com.web.curation.util.DistanceUtil;
 import com.web.curation.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +76,7 @@ public class ArticleService {
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
     private final ImageRepository imageRepository;
+    private final NotificationRepository notificationRepository;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -278,7 +281,6 @@ public class ArticleService {
     }
 
     public void delete(Long articleId) {
-        System.out.println("<<<<<<<<<<<<<<<<<<<<<<"+DIR);
         Article findArticle = getArticle(articleId);
         Pin pin = getPin(findArticle.getPin().getPinId());
         List<Hashtag> hashtags = findArticle.getHashtags();
@@ -291,12 +293,12 @@ public class ArticleService {
         findArticle.resetHashtag();
         findArticle.resetUser();
         findArticle.resetPin();
+        notificationRepository.deleteByArticle(findArticle);
         articleRepository.delete(findArticle);
 
         if(pin.getArticles().size() == 0) {
             List<MemoryPin> memoryPins = memoryPinRepository.findByPin(pin);
             memoryPins.stream().forEach(memoryPin -> {
-                System.out.println("++++++++"+memoryPin.getId());
                 memoryPin.resetMemoryPin();
                 memoryPinRepository.delete(memoryPin);
             });
@@ -336,7 +338,6 @@ public class ArticleService {
     }
 
     private void addMemoryPin(Pin pin) {
-        List<Memory> list =memoryRepository.findAll();
         memoryRepository.findAll().stream()
                 .forEach(memory -> {
                     if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))

@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.TopicManagementResponse;
 import com.web.curation.domain.User;
+import com.web.curation.domain.article.Article;
 import com.web.curation.dto.notification.NotiListDto;
 import com.web.curation.dto.notification.NotiSettingsDto;
 import com.web.curation.dto.notification.UserNotiDto;
@@ -138,6 +139,5 @@ public class NotificationService {
         );
         return user;
     }
-
 
 }
