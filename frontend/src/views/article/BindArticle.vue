@@ -8,12 +8,22 @@
       md="4"
       sm="6"
     >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
+
   <div v-if="pickArticle">
     <v-row class="mt-5">
       <v-col
         cols='1'
       >
-        <v-icon color="green darken-2">mdi-call-split</v-icon>
+        <v-icon
+          left
+        >
+          mdi-map-marker
+        </v-icon>
       </v-col>
 
       <v-col 
@@ -26,16 +36,74 @@
         cols='4'
         class=""
       >
-        <v-btn @click='markerCheck' color="primary">기억하기</v-btn> 
+        <v-dialog v-model="saveMemoryDialog" persistent max-width="290">
+          <template v-slot:activator="{ on, attrs }" >
+            <v-btn color="primary" dark v-bind="attrs" v-on="on">
+              기억하기
+            </v-btn>
+          </template>
+  
+  <!-- v-slot="{ invalid }" -->
+          <v-card>
+            
+            <v-card-title class="headline">
+              기억할 장소의 이름과 반경을 적어주세요
+            </v-card-title>
+            <v-card-text>
+              <v-col cols='12'>
+                <div class="modal-card">
+                  <validation-observer
+                    ref="observer"
+                    v-slot="{ invalid }"
+                  >
+                  <validation-provider
+                    mode="aggressive"
+                    rules="required|max:10"
+                    v-slot="{ errors }"
+                  >
+                  <v-text-field 
+                    v-model="memoryName" 
+                    label='기억하기 이름' 
+                    @click="resetMemoryName"
+                    :error-messages="errors"
+                    ></v-text-field>
+                  </validation-provider>
+
+                  <validation-provider
+                    mode="aggressive"
+                    rules="required|max_value:1500"
+                    v-slot="{ errors }"
+                  >
+                  <v-text-field 
+                    v-model="memoryRadius" 
+                    label='반경(m)' 
+                    @click="resetMemoryRadius"
+                    :error-messages="errors"
+                  ></v-text-field>
+                  </validation-provider>
+
+                  <v-btn 
+                    @click='saveMemory' 
+                    text color='primary'
+                    :disabled="invalid"
+                  >기억 저장</v-btn>
+                  <v-btn @click="saveMemoryDialog = false" text color="red">닫기</v-btn>
+                  </validation-observer>
+                </div>
+              </v-col>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
-    <MemoryLocation
-      v-if="is_Memoryshow"
-      @close-Memorymodal="is_Memoryshow=false"
-      @onMemory='saveMemory'
-      :position='position'
-      >
-    </MemoryLocation>
+
+
+
+      
+      <!-- 기억하기핀 버튼을 누르고 map을 누르면 기억하기를 저장할때 이름과 반경을 정할수 있는 카드 (끝) -->
+
+
+
 
     <v-row>
       <v-col 
@@ -55,108 +123,15 @@
       </v-col>
       
     </v-row>
-
-
-  <v-card
-    v-if="articles"
-    elevation="24"
-    max-width="444"
-    class="mx-auto"
-  >
-
-    <v-carousel
-      :continuous="false"
-      :show-arrows="false"
-      hide-delimiter-background
-      delimiter-icon="mdi-minus"
-      height="300"
-    >
-      <v-carousel-item
-        v-for="(image, i) in pickArticle.images"
-        :key="i"       
-        >  
-        <v-sheet
-          height="100%"
-          tile
-        > 
-          <v-img
-            :src="SERVER + '/images/'+ image.path"
-          >
-          </v-img>
-        </v-sheet>
-      </v-carousel-item>
-    </v-carousel>
-
-
-
-
-    <v-list two-line>
-      <v-list-item>
-
-
-        <div>
-          <v-list-item-avatar
-            v-if="pickArticle.user.profileImage"
-            size="36"
-            class="my-0"
-          >
-            <img
-              :src="SERVER + '/images/'+ pickArticle.user.profileImage.path"
-            >
-          </v-list-item-avatar>
-          <v-icon
-            v-else
-            class="mr-4" 
-            left 
-            large
-          > 
-            mdi-account-circle 
-          </v-icon>
-        </div>
     
-        <v-list-item-content>
-          <!-- 이름 -->
-          <v-list-item-title >{{pickArticle.user.nickname}}</v-list-item-title>
-          <!-- 날짜 -->
-          <v-list-item-subtitle>{{pickArticle.wdate | dateFormat()}}</v-list-item-subtitle>
-          <!-- 해시태그 -->
-          <v-list-item-subtitle
-            v-for="(hashtag, i) in pickArticle.hashtags"
-            :key="i"
-          >
-            <v-btn @click="goHash()">#{{ hashtag.contents }}</v-btn>
-            
-          </v-list-item-subtitle>
-        </v-list-item-content>
-
-        <v-menu v-if="is_Creater" transition="slide-y-transition">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="primary"
-              class="ma-2"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon>
-                수정/삭제
-              </v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item>
-              <v-list-item-title @click='updateArticle'>수정</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title @click='deleteArticle'>삭제</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>   
-      </v-list-item>
-    </v-list>
+    
+    <BindArticleComponents 
+      v-if="articles != ''"
+      :article="pickArticle"
+    />
 
 
-  </v-card>
+  
 
   <v-system-bar lights-out></v-system-bar>
   
@@ -243,12 +218,27 @@
 <script>
 import axios from 'axios'
 import Bind from '@/components/article/Bind'
-import MemoryLocation from '@/components/article/MemoryLocation.vue'
-
+import BindArticleComponents from '@/components/article/BindArticleContents'
+import Alert from '@/components/common/Alert'
+import { required, min, max, max_value } from 'vee-validate/dist/rules'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
+extend('required', {
+  ...required,
+  message: '필수 입력 항목입니다.'
+})
+extend('max', {
+  ...max,
+  message: '기억하기 이름은 10글자 이하이어야 합니다.'
+})
+extend('max_value', {
+  ...max_value,
+  message: '기억하기 반경은 1500m 이하이어야 합니다.'
+})
+
+
 export default {
-  name: 'BindArticle',
   filters: {
     dateFormat(date) {
       const dateArray = date.split(' ')[0].split('-')
@@ -257,7 +247,10 @@ export default {
   },
   components: {
     Bind,
-    MemoryLocation
+    BindArticleComponents,
+    ValidationProvider,
+    ValidationObserver,
+    Alert, // alert 컴포넌트
   },
   data() {
     return {
@@ -273,12 +266,31 @@ export default {
       dialog: false,
       items: [{a:'1'},{a:'1'},{a:'1'},{a:'1'},],
       endDate: '',
-      startDate: '2000-01-01',
+      startDate: '',
       dates: ['2019-09-10', '2019-09-20'],
-
+      saveMemoryDialog: false,
+      memoryName: '기억장소', // 기억하기를 저장할때 장소 이름을 담을 변수
+      memoryRadius: '500', // 기억하기를 저장할때 반경을 담을 변수
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
+      memoryInfo: { // 기억하기 정보들을 담을 변수
+        name: '',
+        radius: '',
+        lat: '',
+        lng: ''
+      },
     }
   },
   methods: {
+    resetMemoryName() {
+      this.memoryName = ''
+    },
+    resetMemoryRadius() {
+      this.memoryRadius = ''
+    },
     openBindSetting() {
       this.dialog = true
       this.dates = [this.startDate, this.endDate]
@@ -318,10 +330,17 @@ export default {
        
     },
     getArticles() {
+      
+      if (this.endDate == undefined){
+        
+        this.endDate = ''
+        
+      }
 
+      
       axios.get(`${SERVER_URL}/articles/pins?end=${this.endDate}&start=${this.startDate}&pinId=${this.pinId}`, this.getToken)
       .then( (res)=> {
-        console.log(res.data)
+        
         if (res.data.length){
           this.articles = res.data
           this.articleId = this.articles[this.articles.length-1].articleId
@@ -342,62 +361,44 @@ export default {
       else{
         this.articleId = res.articleId
       }
+      
       axios.get(`${SERVER_URL}/articles/${this.articleId}`, this.getToken)
       .then( (res)=> {
         this.pickArticle = res.data
         this.position = this.pickArticle.pin
-        const userId = sessionStorage.getItem('uid')
-        if ( userId == this.pickArticle.user.userId){
-          this.is_Creater = true
-        }
-        else {
-          this.is_Creater = false
-        }
+        
       })
-    },
-    updateArticle(){
-      
-      this.$router.push({name: 'UpdateArticle', params: {
-        articleId: this.articleId,
-        hashtagArray: this.pickArticle.hashtags,
-        contents: this.pickArticle.contents,
-        lat: this.pickArticle.pin.lat,
-        lng: this.pickArticle.pin.lng,
-        preview: this.pickArticle.images
-      }})
-    },
-    deleteArticle(){
-      axios.delete(`${SERVER_URL}/articles/`+ this.articleId, this.getToken )
-      .then((res) => {
-        alert('게시물 삭제 완료')
-        this.$router.push({name: 'Feed'})
-      })
-    },
-    goHash(res) {
-      this.$router.push({name:'Search', params: {
-      hashtag: res}
-      })
-    },
-    markerCheck(res) {
-      this.is_Memoryshow = !this.is_Memoryshow
     },
     saveMemory(res) {
-      console.log(res)
-      const userId = sessionStorage.getItem('uid')
-      axios.post(`${SERVER_URL}/users/${userId}/memories`, res, this.getToken)
+      this.alert.alerted = false 
+ 
+      this.saveMemoryDialog = false
+      this.memoryInfo.name = this.memoryName
+      this.memoryInfo.radius = this.memoryRadius
+      this.memoryInfo.lat = this.position.lat
+      this.memoryInfo.lng = this.position.lng
+      const userId = sessionStorage.getItem('uid') // uid를 저장할 변수 axios요청에 uid가 사용되기 때문에
+      // 기억 하기 요청 axios 
+      // post(url, 기억하기 정보, uid) 가 들어감 
+      console.log(this.memoryInfo)
+      axios.post(`${SERVER_URL}/users/${userId}/memories`, this.memoryInfo, this.getToken)
       .then(()=> {
-        alert('이 장소를 기억했습니다.')
-        this.$router.go()
+        this.alert.message = '기억이 완료되었습니다.'
+        this.alert.color = 'primary'
+        this.alert.alerted = true
+        console.log(123312)
+        // this.$router.go() // 기억 완료했으면 새로고침 해줌
+      })
+      .catch((err)=> { // 에러가 났을때
+        console.log(err) // 에러 출력
+      }) 
 
-      })
-      .catch((err)=> {
-        console.log(err)
-      })
-    }
+    },
   },
   created() {
     this.getDate()
     this.getArticles()
+    
   
   },
   computed: {
