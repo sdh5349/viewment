@@ -1,34 +1,43 @@
 package com.web.curation.service.article;
 
+import com.web.curation.commons.PageRequest;
+import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.domain.connection.Follow;
 import com.web.curation.domain.connection.Likes;
-import com.web.curation.dto.article.FeedArticleDto;
-import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.domain.hashtag.Hashtag;
+import com.web.curation.domain.memory.MemoryPin;
+import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
+import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.event.NewArticleEvent;
+import com.web.curation.event.NewLikeEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
-import com.web.curation.domain.hashtag.Hashtag;
-import com.web.curation.dto.article.ArticleDto;
-import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.repository.follow.FollowRepository;
-import com.web.curation.repository.like.LikeRepository;
-import com.web.curation.repository.user.UserRepository;
 import com.web.curation.repository.article.ArticleRepository;
+import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.hashtag.HashtagRepository;
-import com.web.curation.repository.image.ImageRepository;
+import com.web.curation.repository.like.LikeRepository;
+import com.web.curation.repository.memory.MemoryPinRepository;
+import com.web.curation.repository.memory.MemoryRepository;
 import com.web.curation.repository.pin.PinRepository;
+import com.web.curation.repository.user.UserRepository;
+import com.web.curation.util.DistanceUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +49,7 @@ import java.util.stream.Collectors;
  * @변경이력 김종성: PinRepository 수정으로 관련된 부분 일부 수정(추후 리팩토링 필수!!)
  * @변경이력 김종성: like, unlike 기능 추가
  * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
+ * 이주희 21-02-09 기억하기 주변 핀 찾기 기능 추가
  **/
 
 @Service
@@ -51,10 +61,13 @@ public class ArticleService {
 
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
-    private final ImageRepository imageRepository;
+    private final MemoryRepository memoryRepository;
+    private final MemoryPinRepository memoryPinRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     public Article write(ArticleDto articleDto) {
         Article article = new Article();
@@ -69,17 +82,23 @@ public class ArticleService {
             Pin newPin = new Pin();
             newPin.setLocation(articleDto.getLat(), articleDto.getLng());
             newPin.setAddress(articleDto.getAddressName());
-            newPin.setType('a');
             Long savedPinId = pinRepository.save(newPin).getPinId();
             pin = getPin(savedPinId);
+            addMemoryPin(pin);
         }
         article.setPin(pin);
 
         setData(articleDto, article);
 
-        articleRepository.save(article);
+        Article savedArticle = articleRepository.save(article);
 
-        return article;
+        memoryPinRepository.findByPin(pin).stream()
+                .forEach(memoryPin -> {
+                    System.out.println(memoryPin.getId());
+                });
+        eventPublisher.publishEvent(new NewArticleEvent(savedArticle));
+
+        return savedArticle;
     }
 
     @Transactional(readOnly = true)
@@ -98,11 +117,21 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public List<ArticleSimpleDto> findByHashtag(String hashtag) {
-        List<Article> articles = articleRepository.findByHashtag(hashtag);
-        List<ArticleSimpleDto> result = new ArrayList<>();
-        for (int i = 0; i < articles.size(); i++) {
-            result.add(new ArticleSimpleDto(articles.get(i)));
-        }
+        List<ArticleSimpleDto> result = articleRepository.findByHashtag(hashtag).stream()
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ArticleSimpleDto> findByHashtag(String hashtag, PageRequest pageable) {
+        Page<Article> articles = articleRepository.findByHashtag(hashtag, pageable.of(Sort.by("wdate").descending()));
+        Page<ArticleSimpleDto> result = articles
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                });
         return result;
     }
 
@@ -117,27 +146,98 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArticleSimpleDto> getArticlesForFeed(FeedArticleDto feedArticleDto) {
+    public Page<ArticleSimpleDto> findByUserId(String userId, PageRequest pageable) {
+        Page<Article> articles = articleRepository.findByUserId(userId, pageable.of(Sort.by("wdate").descending()));
+
+        Page<ArticleSimpleDto> result = articles
+                .map(article -> {
+                    return new ArticleSimpleDto(article);
+                });
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng) {
+        Set<Article> articles = new HashSet<>();
+
+        User user = getUser(userId);
+        user.getMemories().stream()
+                .forEach(memory -> {
+                    memory.getNearbyPins().stream()
+                            .forEach(memoryPin -> {
+                                articles.addAll(memoryPin.getPin().getArticles());
+                            });
+                });
+
+        List<ArticleFeedDto> result = articles.stream()
+                .map(article -> {
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
+                    Point point = article.getPin().getLocation();
+                    dto.setDistance(DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX()));
+
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    public Page<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng, PageRequest pageRequest) {
+        Set<Article> articles = new HashSet<>();
+
+        User user = getUser(userId);
+        user.getMemories().stream()
+                .forEach(memory -> {
+                    memory.getNearbyPins().stream()
+                            .forEach(memoryPin -> {
+                                articles.addAll(memoryPin.getPin().getArticles());
+                            });
+                });
+
+        List<ArticleFeedDto> result = articles.stream()
+                .map(article -> {
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
+                    Point point = article.getPin().getLocation();
+                    dto.setDistance(DistanceUtil.calcDistance(lat, lng, point.getY(), point.getX()));
+
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        Collections.sort(result, (a, b)-> Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
+
+        Pageable pageable = pageRequest.of();
+        int s = pageable.getPageNumber();
+        int e = pageable.getPageSize();
+
+        int fromIdx = s*e<result.size() ? (s*e) : result.size();
+        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+        result = result.subList(fromIdx, toIdx);
+
+        return new PageImpl<ArticleFeedDto>(result, pageable, result.size()) ;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArticleSimpleDto> getArticlesByPins(Long[] pinIds) {
         List<Article> articles = new ArrayList<>();
-
-        User user = getUser(feedArticleDto.getUserId());
-
-        if (feedArticleDto.isIncludeMine()) {
-            articles.addAll(user.getArticles());
-        }
-        if (feedArticleDto.isIncludeFollowings()) {
-            List<Follow> followings = followRepository.findByFrom(user);
-            for (int i = 0; i < followings.size(); i++) {
-                articles.addAll(followings.get(i).getTo().getArticles());
-            }
+        for (int i = 0; i < pinIds.length; i++) {
+            Pin pin = getPin(pinIds[i]);
+            articles.addAll(articleRepository.findByPin(pin));
         }
 
         List<ArticleSimpleDto> result = articles.stream()
                 .map(article -> {
-                    ArticleSimpleDto dto = new ArticleSimpleDto(article);
-                    Point point = article.getPin().getLocation();
-                    dto.setDistance(calcDistance(feedArticleDto.getLat(), feedArticleDto.getLng(), point.getY(), point.getX()));
-                    return dto;
+                    return new ArticleSimpleDto(article);
                 })
                 .collect(Collectors.toList());
         return result;
@@ -196,6 +296,16 @@ public class ArticleService {
         article.setDate(articleDto.getDate());
     }
 
+    private void addMemoryPin(Pin pin) {
+        List<Memory> list =memoryRepository.findAll();
+        memoryRepository.findAll().stream()
+                .forEach(memory -> {
+                    if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
+                });
+    }
+
+
     /***
      *  좋아요 관련 메소드
      */
@@ -213,6 +323,9 @@ public class ArticleService {
 
         user.addLike(like);
         article.addLike(like);
+
+        if(article.getUser().isLikeNoti() && article.getUser().getId() != user.getId())
+            eventPublisher.publishEvent(new NewLikeEvent(user, article.getUser(), article));
     }
 
     @Transactional
@@ -248,35 +361,6 @@ public class ArticleService {
         return result;
     }
 
-    /**
-     * 거리 계산 메소드
-     */
-
-    public double calcDistance(double srcLat, double srcLng, double destLat, double destLng) {
-        double theta = srcLng - destLng;
-        double dist = Math.sin(deg2rad(srcLat)) * Math.sin(deg2rad(destLat))
-                + Math.cos(deg2rad(srcLat)) * Math.cos(deg2rad(srcLat)) * Math.cos(deg2rad(theta));
-
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515;
-
-        dist = dist * 1.609344;
-
-        return dist;
-    }
-
-    // This function converts decimal degrees to radians
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
-
-    // This function converts radians to decimal degrees
-    private double rad2deg(double rad) {
-        return (rad * 180 / Math.PI);
-    }
-
-
     private User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> {
@@ -303,5 +387,6 @@ public class ArticleService {
         );
         return pin;
     }
+
 
 }

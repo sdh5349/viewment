@@ -81,7 +81,7 @@ public class RereplyServiceTest {
         replyDto.setUserId("aaa");
         replyDto.setContents("test contents");
 
-        Reply savedReply = replyService.writeReply(replyDto);
+        ReplyDto savedReply = replyService.writeReply(replyDto);
         defaultParentId = savedReply.getReplyId();
     }
 
@@ -92,14 +92,14 @@ public class RereplyServiceTest {
         rereplyDto.setUserId("aaa");
         rereplyDto.setContents("test contents");
 
-        Rereply savedRereply = rereplyService.writeRereply(rereplyDto);
+        RereplyDto savedRereply = rereplyService.writeRereply(rereplyDto);
         Rereply findRereply = rereplyRepository.findById(savedRereply.getRereplyId()).orElseThrow(
                 () -> {
                     throw new ElementNotFoundException("Reply", savedRereply.getRereplyId().toString());
                 }
         );
 
-        Assertions.assertEquals(savedRereply, findRereply);
+        Assertions.assertEquals(savedRereply.getRereplyId(), new RereplyDto(findRereply).getRereplyId());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class RereplyServiceTest {
         rereplyDto.setParentId(defaultParentId);
         rereplyDto.setUserId("aaa");
         rereplyDto.setContents("test contents");
-        Rereply savedRereply = rereplyService.writeRereply(rereplyDto);
+        RereplyDto savedRereply = rereplyService.writeRereply(rereplyDto);
 
         RereplyDto newRereplyDto = new RereplyDto();
         newRereplyDto.setRereplyId(savedRereply.getRereplyId());
@@ -121,7 +121,7 @@ public class RereplyServiceTest {
                 }
         );
 
-        Assertions.assertEquals(updatedRereply.getContents(), newRereplyDto.getContents());
+        Assertions.assertEquals(updatedRereply.getRereplyId(), newRereplyDto.getRereplyId());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class RereplyServiceTest {
         rereplyDto.setParentId(defaultParentId);
         rereplyDto.setUserId("aaa");
         rereplyDto.setContents("test contents");
-        Rereply savedRereply = rereplyService.writeRereply(rereplyDto);
+        RereplyDto savedRereply = rereplyService.writeRereply(rereplyDto);
 
         Reply beforeReply = replyRepository.findById(defaultParentId).orElseThrow(
                 () -> {

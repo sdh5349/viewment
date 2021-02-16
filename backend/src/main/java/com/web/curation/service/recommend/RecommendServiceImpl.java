@@ -2,23 +2,25 @@ package com.web.curation.service.recommend;
 
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
-import com.web.curation.dto.article.ArticleInfoDto;
-import com.web.curation.dto.article.ArticleSimpleDto;
-import com.web.curation.dto.user.SimpleUserInfoDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.recommend.recommender.ArticleRecommender;
 import com.web.curation.repository.article.ArticleRepository;
+import com.web.curation.repository.follow.FollowRepository;
+import com.web.curation.repository.like.LikeRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * com.web.curation.service.recommend
@@ -37,39 +39,62 @@ public class RecommendServiceImpl implements RecommendService{
     private final ArticleRecommender articleRecommender;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
+    private final LikeRepository likeRepository;
+    private final FollowRepository followRepository;
 
     @Override
-    public List<ArticleSimpleDto> recommendArticle(String userId) {
+    public Page<ArticleFeedDto> recommendArticle(String userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(()->{
             throw new UserNotFoundException();
         });
 
         Set<Long> recommend = articleRecommender.recommend(user);
 
-        //3일간의 최신 게시글 추천 목록에 추가
-        long time = System.currentTimeMillis()-1000L*60L*60L*24L*3L;
-        Timestamp t = new Timestamp(time);
-
-        Set<Long> articlesLatest = articleRepository.findByWdateAfter(t).stream()
-                .map(article -> {return article.getArticleId();})
-                .collect(Collectors.toSet());
-
-        recommend.addAll(articlesLatest);
-
         List<Article> articles = articleRepository.findByArticleIdIn(recommend);
-
-        List<ArticleSimpleDto> result = articles.stream()
+        List<ArticleFeedDto> result = articles.stream()
                 .filter(article -> !article.getUser().getId().equals(userId))
                 .map(article -> {
-                    return new ArticleSimpleDto(article);
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
+
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+                    dto.setRecommended(true);
+                    return dto;
                 })
                 .collect(Collectors.toList());
 
-        return result;
-    }
 
-    @Override
-    public List<SimpleUserInfoDto> recommendUser(String userId) {
-        return null;
+        List<User> followings = followRepository.findByFrom(user).stream()
+                .map(follow -> {
+                    return follow.getTo();
+                })
+                .collect(Collectors.toList());
+
+        List<ArticleFeedDto> followingsArticles = articleRepository.findByUserIn(followings, pageable).stream()
+                .map(article -> {
+                    ArticleFeedDto dto = new ArticleFeedDto(article);
+                    int likes = likeRepository.countByArticle(article).intValue();
+                    boolean liked = likeRepository.existsByUserAndArticle(user, article);
+                    dto.setLikes(likes);
+                    dto.setLiked(liked);
+                    dto.setRecommended(false);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        int s = pageable.getPageNumber();
+        int e = pageable.getPageSize();
+
+        int fromIdx = s*e<result.size() ? (s*e) : result.size();
+        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+
+        result = result.subList(fromIdx, toIdx);
+        result.addAll(followingsArticles);
+
+        Collections.sort(result, (a, b)->Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
+
+        return new PageImpl<ArticleFeedDto> (result, pageable, result.size()) ;
     }
 }

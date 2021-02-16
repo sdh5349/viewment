@@ -5,6 +5,7 @@ import com.web.curation.domain.Memory;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.*;
 
 
 /**
@@ -14,16 +15,25 @@ import lombok.Setter;
  * @author  김종성
  *
  * @변경이력
+ * 이주희 21-02-09 핀 삭제
  **/
 @Getter
 @Setter
 public class MemoryDto {
     private Long memoryId;
+
+    @NotBlank
     private String name;
-    private Long pinId;
+
+    @DecimalMax(value = "100")
+    @DecimalMin(value = "1")
     private int radius;
 
+    private boolean notification;
+
+    @Positive
     private double lat;
+    @Positive
     private double lng;
 
     public MemoryDto(){}
@@ -32,10 +42,7 @@ public class MemoryDto {
         this.memoryId = memory.getId();
         this.name = memory.getName();
         this.radius = memory.getRadius();
-
-        this.pinId = memory.getPin().getPinId();
-
-        this.lat = memory.getPin().getLocation().getY();//위도
-        this.lng = memory.getPin().getLocation().getX();//경도
+        this.lat = memory.getLocation().getY();//위도
+        this.lng = memory.getLocation().getX();//경도
     }
 }

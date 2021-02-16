@@ -24,5 +24,6 @@ public class RereplyDto {
         contents = rereply.getContents();
         wdate = rereply.getWdate().toString();
         user = new SimpleUserInfoDto(rereply.getUser());
+        parentId = rereply.getRereplyId();
     }
 }

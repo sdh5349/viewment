@@ -9,6 +9,7 @@
             height="100"
           >
             <v-btn
+              class="drawer-btn"
               color="pink"
               dark
               @click.stop="drawer = !drawer"
@@ -94,8 +95,13 @@ export default {
 </script>
 
 <style scoped>
+.drawer-btn {
+  position: absolute;
+  top: 300px;
+}
 .memoryDrawer{
   z-index: 10;
-  position: relative;
+  position: absolute;
+  bottom: 50px;
 }
 </style>

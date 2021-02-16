@@ -2,10 +2,10 @@ package com.web.curation.service.pin;
 
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
-import com.web.curation.domain.connection.Follow;
 import com.web.curation.dto.pin.PinDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
+import com.web.curation.repository.article.ArticleRepository;
 import com.web.curation.repository.follow.FollowRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
@@ -13,9 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +37,7 @@ public class PinServiceImpl implements PinService {
 
     private final PinRepository pinRepository;
     private final UserRepository userRepository;
+    private final ArticleRepository articleRepository;
     private final FollowRepository followRepository;
 
     public Pin findPin(Long pinId) {
@@ -56,35 +56,79 @@ public class PinServiceImpl implements PinService {
 
     @Override
     public List<PinDto> getPinsAll() {
-        List<PinDto> pins = pinRepository.findByType('a').stream()
+        List<PinDto> pins = pinRepository.findAll().stream()
                 .map(pin -> {
-                    return new PinDto(pin);
+                    return new PinDto(pin, pin.getTrendArticleId());
                 })
                 .collect(Collectors.toList());
         return pins;
     }
 
     @Override
-    public List<PinDto> getPinsForMap(String userId, boolean includeMine, boolean includeFollowings) {
+    public List<PinDto> getPinsForUserMap(String userId) {
         Set<Pin> pins = new HashSet<>();
-        if (includeMine) {
-            pins.addAll(pinRepository.findByUserId(userId));
-        }
-        if (includeFollowings) {
-            User user = userRepository.findById(userId).orElseThrow(
-                    () -> {
-                        throw new UserNotFoundException();
-                    }
-            );
-            List<Follow> followings = followRepository.findByFrom(user);
-            for (int i = 0; i < followings.size(); i++) {
-                pins.addAll(pinRepository.findByUserId(followings.get(i).getTo().getId()));
-            }
-        }
+
+        getUser(userId).getArticles().stream()
+                .forEach(article -> {
+                    pins.add(article.getPin());
+                });
 
         List<PinDto> result = pins.stream()
                 .map(pin -> {
-                    return new PinDto(pin);
+                    return new PinDto(pin, pin.getTrendArticleId());
+                })
+                .collect(Collectors.toList());
+
+        return result;
+    }
+
+    @Override
+    public List<PinDto> getPinsForMap(String userId) {
+        Set<Pin> pins = new HashSet<>();
+
+        getUser(userId).getMemories().stream()
+                .forEach(memory -> {
+                    memory.getNearbyPins().stream()
+                            .forEach(memoryPin -> {
+                                pins.add(memoryPin.getPin());
+                            });
+                });
+
+        List<PinDto> result = pins.stream()
+                .map(pin -> {
+                    return new PinDto(pin, pin.getTrendArticleId());
+                })
+                .collect(Collectors.toList());
+
+        return result;
+    }
+
+    @Override
+    public List<PinDto> getPinsForTrend(double lat, double lng) {
+
+        long time = System.currentTimeMillis()-1000L*60L*60L*24L*7L;
+        Timestamp t = new Timestamp(time);
+
+        List<Long[]> pins = pinRepository.findAll().stream()
+                .map(pin -> {
+                    return new Long[] {pin.getPinId(), articleRepository.countByPinAndWdateAfter(pin, t)};
+                })
+                .collect(Collectors.toList());
+
+        Collections.sort(pins, new Comparator<Long[]>() {
+            @Override
+            public int compare(Long[] p1, Long[] p2) {
+                Long value = p2[1] -p1[1];
+                return value.intValue();
+            }
+        });
+
+        pins = pins.subList(0, Math.min(pins.size(), 10));
+
+        List<PinDto> result = pins.stream()
+                .map(pinId -> {
+                    Pin pin = findPin(pinId[0]);
+                    return new PinDto(pin, pin.getTrendArticleId());
                 })
                 .collect(Collectors.toList());
 
@@ -101,4 +145,14 @@ public class PinServiceImpl implements PinService {
     public Long updatePin(PinDto pinDto) {
         return null;
     }
+
+    private User getUser(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> {
+                    throw new UserNotFoundException();
+                }
+        );
+        return user;
+    }
+
 }

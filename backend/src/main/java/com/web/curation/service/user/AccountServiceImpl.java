@@ -14,6 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * com.web.curation.service.user
+ * AccountServiceImpl.java
+ * @date    2021-01-15 오후 10:11
+ * @author  김종성
+ *
+ * @변경이력
+ **/
+
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -30,7 +39,8 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public String join(AccountDto userDto) {
-        validateDuplicateUser(userDto.getEmail());
+        validateDuplicateEmail(userDto.getEmail());
+        validateDuplicateNickname(userDto.getNickname());
 
         //ToDo modelMapper 적용
         User newUser = new User();
@@ -45,19 +55,30 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public void validateDuplicateUser(String email) {
+    public void validateDuplicateEmail(String email) {
         userRepository.findByEmail(email)
-                .ifPresent(m-> {throw new UserDuplicateException(email);}
+                .ifPresent(m-> {throw new UserDuplicateException(email, null);}
         );
     }
 
     @Override
-    public String modify(AccountDto userDto) {
-        User user = getUser(userDto.getUserId());
-        user.setNickname(userDto.getNickname());
-        user.setMessage(userDto.getMessage());
+    public void validateDuplicateNickname(String nickname) {
+        userRepository.findByNickname(nickname)
+                .ifPresent(m-> {throw new UserDuplicateException(null, nickname);}
+        );
+    }
 
+    @Override
+    public String modify(AccountDto userDto, String currentUserId) {
+        User user = getUser(currentUserId);
+
+        if(!user.getNickname().equals(userDto.getNickname())){
+            validateDuplicateNickname(userDto.getNickname());
+            user.setNickname(userDto.getNickname());
+        }
+        user.setMessage(userDto.getMessage());
         userRepository.save(user);
+
         return userDto.getUserId();
     }
 

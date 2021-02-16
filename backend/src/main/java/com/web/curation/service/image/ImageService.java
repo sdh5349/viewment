@@ -55,6 +55,11 @@ public class ImageService {
 
         File file = ImageUtil.multipartToFile(DIR + path, multipartFile);
         ImageUtil.save("article", file);
+
+        if (no == 0) {
+            File thumbnail = ImageUtil.multipartToFile(DIR + "thumbnail/" + articleId, multipartFile);
+            ImageUtil.save("thumbnail", thumbnail);
+        }
     }
 
     public void saveProfileImage(MultipartFile profileImage, String userId) throws Exception {

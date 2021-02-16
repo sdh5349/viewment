@@ -1,124 +1,116 @@
 <template>
-  <v-list-item v-if="replyInfo">
-    <v-row
+  <div v-if="replyInfo">
+    <div
       v-if="isUpdating"
-      space-between
+      class="ma-0 row justify-space-between align-top"
     >
-      <v-col>
-        <!-- 유저 프로필 이미지 or 아이콘 / 유저 닉네임 시작 -->
+      <div style="width: 100%;" class="d-flex">
         <UserProfileImage 
-          :nickname="replyInfo.user.nickname"
-          :profile-image="replyInfo.user.ProfileImage"
+          class="py-1"
+          :profile-image="replyInfo.user.profileImage"
+          :size="2.3"
+          :font-size="1"
         />
         <!-- 유저 프로필 이미지 or 아이콘 / 유저 닉네임 끝 -->
 
         <!-- 댓글 수정 시작 -->
         <v-text-field
-        v-model="updateContent"
-        class="ma-0 pa-0"
-        label="댓글을 수정해주세요"
-        outlined
-        hide-details
+          v-model="updateContent"
+          class="pt-0 px-2"
+          append-icon="mdi-pencil"
+          dense
+          @click:append="onUpdateReplyComplete"
+          @keypress.enter="onUpdateReplyComplete"
         ></v-text-field>
         <!-- 댓글 수정 끝-->
-      </v-col>
-
-      <v-col 
-        cols="3"
-      >
-        <v-card>
-          <!-- 작성자가 수정 중이라면 수정완료 버튼 표시 시작-->
-          <div
-          >
-            <v-btn text color="primary" @click="onUpdateReplyComplete">완료</v-btn>
-          </div>
-          <!-- 작성자가 수정 중이라면 수정완료 버튼 표시 끝 -->
-
-          <!-- 댓글 작성 시간 -->
-          <p class="text-caption mb-0">{{replyInfo.wdate}}</p>
-          <!-- 댓글 작성 시간 -->
-        </v-card>
-      </v-col>
-
-    </v-row>
-    <v-row
+      </div>
+    </div>
+    <div
       v-else
-      space-between
+      class="ma-0 row justify-space-between align-top"
     >
-
-      <v-col>
-        <!-- 유저 프로필 이미지 or 아이콘 / 유저 닉네임 시작 -->
-        <v-card>
-          <UserProfileImage 
-            :nickname="replyInfo.user.nickname"
-            :profile-image="replyInfo.user.ProfileImage"
-          />
-          <v-btn 
-            v-if="this.replyType === 'reply'"
-            fab 
-            bottom
-            @click="showRereply = !showRereply"
-          >대댓글</v-btn>
-          <h1 v-if="showRereply">여기 이제 대댓글 쓰는 란!</h1>
-          
-        </v-card>
-        <!-- 유저 프로필 이미지 or 아이콘 / 유저 닉네임 끝 -->
-
-        <!-- 댓글 내용 시작 -->
-        <div class="d-line mr-1">
-          {{ replyInfo.contents }}
+      <div :style="loginUserId !== replyInfo.user.userId ? 'width: 100%;' : 'width: 88%;'" class="d-flex">
+        <UserProfileImage 
+          class="py-1"
+          :profile-image="replyInfo.user.profileImage"
+          :size="2.3"
+          :font-size="1"
+        />
+        <div style="width: 90%;" :class="replyType === 'rereply' ? 'align-self-center' : ''">
+          <p class="mb-0"><span style="font-weight: bold;">{{replyInfo.user.nickname}}</span> {{replyInfo.contents }}</p>
+          <span 
+            v-if="replyType === 'reply'" 
+            class="text-caption"
+            style="cursor: pointer"
+            @click="showInput=!showInput">댓글 달기</span>
+            <v-text-field
+              v-if="showInput"
+              v-model="commentInput"
+              class="pt-0"
+              append-icon="mdi-pencil"
+              dense
+              @click:append="onCreateRereply"
+              @keypress.enter="onCreateRereply"
+            ></v-text-field>
         </div>
-        <!-- 댓글 내용 끝-->
-      </v-col>
+      </div>
+      <div>
+        <v-menu 
+          v-if="loginUserId === replyInfo.user.userId"
+          class=""
+          transition="scroll-y-transition"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="m-0"
+              v-bind="attrs"
+              v-on="on"
+              icon
+            >
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list class="py-0">
+            <v-list-item>
+              <v-list-item-title @click='onUpdateReply'>수정</v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title @click='onDeleteReply'>삭제</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+    </div>
+    <v-divider class="mb-1"></v-divider>
 
-      <v-col 
-        cols="3"
-      >
-        <v-card>
-          <!-- 작성자가 본인이면 수정/삭제 버튼 표시 시작-->
-          <div
-            v-if="replyInfo.user.userId === loginUserId"
-          >
-            <v-btn text color="primary" @click="onUpdateReply">수정</v-btn>
-            <v-btn text color="error" @click="onDeleteReply">삭제</v-btn>
-          </div>
-          <!-- 작성자가 본인이면 수정/삭제 버튼 표시 끝 -->
-
-          <!-- 댓글 작성 시간 -->
-          <p class="text-caption mb-0">{{replyInfo.wdate | dateFormat()}}</p>
-          <!-- 댓글 작성 시간 -->
-        </v-card>
-      </v-col>
-    </v-row>
     <!-- child라는 프로퍼티가 있고 이 것이 빈값이 아니라면 -->
-    <v-row v-if="(typeof replyInfo.child) !== 'undefined' && replyInfo.child">
+    <v-row v-if="replyType==='reply' && replyInfo.child.length > 0">
       <v-col
-        cols="10"
-        offset="2"
+        cols="11"
+        offset="1"
       >
       <ReplyList 
         :replies="replyInfo.child"
-        :profileUserId="articleInfo.user.userId"
+        :profileUserId="profileUserId"
         :loginUserId="loginUserId"
         replyType="rereply"
       />
       </v-col>
     </v-row>
-  </v-list-item>
+  </div>
 </template>
 
 <script>
 import axios from 'axios'
 import UserProfileImage from '@/components/user/UserProfileImage'
-import ReplyList from '@/components/reply/ReplyList'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
-  name: 'Reply',
+  name: 'reply',
   components: {
     UserProfileImage,
-    ReplyList
+    ReplyList: () => import('./ReplyList.vue')
   },
   filters: {
     dateFormat(date) {
@@ -132,12 +124,13 @@ export default {
     loginUserId: String,
     replyType: String,
   },
-  data: () => ({
-      replyInfo: null,
-      isUpdating: false,
-      updateContent: '',
-      showRereply: false,
-    }),
+  data: () => ({  
+    replyInfo: null,
+    isUpdating: false,
+    updateContent: '',
+    showInput: false,
+    commentInput: '',
+  }),
   computed: {
     getToken(){
       const token = sessionStorage.getItem('jwt')
@@ -149,12 +142,33 @@ export default {
       return config
     }
   },
+  created() {
+    this.fetchData()
+  },
   methods: {
     fetchData() {
       this.replyInfo = this.reply
     },
     onCreateRereply() {
-      
+      if (this.commentInput) {
+        // parentId, contents, userId
+        const params = {
+          'parentId': this.replyInfo.replyId, 
+          'contents': this.commentInput, 
+          'userId': this.loginUserId
+        }
+
+        axios.post(`${SERVER_URL}/replies/rereply`, params, this.getToken)
+        .then(res => {
+          this.replyInfo.child.push(res.data)
+        })
+        .then(() => {
+          this.commentInput = ''
+          this.showInput = false
+        })
+        .catch(() => {
+        })
+      }
     },
     onUpdateReply() {
       this.updateContent = this.replyInfo.contents
@@ -169,7 +183,7 @@ export default {
         postFix = `/${this.replyInfo.replyId}`
       }
 
-      axios.delete(`${SERVER_URL}/repries${postFix}`, this.getToken)
+      axios.delete(`${SERVER_URL}/replies${postFix}`, this.getToken)
       .then(() => {
         this.replyInfo = null
       })
@@ -186,20 +200,20 @@ export default {
       }
 
       if (this.replyType === "rereply") {
-        params.parentId = this.replyInfo.parentId
+        params.rereplyId = this.replyInfo.rereplyId
         postFix = "/rereply"
       } else {
-        params.articleId = this.replyInfo.articleId
+        params.replyId = this.replyInfo.replyId
       }
 
-      axios.put(`${SERVER_URL}/repries${postFix}`, params, this.getToken)
-      .than(() => {
+      axios.put(`${SERVER_URL}/replies${postFix}`, params, this.getToken)
+      .then(() => {
         var date = new Date();
         date = date.getFullYear() + "년" + (date.getMonth() + 1) + "월" + date.getDate() + "일"
         this.replyInfo.wdate = date
         this.replyInfo.contents = this.updateContent
       })
-      .than(()=> {
+      .then(()=> {
         this.isUpdating = false
       })
       .catch(err => {
@@ -210,6 +224,9 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+/* 컨테이너를 relative position으로 바꾼다. */
+.relative-container {
+  position: relative
+}
 </style>

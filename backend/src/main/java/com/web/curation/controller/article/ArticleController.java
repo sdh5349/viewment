@@ -3,9 +3,9 @@ package com.web.curation.controller.article;
 import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
-import com.web.curation.dto.article.FeedArticleDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
 import com.web.curation.service.article.ArticleService;
 import com.web.curation.service.image.ImageService;
@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @변경이력 김종성: 좋아요 기능 추가
  * @변경이력 이주희: 기본 피드 게시글 조회 기능 추가
+ * 이주희 21-02-09 기본 피드 게시글 조회 기능 수정
  **/
 
 
@@ -72,6 +73,13 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
+    @ApiOperation(value = "user id로 게시글 조회, 사용자 프로필 피드 탭에 사용 - 페이징")
+    @GetMapping("/searchbyuserid/{userId}/pg")
+    public ResponseEntity<?> getArticleByUserId(@PathVariable("userId") String userId, PageRequest pageRequest){
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId, pageRequest);
+        return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
     @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용")
     @GetMapping("/searchbyhashtag/{hashtag}")
     public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag) {
@@ -79,15 +87,36 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
-    @ApiOperation(value = "기본 피드 게시글 조회 - 노출 정도 설정 가능")
-    @GetMapping("/forfeed")
-    public ResponseEntity<?> getArticlesForFeed(FeedArticleDto feedArticleDto) {
-        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesForFeed(feedArticleDto);
+    @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용 - 페이징")
+    @GetMapping("/searchbyhashtag/{hashtag}/pg")
+    public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag, PageRequest pageRequest) {
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag, pageRequest);
+        return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
+    @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회")
+    @GetMapping("/feed/{userId}")
+    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+        List<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회 - 페이징")
+    @GetMapping("/feed/{userId}/pg")
+    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng, PageRequest pageRequest) {
+        Page<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng, pageRequest);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
     @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지")
     @GetMapping("/pins")
+    public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds) {
+        List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "pin id들로 게시글 조회 - 모아보기 페이지 (기간조회)")
+    @GetMapping("/pins/period")
     public ResponseEntity<?> getArticlesByPins(@RequestParam("pinId") Long[] pinIds, @RequestParam("start") String start, @RequestParam("end") String end) {
         List<ArticleSimpleDto> articleSimpleDtos = articleService.getArticlesByPins(pinIds, start, end);
         return ResponseEntity.ok().body(articleSimpleDtos);

@@ -4,6 +4,7 @@ import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
+import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
 import com.web.curation.repository.article.ArticleRepository;
@@ -15,6 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -97,7 +102,7 @@ public class RecommendServiceTest {
 
         //when
 
-        List<ArticleSimpleDto> result = recommendService.recommendArticle("4");
+        List<ArticleFeedDto> result = recommendService.recommendArticle("4", PageRequest.of(0, 10)).getContent();
 
         //then
         System.out.println();
@@ -119,7 +124,7 @@ public class RecommendServiceTest {
 
         //when
 
-        List<ArticleSimpleDto> result = recommendService.recommendArticle("1");
+        List<ArticleFeedDto> result = recommendService.recommendArticle("1", PageRequest.of(0, 10)).getContent();
 
         //then
         result.forEach(articleInfoDto -> System.out.println(articleInfoDto.getArticleId()));
@@ -128,19 +133,14 @@ public class RecommendServiceTest {
 
     public static ArticleDto setArticleData(String userId, Long pinId, String contents, String... hashtag) {
         ArticleDto articleDto = new ArticleDto();
-
         articleDto.setUserId(userId);
-
         articleDto.setPinId(pinId);
-
         List<String> hashtags = new ArrayList<>();
         for (String h : hashtag) {
             hashtags.add(h);
         }
         articleDto.setHashtags(hashtags);
-
         articleDto.setContents(contents);
-
         return articleDto;
     }
 }

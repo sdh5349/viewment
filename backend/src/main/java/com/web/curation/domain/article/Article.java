@@ -57,7 +57,7 @@ public class Article {
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Likes> likes = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String contents;
 
     @CreationTimestamp

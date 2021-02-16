@@ -37,11 +37,13 @@
               <UserProfileImage 
                 :profile-image="articleInfo.user.profileImage"
                 :nickname="articleInfo.user.nickname"
+                :font-size="1.5"
               />
               <!-- 사용자 아이콘, 닉네임 끝 -->
               
               <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 시작 -->
-              <v-menu 
+              <v-menu
+                v-if="loginUserId === articleInfo.user.userId"
                 transition="scroll-y-transition"
               >
                 <template v-slot:activator="{ on, attrs }">
@@ -72,7 +74,7 @@
       <v-divider class="pb-2"></v-divider>
       
       <!-- 게시물 작성 시간 시작 -->
-      <p class="text-overline mb-0">{{articleInfo.wdate | dateFormat()}}</p>
+      <p class="text-body-1 mb-0">{{articleInfo.wdate | dateFormat()}}</p>
       <!-- 게시물 작성 시간 끝 -->
       
       <!-- 디바이더 -->
@@ -80,7 +82,7 @@
       <!--  -->
       <v-card elevation="0">
         <!-- 주소정보 시작 -->
-        <v-card-title>
+        <v-card-title class="pa-0 pb-1">
           <v-icon
             left
           >
@@ -93,7 +95,7 @@
                 v-bind="attrs"
                 v-on="on" 
                 class="text-body-1"
-              >{{ articleInfo.pin.addressName | truncate(10, '...')}}</span>
+              >{{ articleInfo.pin.addressName | truncate(15, '...')}}</span>
             </template>
             <span>{{articleInfo.pin.addressName}}</span>
           </v-tooltip>
@@ -106,13 +108,12 @@
           <!-- 사진을 조회하는 캐러셀 시작 -->
           <v-carousel 
             :show-arrows="false" 
-            hide-delimiter-background 
-            delimiter-icon="mdi-minus" 
+            hide-delimiter-background  
             height="300"
             mouse-drag=true
           >
             <v-carousel-item 
-              v-for="(articleImage, idx) in articleInfo.images" 
+              v-for="(articleImage, idx) in articleInfo.images"
               :key="idx" 
               :src="imageServerPrefix +  articleImage.path">
             </v-carousel-item>
@@ -122,7 +123,7 @@
           <!-- 좋아요 버튼 시작 -->
           <v-btn 
             icon
-            class="bottom-left-position"
+            class="bottom-right-position"
             @click="onLikeButton"
           >        
             <v-icon v-if="articleInfo.liked" x-large color="error">mdi-heart</v-icon>
@@ -140,7 +141,7 @@
           >
             <v-chip
               v-for="(hashtag, i) in articleInfo.hashtags" :key="i"
-              class="mx-1 px-2"
+              class="mx-1 px-2 text-body-1"
               label
               small
               color="primary"
@@ -153,7 +154,7 @@
         <!-- 해시태그 끝 -->
 
         <!-- 게시글 내용 시작 -->
-        <v-card-text class="pa-2">
+        <v-card-text class="pa-2 text-body-1">
           {{articleInfo.contents}}
         </v-card-text>
         <!-- 게시글 내용 끝 -->
@@ -171,7 +172,7 @@
               <!-- 좋아요가 하나도 없으면 버튼이 활성화되지 않는다 -->
               <v-btn
                 small
-                :class="{ 'disable-events': !articleInfo.likes }"
+                :class="!articleInfo.likes ? 'disable-events text-body-1' : 'text-body-1'"
                 text
                 v-bind="attrs"
                 v-on="on"
@@ -209,21 +210,16 @@
           :loginUserId="loginUserId"
           replyType="reply"
         />
-        <p 
-          v-else
-          class="text-caption pa-2"
-        >아직 댓글이 없어요... 첫 댓글을 달아주세요</p>
-        
       </v-card>
     </v-col>
   </v-row>
 </template>
 
 <script>
-  import axios from 'axios'
-  import UserProfileImage from '@/components/user/UserProfileImage'
-  import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
-  import ReplyList from '@/components/reply/ReplyList'
+import axios from 'axios'
+import UserProfileImage from '@/components/user/UserProfileImage'
+import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
+import ReplyList from '@/components/reply/ReplyList'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -293,27 +289,28 @@ export default {
       })
     },
     updateArticle(){
-      console.log(this.articleInfo)
-      // this.$router.push({name: 'UpdateArticle', params: {
-      //   articleId: this.articleId,
-      //   hashtagArray: this.articleInfo.hashtags,
-      //   contents: this.articleInfo.contents,
-      //   lat: this.articleInfo.pin.lat,
-      //   lng: this.articleInfo.pin.lng,
-      //   preview: this.articleInfo.images,
-      //   addressName: this.articleInfo.addressName,
-      //   date: this.articleInfo.date
-      // }})
+      this.$router.push({name: 'UpdateArticle', params: {
+        articleId: this.articleId,
+        hashtagArray: this.articleInfo.hashtags,
+        contents: this.articleInfo.contents,
+        lat: this.articleInfo.pin.lat,
+        lng: this.articleInfo.pin.lng,
+        preview: this.articleInfo.images,
+        addressName: this.articleInfo.addressName,
+        date: this.articleInfo.date
+      }})
     },
     deleteArticle(){
       axios.delete(`${SERVER_URL}/articles/`+ this.articleId, this.getToken )
-      .then((res) => {
-        alert('게시물 삭제 완료')
-        this.$router.push({name: 'Feed'})
+      .then(res => {
+        if (confirm('게시물을 삭제하시겠습니까?')) {
+          alert('게시물 삭제 완료')
+          this.$router.push({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
+        }
       })
     },
     clickHashtag(res){
-      this.$router.push({name: 'Search', params: {
+      this.$router.push({name: 'SearchHashtagGrid', params: {
         clickedHash: res
       }})
     },
@@ -326,8 +323,8 @@ export default {
         }
   
         axios.post(`${SERVER_URL}/replies`, params, this.getToken)
-        .then(()=> {
-          this.fetchData()
+        .then(res => {
+          this.articleInfo.replies.push(res.data)
         })
         .then(() => {
           this.commentInput = ''
@@ -389,10 +386,10 @@ export default {
 }
 
 /* 계정설정 버튼의 위치를 설정한다 */
-.bottom-left-position {
+.bottom-right-position {
   position: absolute; 
   bottom: 0.4rem; 
-  left: 0.4rem;
+  right: 0.4rem;
   z-index: 1;
 }
 

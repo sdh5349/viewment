@@ -1,5 +1,5 @@
 <template>
-  <v-card-text>
+  <v-list class="py-0">
     <Reply 
       v-for="reply in replies" 
       :key="reply.replyId" 
@@ -8,14 +8,14 @@
       :loginUserId="loginUserId"
       :replyType="replyType" 
     />
-  </v-card-text>
+  </v-list>
 </template>
 
 <script>
 import Reply from '@/components/reply/Reply'
 
 export default {
-  name: 'ReplyList',
+  name: 'reply-list',
   components: {
     Reply
   },

@@ -7,4 +7,5 @@ import lombok.Getter;
 @Getter
 public class UserDuplicateException extends RuntimeException {
     private String email;
+    private String nickname;
 }

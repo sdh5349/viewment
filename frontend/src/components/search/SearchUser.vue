@@ -3,45 +3,71 @@
     class="mx-auto mt-5"
     flat
   >
-    <v-list>
-      <v-list-item
-        v-for="user in users.content"
-        :key="user.nickname"
-        @click="goProfile(user)"
+
+      <v-virtual-scroll
+        :items="scrollUsers"
+        :item-height="50"
+        class="scroll-container"
+        @scroll="scrolling"
+        id="scroll"
       >
-        <v-list-item-avatar>
-          <v-img
-            :alt="`${user.nickname} avatar`"
-            :src="user.profileImage"
-          ></v-img>
-        </v-list-item-avatar>
-
+      <template v-slot:default="{ item }">
+        <v-list-item
+          @click="goProfile(item)"
+        >
+          
         <v-list-item-content>
-          <v-list-item-title v-text="user.nickname"></v-list-item-title>
-        </v-list-item-content>
+          <v-list-item-title >
+          <div class="d-flex justify-space-between">
+            <UserProfileImage 
+              :profile-image="item.profileImage"
+              :nickname="item.nickname"
+              :size="2.7"
+            />
+          
+              <v-btn
+                v-if="item.followed && item.userId !== loginUserId"
+                small 
+                class="px-0"
+                width="55"  
+                elevation="1" 
+                @click.stop="onFollowButton(item)"
+              >
+                언팔로우
+              </v-btn>
+              <v-btn
+                v-else-if="item.userId !== loginUserId"
+                small 
+                class="px-0"
+                width="55"
+                color="primary" 
+                elevation="1" 
+                @click.stop="onFollowButton(item)"
+              >
+                팔로우
+              </v-btn>
 
-        <v-list-item-icon>
-          <v-icon :color="user.followed ? 'deep-red accent-4' : 'grey'">
-            mdi-heart
-          </v-icon>
-        </v-list-item-icon>
-      </v-list-item>
-    </v-list>
+          <!-- </v-row> -->
+           </div>
+           </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        </template>
+      </v-virtual-scroll>
   </v-card>
 </template>
 
 <script>
 import axios from 'axios'
-// import { params } from 'vee-validate/dist/types/rules/alpha'
-// import { params } from 'vee-validate/dist/types/rules/alpha'
+import UserProfileImage from '@/components/user/UserProfileImage'
+// import { mdiChessBishop } from '@mdi/js'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
-  data() {
-    return {
-     users: [],
-    }
+  name: 'SearchUser',
+  components: {
+    UserProfileImage
   },
   props: {
     search : {
@@ -49,6 +75,17 @@ export default {
     },
     onTab : {
       type: Number,
+    }
+  },
+  data() {
+    return {
+      // users: [],
+      scrollUsers: [],
+      profileImageUrl: `${SERVER_URL}/images/`,
+      loginUserId: sessionStorage.getItem('uid'),
+      page: 0,
+      size: 5,
+      last: false,
     }
   },
   computed: {
@@ -64,73 +101,136 @@ export default {
     }
   },
   methods: {
+    // User정보 가져오기
     getUsers() {
-      console.log(this.getToken.headers)
-      var params = {page:0, size:10}
-      axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
-        .then((res) => {
-        console.log(res)     
-        console.log("성공")  
-        this.users = res.data
-        })
-        .catch((err)=> {
-          alert('error'+err.message)
-        })
+      var params = {page:this.page, size:this.size}
+      console.log(this.page)
+        if(this.search){
+          axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
+            .then(res => {
+              console.log(res.data)
+              this.scrollUsers.push(...res.data.content)
+              console.log(this.scrollUsers)
+              this.page += 1
+              this.last = res.data.last
+            })
+            .catch((err)=> {
+              alert('error'+err.message)
+            })
+        }
     },
+    // click시 데이터 포함하여 프로필로 이동
     goProfile(user) {
       this.$router.push({ name: 'Profile', params: { profileUserId : user.userId }})
-      this.Historys = 
-        {
-          HistoryTitle: user.nickname,
-          HistoryContent: user.userId, 
-          HistoryIcon: user.profileImage,
-          HistoryProperty: "User",
-        }
-      this.appendToStorage(this.Historys)
+      if(user.profileImage) {
+        this.History = 
+          {
+            HistoryTitle: user.nickname,
+            HistoryContent: user.userId, 
+            HistoryImage: user.profileImage,
+            HistoryProperty: "User",
+          }
+      }
+      else {
+        this.History = 
+          {
+            HistoryTitle: user.nickname,
+            HistoryContent: user.userId,
+            HistoryIcon: "mdi-account-circle",
+            HistoryProperty: "User",
+          }
+      }
+      this.appendToStorage(this.History)
     },
-    appendToStorage(Historys) {
-      var str = localStorage.getItem("Historys");
-      var obj = {};
-      var limitMax = 6;
-      try {
-        obj = JSON.parse(str);
-      } catch {
-        obj = {};
+    // 검색기록을 위한 localstorage 저장(중복제거)
+    appendToStorage(History) {
+      var tempArray
+      if (localStorage.getItem('Historys') === null) {
+        tempArray = [];
+      } 
+      else {
+        tempArray = JSON.parse(localStorage.getItem('Historys'))
       }
-      if(!obj){
-        obj = {};
-        obj["Historys"] = [];
+      var index = tempArray.findIndex(x => x.HistoryTitle === History.HistoryTitle && x.HistoryProperty === History.HistoryProperty)
+      if (index != -1){
+        tempArray.splice(index, 1)
       }
-      obj["Historys"].push(Historys);
-      if (limitMax && limitMax < obj["Historys"].length) {
-        let tempList = [];
-        for(let i = obj["Historys"].length-limitMax; i < obj["Historys"].length; i++) {
-          tempList.push(obj["Historys"][i]);
-        }
-        obj["Historys"] = tempList;
+      tempArray.push(History)
+      localStorage.setItem('Historys', JSON.stringify(tempArray))   
+    },
+    // follow 기능
+    onFollowButton (targetUser) {
+      const targetUserIdx = this.scrollUsers.indexOf(targetUser)
+      
+      if (targetUser.followed) {
+        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
+        .then(() => {
+          this.scrollUsers[targetUserIdx].followed = !this.scrollUsers[targetUserIdx].followed
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
+      } else {
+        var params = {'targetUserId' : targetUser.userId }
+        axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
+        .then(() => {
+          this.scrollUsers[targetUserIdx].followed = !this.scrollUsers[targetUserIdx].followed 
+        })
+        .catch(err => {
+          alert("오류"); // TODO: 오류페이지로 변경
+          console.log('Error', err.message);
+          // self.$router.push({ name: 'Error' })
+        })
       }
-      localStorage.setItem("Historys", JSON.stringify(obj));
+    },
+    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
+    scrolling (event) {
+      const scrollInfo = event.target
+      console.log(event)
+      // console.log(scrollInfo)
+      // var elemHeight = $("#container")[0].scrollHeight;
+      // var scrollHeight = $("#scrollbars")[0].scrollHeight;
+      console.log(document.getElementById("scroll"))
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+        this.getUsers()
+      }
+      // this.getUsers()
     },
   },
+  created () {
+    window.addEventListener('scroll', this.scrolling);
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.scrolling);
+  },
   watch: {
-    search: function() {
-      console.log("유저a")
-      if(this.onTab===3){
-        this.getUsers()
-        
+    onTab: {
+      immediate: true,
+      handler(onTab) {
+        fetch(`/${onTab}`).then((data) => {
+          this.getUsers()
+        })
       }
-
     },
-    onTab: function() {
-      console.log("유저b")
+    search() {
       if(this.onTab===3){
-        this.getUsers()
+        this.page = 0
+        this.scrollUsers = []
+        this.getUsers()  
       }
-    }
+    },
   },
 }
 </script>
 
-<style>
-
+<style scoped>
+/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
+.scroll-container {
+  width: 100%;
+  height: 80vh;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
 </style>

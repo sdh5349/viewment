@@ -1,6 +1,7 @@
 package com.web.curation.util;
 
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
@@ -16,16 +17,26 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * com.web.curation.util
+ * ImageUtil.java
+ * @date    2021-02-07 오전 7:41
+ * @author  이주희
+ *
+ * @변경이력
+ **/
+
 public class ImageUtil {
 
     static final int maxWidth = 1000;
 
     public static void save(String type, File file) throws Exception {
         BufferedImage originalImage = ImageIO.read(file);
+        int originalWidth = originalImage.getWidth();
+        int originalHeight = originalImage.getHeight();
 
         Metadata metadata = ImageMetadataReader.readMetadata(file);
         ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        JpegDirectory jpegDirectory = (JpegDirectory) metadata.getFirstDirectoryOfType(JpegDirectory.class);
 
         int orientation = 1;
         try {
@@ -34,19 +45,24 @@ public class ImageUtil {
             ex.printStackTrace();
         }
 
-        AffineTransform affineTransform = getAffineTransform(orientation, jpegDirectory);
-
+        AffineTransform affineTransform = getAffineTransform(orientation, originalWidth, originalHeight);
         AffineTransformOp affineTransformOp = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BILINEAR);
-        BufferedImage destinationImage = new BufferedImage(originalImage.getHeight(), originalImage.getWidth(), originalImage.getType());
+        switch (orientation) {
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                originalWidth = originalImage.getHeight();
+                originalHeight = originalImage.getWidth();
+        }
+        BufferedImage destinationImage = new BufferedImage(originalWidth, originalHeight, originalImage.getType());
         destinationImage = affineTransformOp.filter(originalImage, destinationImage);
 
         ImageIO.write(resize(type, orientation, destinationImage), "jpg", file);
     }
 
-    private static AffineTransform getAffineTransform(int orientation, JpegDirectory jpegDirectory) throws MetadataException {
+    private static AffineTransform getAffineTransform(int orientation, int width, int height) throws MetadataException {
         AffineTransform affineTransform = new AffineTransform();
-        int width = jpegDirectory.getImageWidth();
-        int height = jpegDirectory.getImageHeight();
 
         switch (orientation) {
             case 1:
@@ -93,14 +109,14 @@ public class ImageUtil {
         int newWidth = image.getWidth(null);
         int newHeigt = image.getHeight(null);
 
-        switch (orientation) {
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-                newWidth = image.getHeight(null);
-                newHeigt = image.getHeight(null);
-        }
+//        switch (orientation) {
+//            case 5:
+//            case 6:
+//            case 7:
+//            case 8:
+//                newWidth = image.getHeight(null);
+//                newHeigt = image.getHeight(null);
+//        }
 
 
         if ("profile".equals(type)) {
@@ -112,8 +128,8 @@ public class ImageUtil {
                 newWidth = maxWidth;
             }
         } else if ("thumbnail".equals(type)) {
-            newHeigt = 400;
-            newWidth = 400;
+            newHeigt = 300;
+            newWidth = 300;
         }
 
         // 이미지 리사이즈

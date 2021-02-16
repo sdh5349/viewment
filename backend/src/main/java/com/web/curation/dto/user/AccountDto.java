@@ -9,6 +9,11 @@ import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
 /**
  * com.web.curation.dto.user
  * AccountDto.java
@@ -22,12 +27,16 @@ import javax.persistence.Id;
 @Getter
 @Setter
 public class AccountDto {
+    @NotBlank
     private String userId;
+
+    @Email
     private String email;
+
+    @NotBlank
     private String nickname;
+
     private String message;
     private UserRole role;
     private Image profileImage;
-
-
 }

@@ -3,8 +3,13 @@ package com.web.curation.exceptions;
 import com.web.curation.commons.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * com.web.curation.exceptions
@@ -21,8 +26,9 @@ public class GlobalExceptionController {
 
     @ExceptionHandler(UserDuplicateException.class)
     public ResponseEntity<?> handleUserDuplicateException(UserDuplicateException e){
-        final String msg  = "[ " + e.getEmail() + "] 은 중복된 이메일입니다";
-        final String code = "duplicated.email.exception";
+        final String type = e.getEmail()==null?"nickname":"email";
+        final String msg  = String.format("[ %s ]는 증복된 %s 입니다", e.getEmail()==null?e.getNickname():e.getEmail(), type);
+        final String code = "duplicated.user.exception";
         ErrorResponse errorResponse = new ErrorResponse(msg, code);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -41,6 +47,14 @@ public class GlobalExceptionController {
         final String code = "nonexistence.element.exception";
         ErrorResponse errorResponse = new ErrorResponse(msg, code);
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        Map<String, String> errorResponse = new HashMap<>();
+        e.getBindingResult().getAllErrors()
+                .forEach(error->errorResponse.put(((FieldError) error).getField(), error.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
 }

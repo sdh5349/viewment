@@ -85,14 +85,14 @@ public class ReplyServiceTest {
         replyDto.setUserId("aaa");
         replyDto.setContents("test contents");
 
-        Reply savedReply = replyService.writeReply(replyDto);
+        ReplyDto savedReply = replyService.writeReply(replyDto);
         Reply findReply = replyRepository.findById(savedReply.getReplyId()).orElseThrow(
                 () -> {
                     throw new ElementNotFoundException("Reply", savedReply.getReplyId().toString());
                 }
         );
 
-        Assertions.assertEquals(savedReply, findReply);
+        Assertions.assertEquals(savedReply.getArticleId(), findReply.getArticle().getArticleId());
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ReplyServiceTest {
         replyDto.setArticleId(defaultArticleId);
         replyDto.setUserId("aaa");
         replyDto.setContents("test contents");
-        Reply savedReply = replyService.writeReply(replyDto);
+        ReplyDto savedReply = replyService.writeReply(replyDto);
 
         ReplyDto updateReplyDto = new ReplyDto();
         updateReplyDto.setReplyId(savedReply.getReplyId());
@@ -114,7 +114,7 @@ public class ReplyServiceTest {
                 }
         );
 
-        Assertions.assertEquals(updatedReply.getContents(), updateReplyDto.getContents());
+        Assertions.assertEquals(savedReply.getArticleId(), updatedReply.getArticle().getArticleId());
     }
 
     @Test
@@ -123,7 +123,7 @@ public class ReplyServiceTest {
         replyDto.setArticleId(defaultArticleId);
         replyDto.setUserId("aaa");
         replyDto.setContents("test contents");
-        Reply savedReply = replyService.writeReply(replyDto);
+        ReplyDto savedReply = replyService.writeReply(replyDto);
 
         Article beforeArticle = articleRepository.findById(defaultArticleId).orElseThrow(
                 () -> {
@@ -132,7 +132,6 @@ public class ReplyServiceTest {
         );
         Assertions.assertEquals(1, beforeArticle.getReplies().size());
 
-        System.out.println(savedReply.getReplyId());
         replyService.deleteReply(savedReply.getReplyId());
 
         Article afterArticle = articleRepository.findById(defaultArticleId).orElseThrow(

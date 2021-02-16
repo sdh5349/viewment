@@ -2,11 +2,7 @@
   <v-row
   justify="center"
   >
-    <v-col
-      lg="4"
-      md="4"
-      sm="6"
-    >
+    <v-col>
       <v-card
         class="mx-auto mt-5"
         flat
@@ -44,6 +40,9 @@ export default {
     return {
       hashtags: [],
       Historys: [],
+      page: 0,
+      size: 200,
+      last: false,
     }
   },
   props: {
@@ -53,9 +52,9 @@ export default {
     onTab : {
       type: Number, 
     },
-    limitMax: {
-      type: Number,
-    },
+    // limitMax: {
+    //   type: Number,
+    // },
   },
   computed: {
     getToken() {
@@ -70,67 +69,73 @@ export default {
     }
   },
   methods: {
+    // Hashtag 가져오기
     getHashtags() {
-      axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
-        .then((res) => {
-        console.log(res) 
-        console.log(res.data)
-        this.hashtags = res.data      
-        })
-        .catch((err)=> {
-          alert('error'+err.message)
-        })
+      if(this.search){
+        axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+          .then((res) => {
+          console.log(res) 
+          console.log(res.data)
+          console.log(res.data.last)
+          this.hashtags = res.data
+          })
+          .catch((err)=> {
+            alert('error'+err.message)
+          })
+      }
     },
+    // 그리드로 page로 데이터 포함해 이동
     goGrid(hash) {
       console.log(hash.contents)
-      this.Historys = 
+      this.$router.push({name: 'SearchHashtagGrid', params: {clickedHash: hash.contents}})
+      this.History = 
         {
           HistoryTitle: hash.contents,
           HistoryContent: hash.hashtagId, 
           HistoryIcon:"mdi-pound",
           HistoryProperty: "Hashtag",
         }
-      this.appendToStorage(this.Historys)
+      this.appendToStorage(this.History)
     },
-    appendToStorage(Historys) {
-      var str = localStorage.getItem("Historys");
-      var obj = {};
-      var limitMax = 6;
-      try {
-        obj = JSON.parse(str);
-      } catch {
-        obj = {};
+    // 검색기록을 위한 localstorage 저장(중복제거)
+    appendToStorage(History) {
+      var tempArray
+      if (localStorage.getItem('Historys') === null) {
+        tempArray = [];
+      } 
+      else {
+        tempArray = JSON.parse(localStorage.getItem('Historys'))
       }
-      if(!obj){
-        obj = {};
-        obj["Historys"] = [];
+      var index = tempArray.findIndex(x => x.HistoryTitle === History.HistoryTitle && x.HistoryProperty === History.HistoryProperty)
+      if (index != -1){
+        tempArray.splice(index, 1)
       }
-      obj["Historys"].push(Historys);
-      if (limitMax && limitMax < obj["Historys"].length) {
-        let tempList = [];
-        for(let i = obj["Historys"].length-limitMax; i < obj["Historys"].length; i++) {
-          tempList.push(obj["Historys"][i]);
-        }
-        obj["Historys"] = tempList;
+      tempArray.push(History)
+      localStorage.setItem('Historys', JSON.stringify(tempArray))   
+    },
+    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
+    scrolling (event) {
+      const scrollInfo = event.target
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+        this.getHashtags()
       }
-      localStorage.setItem("Historys", JSON.stringify(obj));
     },
   },
   watch: {
-    search: function() {
-      console.log("해쉬a")
-      if(this.onTab===2){
-        this.getHashtags()
-        
+    onTab: {
+      immediate: true,
+      handler(onTab) {
+        fetch(`/${onTab}`).then((data) => {
+          this.getHashtags()
+        })
       }
-
     },
-    onTab: function() {
-      console.log("해쉬b")
+    search: function() {
       if(this.onTab===2){
-        this.getHashtags()
+        console.log("해쉬a")
+        this.getHashtags()       
       }
-    }
+    },
   },
 }
 </script>
