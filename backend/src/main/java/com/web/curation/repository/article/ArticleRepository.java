@@ -32,6 +32,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("SELECT a FROM Article a JOIN a.hashtags h WHERE UPPER(h.contents) = UPPER(:contents)")
     List<Article> findByHashtag(@Param("contents") String contents);
 
+    @Query("SELECT a FROM Article a JOIN a.hashtags h WHERE UPPER(h.contents) = UPPER(:contents)")
+    Page<Article> findByHashtag(@Param("contents") String contents, Pageable pageable);
+
     List<Article> findByArticleIdIn(Collection<Long> articleIds);
 
     List<Article> findByWdateAfter(Timestamp timestamp);

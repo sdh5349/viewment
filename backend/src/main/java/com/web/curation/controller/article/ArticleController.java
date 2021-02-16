@@ -73,6 +73,13 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
+    @ApiOperation(value = "user id로 게시글 조회, 사용자 프로필 피드 탭에 사용 - 페이징")
+    @GetMapping("/searchbyuserid/{userId}/pg")
+    public ResponseEntity<?> getArticleByUserId(@PathVariable("userId") String userId, PageRequest pageRequest){
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByUserId(userId, pageRequest);
+        return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
     @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용")
     @GetMapping("/searchbyhashtag/{hashtag}")
     public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag) {
@@ -80,10 +87,24 @@ public class ArticleController {
         return ResponseEntity.ok().body(articlesimpleDtos);
     }
 
+    @ApiOperation(value = "해시태그 키워드로 게시글 조회, 검색에 사용 - 페이징")
+    @GetMapping("/searchbyhashtag/{hashtag}/pg")
+    public ResponseEntity<?> getArticlesByHashtag(@PathVariable("hashtag") String hashtag, PageRequest pageRequest) {
+        Page<ArticleSimpleDto> articlesimpleDtos = articleService.findByHashtag(hashtag, pageRequest);
+        return ResponseEntity.ok().body(articlesimpleDtos);
+    }
+
     @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회")
     @GetMapping("/feed/{userId}")
     public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng) {
         List<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng);
+        return ResponseEntity.ok().body(articleSimpleDtos);
+    }
+
+    @ApiOperation(value = "뉴스 피드 피드탭 게시글 조회 - 페이징")
+    @GetMapping("/feed/{userId}/pg")
+    public ResponseEntity<?> getArticlesForFeed(@PathVariable("userId") String userId, @RequestParam("lat") double lat, @RequestParam("lng") double lng, PageRequest pageRequest) {
+        Page<ArticleFeedDto> articleSimpleDtos = articleService.getArticlesForFeed(userId, lat, lng, pageRequest);
         return ResponseEntity.ok().body(articleSimpleDtos);
     }
 
