@@ -1,6 +1,7 @@
 package com.web.curation.exceptions;
 
 import com.web.curation.commons.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -25,8 +26,8 @@ import java.util.Map;
  **/
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionController {
-
 
     @ExceptionHandler(UserDuplicateException.class)
     public ResponseEntity<?> handleUserDuplicateException(UserDuplicateException e){
@@ -34,7 +35,7 @@ public class GlobalExceptionController {
         final String msg  = String.format("[ %s ]는 증복된 %s 입니다", e.getEmail()==null?e.getNickname():e.getEmail(), type);
         final String code = "duplicated.user.exception";
         ErrorResponse errorResponse = new ErrorResponse(msg, code);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -61,12 +62,23 @@ public class GlobalExceptionController {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException e){
+        return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), e.toString()));
+    }
+
     @ExceptionHandler(value = ConstraintViolationException.class) // 유효성 검사 실패 시 발생하는 예외를 처리
     protected ResponseEntity<?> handleException(ConstraintViolationException exception) {
         final String msg = getResultMessage(exception.getConstraintViolations().iterator());
         final String code = "";
         ErrorResponse errorResponse = new ErrorResponse(msg, code);
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAll(Exception e){
+        final ErrorResponse error = new ErrorResponse(e.getMessage(), e.toString());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     protected String getResultMessage(final Iterator<ConstraintViolation<?>> violationIterator) {
