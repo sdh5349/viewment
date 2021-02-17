@@ -8,16 +8,6 @@
           color="white"
           elevate-on-scroll
         >
-          <!-- <v-app-ba></v-app-ba r-nav-icon> -->
-          <!-- <v-btn icon>
-            <v-icon
-              large
-              @click="goPrevious"
-            >
-              mdi-arrow-left
-            </v-icon>
-          </v-btn> -->
-
           <v-toolbar-title>{{$route.meta.title}}</v-toolbar-title>
         
           <v-spacer></v-spacer>
@@ -35,19 +25,14 @@
         <h1 v-else>
           {{ this.$route.meta.title }}
         </h1>
-        <!-- <v-sheet
-          id="scrolling-techniques-7"
-          class="overflow-y-auto"
-          max-height="600"
-        > -->
+
           <v-container fluid class="mt-5">
             <router-view
             class="mt-5"
             @login="login=true"
             />
           </v-container>
-        <!-- </v-sheet> -->
-      <!-- </v-card> -->
+
        <v-bottom-navigation grow fixed
         v-if="$route.meta.title != '로그인' && $route.meta.title != '회원가입'"
        >
@@ -64,7 +49,7 @@
           icon
           @click="goFeed"
         >
-          <!-- <span>Nearby</span> -->
+
           <v-icon large>mdi-map-marker</v-icon>
         </v-btn>
 
@@ -72,7 +57,6 @@
           icon
           @click="goCreateArticle"
         >
-          <!-- <span>Favorites</span> -->
     
           <v-icon large>mdi-plus-box</v-icon>
         </v-btn>
@@ -92,7 +76,6 @@
           icon
           @click="goProfile"
         >
-          <!-- <span>Nearby</span> -->
     
           <v-icon large>mdi-account</v-icon>
         </v-btn>
@@ -111,19 +94,6 @@ export default {
     login: false,
   }),
   methods: {
-    // onLogout() {
-    //   sessionStorage.removeItem('jwt')
-    //   this.login = false
-    //   this.$router.push({ name: 'Login' })
-    // },
-    // onChangePassword() {
-    //   this.$router.push({ name: 'ChangePassword' })
-    //   .catch (err=>{})
-    // },
-    // goPrevious() {
-    //   // this.$router.go(-1)
-    //   document.location.replace("");
-    // },
     goSearch() {
       this.$router.push({ name: 'Search' })
       .catch (err=>{
@@ -194,9 +164,9 @@ export default {
 
 <style scoped>
 /* 컨테이너의 높이를 화면에 꽉차게 늘린다 */
-  .stretch-height {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
+.stretch-height {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 </style>

@@ -3,7 +3,7 @@
     justify="center"
   >
       <v-col
-        class="px-0"
+        
         lg="4"
         md="4"
         sm="6"

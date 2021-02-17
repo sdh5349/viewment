@@ -1,15 +1,14 @@
 <template>
   <div>
   <v-sheet
-    class="mx-auto border-sheet"
+    class="mx-0 px-0 border-sheet"
     elevation="8"
-    max-width="800"
+    max-width="100%"
   >
     <v-slide-group
       v-model="model"
       class="pa-4"
       mandatory
-      show-arrows
     >
       <v-slide-item
         v-for="(article, i) in articles"
