@@ -98,8 +98,9 @@ public class ArticleService {
         setData(articleDto, article);
 
         Article savedArticle = articleRepository.save(article);
+        List<MemoryPin> memoryPins = memoryPinRepository.findByPin(savedArticle.getPin());
 
-        eventPublisher.publishEvent(new NewArticleEvent(savedArticle));
+        eventPublisher.publishEvent(new NewArticleEvent(savedArticle, memoryPins));
 
         return savedArticle;
     }

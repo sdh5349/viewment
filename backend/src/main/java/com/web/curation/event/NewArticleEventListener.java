@@ -28,10 +28,10 @@ public class NewArticleEventListener {
 
     @EventListener
     public void handleNewArticleEvent(NewArticleEvent newArticleEvent) throws FirebaseMessagingException {
-//        System.out.println("이벤트 핸들");
+        System.out.println("이벤트 핸들");
         List<Message> messages = new ArrayList<>();
         Pin pin = newArticleEvent.getArticle().getPin();
-        memoryPinRepository.findByPin(pin).stream()
+        newArticleEvent.getMemoryPins().stream()
                 .forEach(memoryPin -> {
                     Memory memory = memoryPin.getMemory();
                     if (memory.getUser().isMemoryNoti()) {
@@ -43,7 +43,7 @@ public class NewArticleEventListener {
                                 .setTopic("memory-" + memory.getUser().getId())
                                 .build();
                         messages.add(message);
-//                        System.out.println("이벤트 발생: " + "memory-" + memory.getUser().getId());
+                        System.out.println("이벤트 발생: " + "memory-" + memory.getUser().getId());
                         saveNoti(memory, newArticleEvent.getArticle());
                     }
                 });

@@ -23,6 +23,7 @@ public class FirebaseNotiDto {
     private String memoryName;
     private String wdate;
     private String type;
+    private boolean check;
 
     public FirebaseNotiDto(User user, Article article, Memory memory) {
         this.target = new SimpleUserInfoDto(user);
@@ -33,6 +34,7 @@ public class FirebaseNotiDto {
         Timestamp t = new Timestamp(time);
         this.wdate = t.toString();
         this.type = "MEMORY";
+        this.check = false;
     }
 
     public FirebaseNotiDto(User target, User from) {
@@ -42,6 +44,7 @@ public class FirebaseNotiDto {
         Timestamp t = new Timestamp(time);
         this.wdate = t.toString();
         this.type = "FOLLOW";
+        this.check = false;
     }
 
     public FirebaseNotiDto(User target, User from, Article article) {
@@ -53,5 +56,6 @@ public class FirebaseNotiDto {
         Timestamp t = new Timestamp(time);
         this.wdate = t.toString();
         this.type = "LIKE";
+        this.check = false;
     }
 }
