@@ -29,7 +29,7 @@
     v-else
     class="mx-3"
     :items="feedItems"
-    item-height="500"
+    :item-height="500"
     max-height="80vh"
     @scroll.native="scrolling"
   >
@@ -61,6 +61,8 @@ export default {
       page: 0,
       size: 2,
       last: false,
+      itemHeight: 0,
+      loginUserId: sessionStorage.getItem('uid'),
     }
   },
   computed: {
@@ -80,10 +82,9 @@ export default {
   methods: {
     readMore() {
       // 필요한 데이터 가져오기
-      const loginUserId = sessionStorage.getItem('uid')
       // feedType이 recommand 인지 newsfeed인지에 따라 요청 url을 변경한다.
       const url = this.feedType === 'recommend' ? 
-      `${SERVER_URL}/recommendations/articles?page=${this.page}&size=${this.size}` :  `${SERVER_URL}/articles/feed/${loginUserId}/pg?lat=${this.centerPosition.lat}&lng=${this.centerPosition.lng}&page=${this.page}&size=${this.size}`
+      `${SERVER_URL}/recommendations/articles?page=${this.page}&size=${this.size}` :  `${SERVER_URL}/articles/feed/${this.loginUserId}/pg?lat=${this.centerPosition.lat}&lng=${this.centerPosition.lng}&page=${this.page}&size=${this.size}`
 
       axios.get(url, this.getToken)
       .then(res => {
@@ -95,13 +96,11 @@ export default {
         this.loading = false
       })
       .catch(err => {
-
       })
     },
     scrolling (event) {
       const scrollInfo = event.target
-
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop < scrollInfo.clientHeight && !this.last) {
+      if (scrollInfo && Math.round(scrollInfo.scrollHeight - scrollInfo.scrollTop) === scrollInfo.clientHeight && !this.last) {
         this.readMore()
       }
     },

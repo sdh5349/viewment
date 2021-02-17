@@ -3,8 +3,6 @@
     class="map-container"
   >
     <v-col class="py-0">
-  
-  
       <!-- 내 위치로 이동, 기억하기 핀 그리고 기억하기로 이동 버튼들 (시작) -->
       <v-btn-toggle>
 

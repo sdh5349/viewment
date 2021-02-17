@@ -130,8 +130,6 @@ export default {
     // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드
     readMore() {
       // 필요한 데이터 가져오기
-      this.loading = true
-
       axios.get(`${SERVER_URL}/users/${this.profileUserId}/followers?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
         this.followers.push(...res.data.content)
