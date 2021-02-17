@@ -2,14 +2,12 @@ package com.web.curation.service.memory;
 
 import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.Memory;
-import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.memory.MemoryPin;
 import com.web.curation.dto.memory.MemoryDto;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.memory.MemoryRepository;
-import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.pin.PinRepository;
 import com.web.curation.repository.user.UserRepository;
 import com.web.curation.util.DistanceUtil;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +37,6 @@ public class MemoryServiceImpl implements MemoryService {
     private final MemoryRepository memoryRepository;
     private final UserRepository userRepository;
     private final PinRepository pinRepository;
-    private final NotificationRepository notificationRepository;
 
     public User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -104,7 +100,6 @@ public class MemoryServiceImpl implements MemoryService {
         Memory memory = getMemory(memoryId);
         memory.resetUser();
         memory.resetNearbyPins();
-        notificationRepository.deleteByMemory(memory);
         memoryRepository.delete(memory);
         return memoryId;
     }
