@@ -24,8 +24,7 @@ import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Likes, Long> {
 
-    @Query("select l from Likes l where l.user.id = :userId and l.article.articleId = :articleId")
-    public Optional<Likes> findByUserIdAndArticleId(@Param("userId") String userId, @Param("articleId") Long articleId);
+    public Optional<Likes> findByUserAndArticle(User user, Article article);
 
     public Page<Likes> findByArticle(Article article, Pageable pageable);
     public Long countByArticle(Article article);

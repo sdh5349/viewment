@@ -42,6 +42,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -352,6 +354,10 @@ public class ArticleService {
         User user = getUser(userId);
         Article article = getArticle(articleId);
 
+        likeRepository.findByUserAndArticle(user, article).ifPresent(
+                likes->{throw new IllegalStateException("이미 좋아요를 누른 게시글입니다.");}
+        );
+
         Likes like = new Likes();
         like.setUser(user);
         like.setArticle(article);
@@ -367,20 +373,19 @@ public class ArticleService {
 
     @Transactional
     public void unlike(String userId, Long articleId) {
-        Likes like = likeRepository.findByUserIdAndArticleId(userId, articleId).orElseThrow(
-                () -> {
-                    throw new ElementNotFoundException("User, Article", "userId " + articleId.toString());
-                }
-        );
-
         User user = getUser(userId);
         Article article = getArticle(articleId);
+
+        Likes like = likeRepository.findByUserAndArticle(user, article).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("User, Article", "article " + articleId.toString());
+                }
+        );
 
         user.removeLike(like);
         article.removeLike(like);
 
         likeRepository.delete(like);
-
     }
 
     public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable) {
