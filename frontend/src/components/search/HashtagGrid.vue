@@ -3,23 +3,6 @@
     class="scroll-container"
     
   >
-    <v-progress-circular
-      indeterminate
-      color="primary"
-    ></v-progress-circular>
-  </v-row>
-
-
-
-  <v-row
-    v-else
-  >
-    <v-virtual-scroll
-      :items="hashArticles"
-      :item-height="60"
-      @scroll="scrolling"
-      
-    >
     <v-col
       v-for="(hashArticle,index) in hashArticles"
       :key="index"
@@ -29,18 +12,30 @@
      
         <v-scale-transition>
           <v-img
-            :src="imageServerPrefix + item.thumbnail.path"
-            :lazy-src="imageServerPrefix + item.thumbnail.path"
+            :src="imageServerPrefix + hashArticle.thumbnail.path"
+            :lazy-src="imageServerPrefix + hashArticle.thumbnail.path"
             aspect-ratio="1"
             @click="goDetail(hashArticle.articleId)"
           >
-        </v-img>
 
+          <!-- 이미지 요청이 길어지면 뜨는 로딩 창 시작 -->
+          <template v-slot:placeholder>
+            <v-row
+              class="fill-height ma-0"
+              align="center"
+              justify="center"
+            >
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-row>
+          </template>
+          <!-- 이미지 요청이 길어지면 뜨는 로딩 창 끝 -->
+
+        </v-img>
       </v-scale-transition>
-    
-        </template>
-        </v-col>
-    </v-virtual-scroll>
+    </v-col>
   </v-row>
 </template>
 
