@@ -1,12 +1,4 @@
 <template>
-  <!-- <v-row v-if="loading">
-    <v-progress-circular
-      :width="3"
-      color="red"
-      indeterminate
-    ></v-progress-circular>
-  </v-row> -->
-    <!-- v-else -->
   <v-row
     justify="center"
   >
@@ -19,7 +11,7 @@
     <!-- 프로필 카드 시작 -->
     <v-card
       flat
-      class="py-3"
+      class="py-6"
     >
       <v-list-item three-line>
         <v-card
@@ -63,11 +55,12 @@ export default {
       hash: "",
     }
   },
+  props:{
+    clickedHash : String,
+  },
   methods: {
     getParams() {
-      if(this.$route.params.clickedHash){
-        this.hash = this.$route.params.clickedHash
-      }
+      this.hash = this.clickedHash
     }
   },
   created() {
