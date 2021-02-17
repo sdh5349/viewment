@@ -11,9 +11,9 @@
   
         <v-stepper-content step="1" class="">
   
-          <!-- v-if="this.preview.length != 0"  -->
+          
           <v-card class="img-card-container  " elevation='0'>
-            <v-row class="d-flex justify-space-between">
+            <v-row class="d-flex justify-space-between" v-if="this.preview.length != 0" >
               <v-col cols="3" >
                 <v-btn  class="close-button" text @click='imageDelete(index)' color="black">
                   <v-icon>
@@ -24,7 +24,7 @@
   
               <v-col cols="3">
                 <v-file-input class="plus-button" color="black" accept="image/*" v-model="files" multiple @change="previewImg"
-                  prepend-icon=mdi-plus hide-input>
+                  prepend-icon=mdi-camera-enhance hide-input>
                 </v-file-input>
               </v-col>
   
@@ -37,7 +37,7 @@
   
   
             <v-carousel class="carousel-container" :show-arrows="false" hide-delimiter-background
-              delimiter-icon="mdi-checkbox-blank-circle-outline" height="25vh">
+              delimiter-icon="mdi-checkbox-blank-circle-outline" height="30vh">
   
               <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url">
   
@@ -355,7 +355,9 @@ export default {
   height: 40vh; 
 
 }
-
+.carousel-container {
+  padding-top: 20px;
+}
 .file-input {
   position: absolute; 
   margin: 0;
@@ -375,10 +377,13 @@ export default {
 }
 .close-button {
   position: absolute;
-  top: 30px;
+  top: 5px;
+  z-index: 3;
 }
 .plus-button {
   position: absolute;
+  z-index: 3;  
+  top: -10px;
 }
 
 </style>
