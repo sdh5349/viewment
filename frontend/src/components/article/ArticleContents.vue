@@ -253,7 +253,7 @@ export default {
   },
   methods: {
     updateArticle(){
-      this.$router.push({name: 'UpdateArticle', params: {
+      this.$router.replace({name: 'UpdateArticle', params: {
         articleId: this.articleInfo.articleId,
         hashtagArray: this.articleInfo.hashtags,
         contents: this.articleInfo.contents,

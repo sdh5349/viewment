@@ -139,6 +139,7 @@ export default {
     // 검색하기의 지도탭에서 검색한 주소의 중심좌표를 얻어오기 위한 method
     // 검색하기에서 router에 params로 담아 처리했음
     getCenter() {
+      
       // 검색하기를 통해 온건지 그냥 뉴스피드버튼을 누른지를 판단하기 위한 조건문
       // 그냥 뉴스피드로 오면 params가 없기 때문에 다음과 같이 처리
       if (this.$route.params){

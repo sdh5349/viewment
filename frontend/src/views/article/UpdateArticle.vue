@@ -17,7 +17,7 @@
               <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
                 :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
                 <v-avatar class="accent white--text" left v-text="'#'" ></v-avatar>
-                {{ data.item }}
+                  {{ data.item }}
               </v-chip>
             </template>
           </v-combobox> 
@@ -148,10 +148,6 @@ export default {
       this.$refs.menu.save(date)
     },
     onUpdate() {
-      var index = this.hashtags.indexOf('')
-      if (index!=-1){
-        this.hashtags.splice(index, 1)
-      }
       this.articleInfo.userId = sessionStorage.getItem('uid')
       this.articleInfo.articleId = this.articleId
       this.articleInfo.lat = this.lat
@@ -219,6 +215,17 @@ export default {
       }
       return config
     }
+  },
+  watch: {
+    hashtags (val) {
+      var index = this.hashtags.indexOf('')
+      if (index!=-1){
+        this.hashtags.splice(index, 1)
+      }
+      if (val.length > 5) {
+        this.$nextTick(() => this.hashtags.pop())
+      }
+    },
   },
   created() {
     this.articleId= this.$route.params.articleId,
