@@ -34,7 +34,7 @@ public class HashtagController {
 
     @ApiOperation(value = "키워드로 해시태그 조회")
     @GetMapping("/{keyword}")
-    public ResponseEntity<List<HashtagDto>> getHashtagByKeyword(@PathVariable("keyword") @Pattern(regexp = "^[a-zA-Z가-힣]*$") String keyword){
+    public ResponseEntity<List<HashtagDto>> getHashtagByKeyword(@PathVariable("keyword") @Pattern(regexp = "^[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ0-9]*$") String keyword){
         List<HashtagDto> hashtagDtos = hashtagService.findByContentsStartingWithIgnoreCase(keyword);
         return ResponseEntity.ok().body(hashtagDtos);
     }

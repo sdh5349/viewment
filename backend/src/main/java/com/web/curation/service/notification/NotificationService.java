@@ -4,13 +4,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.TopicManagementResponse;
 import com.web.curation.domain.User;
-import com.web.curation.domain.article.Article;
-import com.web.curation.dto.notification.NotiListDto;
 import com.web.curation.dto.notification.NotiSettingsDto;
 import com.web.curation.dto.notification.UserNotiDto;
 import com.web.curation.exceptions.TypeNotDefineException;
 import com.web.curation.exceptions.UserNotFoundException;
-import com.web.curation.repository.notification.NotificationRepository;
 import com.web.curation.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -26,7 +22,6 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
 
     public void subscribeAll(NotiSettingsDto notiSettingsDto) throws FirebaseMessagingException {
         List<String> tokenList = new ArrayList<>();
@@ -103,32 +98,6 @@ public class NotificationService {
     public UserNotiDto getNotiInfo(String userId) {
         User user = getUser(userId);
         return new UserNotiDto(user);
-    }
-
-    public long getCountUncheckNoti(String userId) {
-        User user = getUser(userId);
-        return notificationRepository.countByToAndChecked(user, false);
-    }
-
-    public List<NotiListDto> getUncheckNoti(String userId) {
-        User user = getUser(userId);
-        List<NotiListDto> result = notificationRepository.findByToAndChecked(user, false).stream()
-                .map(noti -> {
-//                    noti.setChecked(true);
-                    return new NotiListDto(noti);
-                })
-                .collect(Collectors.toList());
-        return result;
-    }
-
-    public List<NotiListDto> getcheckNoti(String userId) {
-        User user = getUser(userId);
-        List<NotiListDto> result = notificationRepository.findByToAndChecked(user, true).stream()
-                .map(noti -> {
-                    return new NotiListDto(noti);
-                })
-                .collect(Collectors.toList());
-        return result;
     }
 
     private User getUser(String userId) {
