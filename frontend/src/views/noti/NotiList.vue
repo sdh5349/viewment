@@ -28,17 +28,36 @@
                     <img v-else src="@/assets/images/account.png" />
                   </v-avatar>
                 </div>
-                <div style="margin: 0; padding: 2px 13px">
-                  <p v-if="item.type == 'MEMORY'" style="line-height: 1.5">
+                <div
+                  v-if="item.type == 'MEMORY'"
+                  style="margin: 0; padding: 2px 13px; line-height: 1.5; width: 100%"
+                >
+                  <span>
                     회원님의 기억장소 <strong> {{ item.memoryName }}</strong> 에 새로운 글이
                     올라왔습니다
-                  </p>
-                  <p v-else-if="item.type == 'FOLLOW'" style="line-height: 1.5">
+                  </span>
+                  <span style="color: gray; break-word: keep-all; padding-left: 10px">
+                    {{ item.wdate }}
+                  </span>
+                </div>
+                <div
+                  v-else-if="item.type == 'FOLLOW'"
+                  style="margin: 0; padding: 2px 13px; line-height: 1.5"
+                >
+                  <span>
                     <strong> {{ item.from.nickname }}</strong> 님이 회원님을 팔로우하기 시작했습니다
-                  </p>
-                  <p v-else style="line-height: 1.5">
+                  </span>
+                  <span style="color: gray; break-word: keep-all; padding-left: 10px">
+                    {{ item.wdate }}
+                  </span>
+                </div>
+                <div v-else style="margin: 0; padding: 2px 13px; line-height: 1.5">
+                  <span>
                     <strong> {{ item.from.nickname }}</strong> 님이 회원님의 게시글을 좋아합니다
-                  </p>
+                  </span>
+                  <span style="color: gray; break-word: keep-all; padding-left: 10px">
+                    {{ item.wdate }}
+                  </span>
                 </div>
               </div>
             </v-list-item-content>
@@ -102,7 +121,6 @@ export default {
                     idToken
                 )
                 .then((res) => {
-                  console.log(res.data);
                   if (res.data != null) {
                     const keys = Object.keys(res.data);
                     for (let index = keys.length - 1; index >= 0; index--) {
@@ -111,7 +129,6 @@ export default {
                   } else {
                     self.noData = true;
                   }
-                  console.log(self.list);
                   self.loading = false;
                 })
                 .catch((err) => {
@@ -123,38 +140,6 @@ export default {
             });
         }
       });
-      // firebase
-      //   .auth()
-      //   .currentUser.getIdToken(/* forceRefresh */ true)
-      //   .then(function(idToken) {
-      //     axios
-      //       .get(
-      //         'https://pjt-auth-97ed8-default-rtdb.firebaseio.com/noti/' +
-      //           sessionStorage.getItem('uid') +
-      //           '.json?auth=' +
-      //           idToken
-      //       )
-      //       .then((res) => {
-      //         console.log(res.data);
-      //         if (res.data != null) {
-      //           const keys = Object.keys(res.data);
-      //           for (let index = keys.length - 1; index >= 0; index--) {
-      //             self.list.push(res.data[keys[index]]);
-      //           }
-      //         } else {
-      //           self.noData = true;
-      //         }
-      //         console.log(self.list);
-      //         self.loading = false;
-      //       })
-      //       .catch((err) => {
-      //         console.log(err);
-      //       });
-      //   })
-      //   .catch(function(error) {
-      //     console.log(error);
-      //   });
-      console.log(this.list);
     },
     onNotiListItem(item) {
       if (item.type == 'FOLLOW') {
