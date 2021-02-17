@@ -143,7 +143,7 @@ export default [
         props: true,
     },  
     {
-        path : '/user/noti-list',
+        path : '/noti-list',
         name : 'NotiList',
         component : NotiList,
     },
