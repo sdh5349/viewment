@@ -238,7 +238,7 @@ export default {
       this.articleInfo = this.article
     },
     updateArticle(){
-      this.$router.push({name: 'UpdateArticle', params: {
+      this.$router.replace({name: 'UpdateArticle', params: {
         articleId: this.articleInfo.articleId,
         hashtagArray: this.articleInfo.hashtags,
         contents: this.articleInfo.contents,
@@ -254,7 +254,7 @@ export default {
       .then(res => {
         if (confirm('게시물을 삭제하시겠습니까?')) {
           alert('게시물 삭제 완료')
-          this.$router.push({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
+          this.$router.replace({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
         }
       })
     },

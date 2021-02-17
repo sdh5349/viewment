@@ -9,14 +9,14 @@
           elevate-on-scroll
         >
           <!-- <v-app-ba></v-app-ba r-nav-icon> -->
-          <v-btn icon>
+          <!-- <v-btn icon>
             <v-icon
               large
               @click="goPrevious"
             >
               mdi-arrow-left
             </v-icon>
-          </v-btn>
+          </v-btn> -->
 
           <v-toolbar-title>{{$route.meta.title}}</v-toolbar-title>
         
@@ -120,9 +120,10 @@ export default {
     //   this.$router.push({ name: 'ChangePassword' })
     //   .catch (err=>{})
     // },
-    goPrevious() {
-      this.$router.go(-1)
-    },
+    // goPrevious() {
+    //   // this.$router.go(-1)
+    //   document.location.replace("");
+    // },
     goSearch() {
       this.$router.push({ name: 'Search' })
       .catch (err=>{
@@ -188,7 +189,7 @@ export default {
       this.login = true
     }
   },
-};
+}
 </script>
 
 <style scoped>

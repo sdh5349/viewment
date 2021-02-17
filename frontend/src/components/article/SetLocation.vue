@@ -168,6 +168,13 @@ export default {
         position: self.coordinates
       })
       self.pinInfo = self.pin  
+
+      const clickInfo = {
+        lat: self.coordinates.Ma,
+        lng: self.coordinates.La,
+        addressName: self.addressName
+      }
+      this.$emit('onClick', clickInfo)
       
       
       self.address = ''

@@ -348,7 +348,7 @@ export default {
         }
         else {
           this.articles = ''
-          console.log('해당 기간에 게시물이 없습니다. 기간을 다시 설정해 주세요.')
+          
         }
         
       })
@@ -380,13 +380,13 @@ export default {
       const userId = sessionStorage.getItem('uid') // uid를 저장할 변수 axios요청에 uid가 사용되기 때문에
       // 기억 하기 요청 axios 
       // post(url, 기억하기 정보, uid) 가 들어감 
-      console.log(this.memoryInfo)
+      
       axios.post(`${SERVER_URL}/users/${userId}/memories`, this.memoryInfo, this.getToken)
       .then(()=> {
         this.alert.message = '기억이 완료되었습니다.'
         this.alert.color = 'primary'
         this.alert.alerted = true
-        console.log(123312)
+        
         // this.$router.go() // 기억 완료했으면 새로고침 해줌
       })
       .catch((err)=> { // 에러가 났을때

@@ -133,7 +133,7 @@ export default {
               sessionStorage.setItem('jwt', token)
               sessionStorage.setItem('uid', user.uid)
               self.$emit('login')
-              self.$router.push({ name: 'Curation' })
+              self.$router.replace({ name: 'Curation' })
             })
             .catch(err => {
               this.alert.alerted = true
@@ -180,7 +180,7 @@ export default {
     const token = sessionStorage.getItem('jwt')
 
     if (token) {
-      this.$router.push({name: 'Feed'})
+      this.$router.push({name: 'Curation'})
     }
   },
 }

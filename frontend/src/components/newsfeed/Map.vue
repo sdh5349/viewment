@@ -3,8 +3,6 @@
     class="map-container"
   >
     <v-col class="py-0">
-  
-  
       <!-- 내 위치로 이동, 기억하기 핀 그리고 기억하기로 이동 버튼들 (시작) -->
       <v-btn-toggle>
 
@@ -52,6 +50,7 @@
                     <!-- <v-list-item-icon>
                     <v-icon v-text="item.icon"></v-icon>
                   </v-list-item-icon> -->
+                  
                     <v-list-item-content>
                       <v-list-item-title v-text="memory.name" @click="moveMemory(memory)"></v-list-item-title>
                     </v-list-item-content>
@@ -253,7 +252,8 @@ export default {
       if (self.searchedCenterPosition.lat){ // 검색한 경우 일떄
         const temp = self.searchedCenterPosition // 검색 중심좌표를 잠시 temp변수에 담아주고
         // temp에 담은 이유는 아래의 업데이트 method에 들어갈 argument의 이름이 너무 길어져서 
-        this.updateCenterPosition(temp.lat, temp.lng) // 중심좌표를 업데이트 해준다.
+        self.updateCenterPosition(temp.lat, temp.lng) // 중심좌표를 업데이트 해준다.
+        self.createMap()
       }
       else{ // 뉴스피드 버튼을 눌러서 일때 
         

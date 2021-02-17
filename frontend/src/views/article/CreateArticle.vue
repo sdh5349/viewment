@@ -83,16 +83,16 @@
           <v-card color="lighten-1" class="mb-12" height="350px" elevation='0'>
   
             <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" outlined></v-textarea>
-  
+            
   
             <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup"
-              :search-input.sync="search" :delimiters="[' ']">
-  
+              :search-input.sync="search" :delimiters="[' ']" hint="해시태그는 다섯개까지 가능합니다.">
+              
               <template v-slot:selection="data">
                 <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
-                  :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
+                  :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)" >
                   <v-avatar class="accent white--text" left v-text="'#'"></v-avatar>
-                  {{ data.item }}
+                    {{ data.item }}
                 </v-chip>
               </template>
             </v-combobox>
@@ -120,7 +120,7 @@
   
           <v-row class="button-container">
             <v-col cols="6">
-              <v-btn block @click="goHome">
+              <v-btn block @click="e6 = 1">
                 이전
               </v-btn>
             </v-col>
@@ -140,7 +140,7 @@
         <v-stepper-content step="3">
           <v-card color="lighten-1" class="mb-0" height="50vh" elevation='0'>
   
-            <SetLocation @onClick="savePosition"></SetLocation>
+          <SetLocation @onClick="savePosition"></SetLocation>
   
           </v-card>
           <v-row class="button-container">
@@ -278,7 +278,6 @@ export default {
       this.articleInfo.hashtags = this.hashtags
       this.articleInfo.date = this.date
 
-
       this.articleImages = new FormData()
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
@@ -308,7 +307,7 @@ export default {
           axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
           .then((res) => {
             
-            this.$router.push({name: 'DetailArticle', params: {
+            this.$router.replace({name: 'DetailArticle', params: {
               articleId: this.articleId,
             }})
           })
@@ -321,7 +320,7 @@ export default {
         })   
     },
     goHome() {
-      this.$router.push({ name:'Feed' })
+      this.$router.push({ name:'Curation' })
     },
   },
   computed: {
@@ -333,6 +332,17 @@ export default {
         }
       }
       return config
+    },
+  },
+  watch: {
+    hashtags (val) {
+      var index = this.hashtags.indexOf('')
+      if (index!=-1){
+        this.hashtags.splice(index, 1)
+      }
+      if (val.length > 5) {
+        this.$nextTick(() => this.hashtags.pop())
+      }
     },
   },
 }
