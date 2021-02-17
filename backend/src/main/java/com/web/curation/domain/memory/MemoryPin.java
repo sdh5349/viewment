@@ -31,4 +31,10 @@ public class MemoryPin {
         memoryPin.setPin(pin);
         return memoryPin;
     }
+
+    public void resetMemoryPin() {
+        memory.getNearbyPins().remove(this);
+        memory = null;
+        pin = null;
+    }
 }

@@ -45,6 +45,7 @@ export default {
   },
   methods: {
     clickArticle(res) {
+      
       this.$emit('onClick', res)
     },
   },

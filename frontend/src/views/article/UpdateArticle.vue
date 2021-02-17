@@ -12,12 +12,12 @@
         </v-col>
 
         <v-col cols="12">
-          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search">
+          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search"  :delimiters="[' ']">
             <template v-slot:selection="data">
               <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
                 :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
                 <v-avatar class="accent white--text" left v-text="'#'" ></v-avatar>
-                {{ data.item }}
+                  {{ data.item }}
               </v-chip>
             </template>
           </v-combobox> 
@@ -215,6 +215,17 @@ export default {
       }
       return config
     }
+  },
+  watch: {
+    hashtags (val) {
+      var index = this.hashtags.indexOf('')
+      if (index!=-1){
+        this.hashtags.splice(index, 1)
+      }
+      if (val.length > 5) {
+        this.$nextTick(() => this.hashtags.pop())
+      }
+    },
   },
   created() {
     this.articleId= this.$route.params.articleId,

@@ -102,10 +102,14 @@ public class Article {
     }
 
     public void resetPin() {
+        pin.getArticles().remove(this);
         pin = null;
     }
 
     public void resetHashtag() {
+        hashtags.stream().forEach(hashtag -> {
+            hashtag.getArticles().remove(this);
+        });
         hashtags.clear();
     }
 
@@ -116,4 +120,5 @@ public class Article {
     public void setDate(String date) {
         this.date = date;
     }
+
 }

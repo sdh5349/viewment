@@ -15,6 +15,7 @@ export default {
   name: 'UserArticleMap',
   data() {
     return {
+      loginUserId: '',
       map: '',
       container: '',
       options: '',
@@ -72,9 +73,10 @@ export default {
       // 주소를 구하기 위한 부분 (시작)
     },
     getArticlePin() {
-      
-      axios.get(`${SERVER_URL}/pins`, this.getToken)
+      this.loginUserId = sessionStorage.getItem('uid')
+      axios.get(`${SERVER_URL}/pins/forusermap?userId=${this.loginUserId}`, this.getToken)
       .then((res)=> {
+        console.log(res.data)
         this.articlePins = res.data
         this.createArticlePin()
         

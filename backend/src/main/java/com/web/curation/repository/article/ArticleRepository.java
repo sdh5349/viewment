@@ -43,7 +43,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findByPinAndDateBetween(Pin pin, String start, String end);
 
-    List<Article> findByUserIn(Collection<User> list, Pageable pageable);
+    List<Article> findByUserIn(Collection<User> list);
+
+    Long countByUserIn(Collection<User> list);
 
     Long countByUser(User user);
 
