@@ -12,7 +12,7 @@
         </v-col>
 
         <v-col cols="12">
-          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search"  :delimiters="[' ']">
+          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search"  :delimiters="[' ']" hint="해시태그는 최대 5개 입니다.">
             <template v-slot:selection="data">
               <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
                 :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">

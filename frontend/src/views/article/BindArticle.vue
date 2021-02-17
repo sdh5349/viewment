@@ -15,12 +15,13 @@
       />
 
   <div v-if="pickArticle">
-    <v-row class="mt-5">
+    <v-row class="m-auto text-center">
       <v-col
         cols='1'
+        class="my-auto"
       >
         <v-icon
-          left
+          
         >
           mdi-map-marker
         </v-icon>
@@ -28,6 +29,7 @@
 
       <v-col 
         cols='7'
+        class="my-auto"
       >
         {{pickArticle.pin.addressName}}
       </v-col>
@@ -36,7 +38,7 @@
         cols='4'
         class=""
       >
-        <v-dialog v-model="saveMemoryDialog" persistent max-width="290">
+        <v-dialog v-model="saveMemoryDialog" persistent >
           <template v-slot:activator="{ on, attrs }" >
             <v-btn color="primary" dark v-bind="attrs" v-on="on">
               기억하기
@@ -44,24 +46,24 @@
           </template>
   
   <!-- v-slot="{ invalid }" -->
-          <v-card>
-            
-            <v-card-title class="headline">
-              기억할 장소의 이름과 반경을 적어주세요
-            </v-card-title>
-            <v-card-text>
-              <v-col cols='12'>
-                <div class="modal-card">
-                  <validation-observer
-                    ref="observer"
-                    v-slot="{ invalid }"
-                  >
+          <v-card >
+            <v-card-title>기억하기 저장</v-card-title>
+            <v-divider></v-divider>
+
+              <validation-observer
+                ref="observer"
+                v-slot="{ invalid }"
+              >
+              <v-card-text style="height: 300px;" class="">
+
+              
                   <validation-provider
                     mode="aggressive"
                     rules="required|max:10"
                     v-slot="{ errors }"
                   >
                   <v-text-field 
+                    block
                     v-model="memoryName" 
                     label='기억하기 이름' 
                     @click="resetMemoryName"
@@ -75,23 +77,39 @@
                     v-slot="{ errors }"
                   >
                   <v-text-field 
+                    block
                     v-model="memoryRadius" 
                     label='반경(m)' 
                     @click="resetMemoryRadius"
                     :error-messages="errors"
                   ></v-text-field>
                   </validation-provider>
+                  </v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-actions > 
+                    
+                    <v-col cols="6" >
+                    <v-btn  
+                      @click="saveMemoryDialog = false" 
+                      text 
+                    >닫기</v-btn>
+                    </v-col>
 
-                  <v-btn 
-                    @click='saveMemory' 
-                    text color='primary'
-                    :disabled="invalid"
-                  >기억 저장</v-btn>
-                  <v-btn @click="saveMemoryDialog = false" text color="red">닫기</v-btn>
+                    <v-col cols="6" class="text-right">
+                    <v-btn 
+                      @click='saveMemory' 
+                      text 
+                      color='primary'
+                      :disabled="invalid"
+                    >기억 저장</v-btn>
+                    </v-col>
+                  
+                  </v-card-actions>
                   </validation-observer>
-                </div>
-              </v-col>
-            </v-card-text>
+                
+              
+            
+            
           </v-card>
         </v-dialog>
       </v-col>
@@ -196,6 +214,7 @@
 
   
   <Bind
+    
     v-if="articles"
     :articles='articles'
     @onClick='getBindArticle'
@@ -267,7 +286,7 @@ export default {
       items: [{a:'1'},{a:'1'},{a:'1'},{a:'1'},],
       endDate: '',
       startDate: '',
-      dates: ['2019-09-10', '2019-09-20'],
+      dates: [this.startDate, this.endDate],
       saveMemoryDialog: false,
       memoryName: '기억장소', // 기억하기를 저장할때 장소 이름을 담을 변수
       memoryRadius: '500', // 기억하기를 저장할때 반경을 담을 변수
@@ -296,6 +315,7 @@ export default {
       this.dates = [this.startDate, this.endDate]
     },
     bindSetting() {
+      this.alert.alerted = false 
       this.dialog = false
       if (this.dates[0] > this.dates[1]){
         this.startDate = this.dates[1]
@@ -306,7 +326,9 @@ export default {
         this.endDate = this.dates[1]  
       }
       this.getArticles()
-      alert('설정 완료')
+      this.alert.message = '날짜 설정 완료.'
+      this.alert.color = 'primary'
+      this.alert.alerted = true
     },
     getDate() {
       function getTimeStamp() {

@@ -3,24 +3,19 @@
     <v-col lg="4" md="4" sm="6">
   
       <v-stepper class="stepper-container" v-model="e6" vertical>
-  
+    
         <v-stepper-step :complete="e6 > 1" step="1">
           사진
-  
         </v-stepper-step>
   
   
-        <v-stepper-content step="1">
+        <v-stepper-content step="1" class="">
   
-  
-  
-  
-          <v-card class="img-card-container" elevation='0'>
-  
-  
-            <v-row v-if="this.preview.length != 0" class="d-flex justify-space-between text-center m-t-3">
-              <v-col cols="3" class="close-button">
-                <v-btn text @click='imageDelete(index)' color="black">
+          <!-- v-if="this.preview.length != 0"  -->
+          <v-card class="img-card-container  " elevation='0'>
+            <v-row class="d-flex justify-space-between">
+              <v-col cols="3" >
+                <v-btn  class="close-button" text @click='imageDelete(index)' color="black">
                   <v-icon>
                     mdi-close
                   </v-icon>
@@ -28,8 +23,8 @@
               </v-col>
   
               <v-col cols="3">
-                <v-file-input color="black" accept="image/*" v-model="files" multiple @change="previewImg"
-                  prepend-icon=mdi-camera hide-input>
+                <v-file-input class="plus-button" color="black" accept="image/*" v-model="files" multiple @change="previewImg"
+                  prepend-icon=mdi-plus hide-input>
                 </v-file-input>
               </v-col>
   
@@ -42,15 +37,15 @@
   
   
             <v-carousel class="carousel-container" :show-arrows="false" hide-delimiter-background
-              delimiter-icon="mdi-checkbox-blank-circle-outline" height="250px">
+              delimiter-icon="mdi-checkbox-blank-circle-outline" height="25vh">
   
               <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url">
   
               </v-carousel-item>
             </v-carousel>
+          
+  
           </v-card>
-  
-  
           <v-row class="button-container">
             <v-col cols="6">
               <v-btn block @click="goHome">
@@ -65,7 +60,7 @@
               </v-btn>
             </v-col>
           </v-row>
-  
+
   
         </v-stepper-content>
   
@@ -79,20 +74,20 @@
   
         </v-stepper-step>
   
-        <v-stepper-content step="2">
-          <v-card color="lighten-1" class="mb-12" height="350px" elevation='0'>
+        <v-stepper-content step="2" class="my-0 py-0">
+          <v-card color="lighten-1" class="" height="50vh" elevation='0'>
   
-            <v-textarea placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" outlined></v-textarea>
-            
+            <v-textarea  placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" outlined class="mt-0 pt-5" ></v-textarea>
+  
   
             <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup"
-              :search-input.sync="search" :delimiters="[' ']" hint="해시태그는 다섯개까지 가능합니다.">
-              
+              :search-input.sync="search" :delimiters="[' ']" hint="해시태그는 최대 5개 입니다.">
+  
               <template v-slot:selection="data">
                 <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
-                  :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)" >
+                  :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
                   <v-avatar class="accent white--text" left v-text="'#'"></v-avatar>
-                    {{ data.item }}
+                  {{ data.item }}
                 </v-chip>
               </template>
             </v-combobox>
@@ -114,13 +109,13 @@
               </v-date-picker>
             </v-menu>
   
-  
           </v-card>
+          
   
   
           <v-row class="button-container">
             <v-col cols="6">
-              <v-btn block @click="e6 = 1">
+              <v-btn block @click="goHome">
                 이전
               </v-btn>
             </v-col>
@@ -130,6 +125,7 @@
               </v-btn>
             </v-col>
           </v-row>
+
         </v-stepper-content>
   
         <v-stepper-step :complete="e6 > 3" step="3">
@@ -138,11 +134,11 @@
         </v-stepper-step>
   
         <v-stepper-content step="3">
-          <v-card color="lighten-1" class="mb-0" height="50vh" elevation='0'>
+          <v-card color="lighten-1" class="mb-0 " height="50vh" elevation='0'>
   
-          <SetLocation @onClick="savePosition"></SetLocation>
+            <SetLocation @onClick="savePosition"></SetLocation>
   
-          </v-card>
+          </v-card> 
           <v-row class="button-container">
             <v-col cols="6">
               <v-btn block @click="e6 = 2">
@@ -150,11 +146,12 @@
               </v-btn>
             </v-col>
             <v-col cols="6">
-              <v-btn :disabled="this.articleInfo.lat == ''" block color="primary" @click="onSumbit">
+              <v-btn :disabled="this.articleInfo.lat == ''" block color="primary" @click="onSubmit">
                 완료
               </v-btn>
             </v-col>
           </v-row>
+
         </v-stepper-content>
   
   
@@ -256,7 +253,7 @@ export default {
       this.$refs.menu.save(date)
     },
     savePosition(res) {
-
+      
       if (res.pinId) {
         this.articleInfo.pinId = res.pinId
       }
@@ -266,9 +263,9 @@ export default {
       this.articleInfo.addressName = res.addressName
       this.articleInfo.lat = res.lat
       this.articleInfo.lng = res.lng
-
+      
     },
-    onSumbit() {
+    onSubmit() {
       var index = this.hashtags.indexOf('')
       if (index!=-1){
         this.hashtags.splice(index, 1)
@@ -277,6 +274,7 @@ export default {
       this.articleInfo.contents = this.contents
       this.articleInfo.hashtags = this.hashtags
       this.articleInfo.date = this.date
+
 
       this.articleImages = new FormData()
       for (var i = 0; i < this.files.length; i++) {
@@ -307,7 +305,7 @@ export default {
           axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
           .then((res) => {
             
-            this.$router.replace({name: 'DetailArticle', params: {
+            this.$router.push({name: 'DetailArticle', params: {
               articleId: this.articleId,
             }})
           })
@@ -320,7 +318,7 @@ export default {
         })   
     },
     goHome() {
-      this.$router.push({ name:'Curation' })
+      this.$router.push({ name:'Feed' })
     },
   },
   computed: {
@@ -372,9 +370,15 @@ export default {
 }
 .button-container{
   justify-content: space-between;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
 }
 .close-button {
-  /* margin-bottom: 0;
-  padding-bottom: 0;  */
+  position: absolute;
+  top: 30px;
 }
+.plus-button {
+  position: absolute;
+}
+
 </style>
