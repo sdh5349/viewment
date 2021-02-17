@@ -17,7 +17,7 @@
         <!-- 뉴스피드 지도 탭, 피드 탭 시작 -->
 
         <!-- 탭 시작 -->
-        <v-tabs v-model="activeTab" grow>
+        <v-tabs v-model="activeTab" grow style="">
           <v-tabs-slider color="grey"></v-tabs-slider>
           <v-tab 
             v-for="tabItem in tabItems" 

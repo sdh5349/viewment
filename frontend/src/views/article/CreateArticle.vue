@@ -140,7 +140,7 @@
         <v-stepper-content step="3">
           <v-card color="lighten-1" class="mb-0" height="50vh" elevation='0'>
   
-            <SetLocation @onClick="savePosition"></SetLocation>
+          <SetLocation @onClick="savePosition"></SetLocation>
   
           </v-card>
           <v-row class="button-container">

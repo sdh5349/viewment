@@ -8,6 +8,7 @@
       class="d-flex child-flex grid-item-padding"
       cols="4"
     >
+      <!-- 마우스 hover 시 위치 정보를 알려줌 PC에서만 작동 시작 -->
       <v-hover v-slot="{ hover }">
         <v-scale-transition>
           <v-img
@@ -48,6 +49,8 @@
           </v-img>
         </v-scale-transition>
       </v-hover>
+      <!-- 마우스 hover 시 위치 정보를 알려줌 PC에서만 작동 끝 -->
+      
     </v-col>
   </v-row>
 </template>
@@ -77,9 +80,9 @@ export default {
   data() {
     return { 
       articlesInfo: [],
-      imageServerPrefix: `${SERVER_URL}/images/`
-      // page: 0,
-      // size: 20,
+      imageServerPrefix: `${SERVER_URL}/images/`,
+      page: 0,
+      size: 15,
     }
   },
   computed: {
@@ -94,15 +97,20 @@ export default {
       return config
     }
   },
-  created() {
-    this.fetchData()
+  created () {
+    window.addEventListener('scroll', this.handleScroll);
+    this.readMore()
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
-    fetchData() {
-      // axios.get(`${SERVER_URL}/articles/searchbyuserid/${this.profileUserId}?page=${this.page}&size=${this.size}`, this.getToken)
-      axios.get(`${SERVER_URL}/articles/searchbyuserid/${this.profileUserId}`, this.getToken)
+    readMore() {
+      axios.get(`${SERVER_URL}/articles/searchbyuserid/${this.profileUserId}/pg?page=${this.page}&size=${this.size}`, this.getToken)
       .then(res => {
-        this.articlesInfo = res.data
+        this.articlesInfo.push(...res.data.content)
+        this.page += 1
+        this.last = res.data.last
       })
       .catch(err => {
       })
@@ -114,6 +122,11 @@ export default {
           articleId,
         }
       })
+    },
+    handleScroll() {
+      if (Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
+        this.readMore() 
+      }
     }
   }
 }
