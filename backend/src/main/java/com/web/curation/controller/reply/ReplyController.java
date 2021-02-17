@@ -31,14 +31,14 @@ public class ReplyController {
 
     @ApiOperation(value = "댓글 작성", notes="articleId, contetns, userId 필수")
     @PostMapping("")
-    public ResponseEntity<?> writeReply(@RequestBody ReplyDto replyDto) throws Exception {
+    public ResponseEntity<ReplyDto> writeReply(@RequestBody ReplyDto replyDto) throws Exception {
         ReplyDto result = replyService.writeReply(replyDto);
         return ResponseEntity.ok().body(result);
     }
 
     @ApiOperation(value = "대댓글 작성", notes="parentId(어느 댓글에 달리는 대댓글인지), contetns, userId 필수")
     @PostMapping("/rereply")
-    public ResponseEntity<?> writeRereply(@RequestBody RereplyDto rereplyDto) throws Exception {
+    public ResponseEntity<RereplyDto> writeRereply(@RequestBody RereplyDto rereplyDto) throws Exception {
         RereplyDto result = rereplyService.writeRereply(rereplyDto);
         return ResponseEntity.ok().body(result);
     }

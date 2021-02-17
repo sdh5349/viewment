@@ -16,36 +16,30 @@
     justify="center"
   >
     <v-col
+      class="px-0"
       lg="4"
       md="4"
       sm="6"
-      class="scroll-container"
     >
-      <div
-        class="px-3 pt-3"
-      >
+    
+      <div class="px-3 pt-3">
         <p class="text-caption mb-1">현재 위치를 기반으로 인기가 많은 게시글을 추천해드립니다.</p>
       </div>
    
       <RecommandsByLocation />
-     
       
-      <div
-        class="px-3 pt-3"
-      >
+      <div class="px-3 pt-3">
         <p class="text-caption mb-1">회원님의 활동을 기반으로 추천해드립니다.</p>
-
-      <!-- <Feed 
-        feed-type="recommend" 
-      /> -->
       </div>
+
+      <Feed feed-type="recommend"/>
 
     </v-col>
   </v-row>
 </template>
 
 <script>
-// import Feed from '@/components/newsfeed/Feed'
+import Feed from '@/components/newsfeed/Feed'
 import RecommandsByLocation from '@/components/curation/RecommandsByLocation'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
@@ -53,7 +47,7 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   name: 'Curation',
   components:{
-    // Feed,
+    Feed,
     RecommandsByLocation
   },
   data() {

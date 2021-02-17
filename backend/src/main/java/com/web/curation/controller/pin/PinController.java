@@ -45,21 +45,21 @@ public class PinController {
 
     @ApiOperation(value = "사용자 페이지 지도탭에 노출될 핀 조회 (사용자가 올린 글만 조회)")
     @GetMapping("/forusermap")
-    public ResponseEntity<?> getPinsForUserMap(@RequestParam("userId") String userId) {
+    public ResponseEntity<List<PinDto>> getPinsForUserMap(@RequestParam("userId") String userId) {
         List<PinDto> pins = pinService.getPinsForUserMap(userId);
         return ResponseEntity.ok().body(pins);
     }
 
     @ApiOperation(value = "뉴스피드 지도에 노출될 핀 조회")
     @GetMapping("/formap")
-    public ResponseEntity<?> getPinsForMap(@RequestParam("userId") String userId) {
+    public ResponseEntity<List<PinDto>> getPinsForMap(@RequestParam("userId") String userId) {
         List<PinDto> pins = pinService.getPinsForMap(userId);
         return ResponseEntity.ok().body(pins);
     }
 
     @ApiOperation(value = "인기 게시글 추천에 노출될 핀 조회")
     @GetMapping("/fortrend")
-    public ResponseEntity<?> getPinsForTrend(@RequestParam("lat") double lat, @RequestParam("lng") double lng) {
+    public ResponseEntity<List<PinDto>> getPinsForTrend(@RequestParam("lat") double lat, @RequestParam("lng") double lng) {
         List<PinDto> pins = pinService.getPinsForTrend(lat, lng);
         return ResponseEntity.ok().body(pins);
     }

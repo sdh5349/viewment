@@ -2,17 +2,21 @@
   <div id="app">
     <v-app id="inspire">
       <!-- <v-card class="overflow-hidden"> -->
-      <v-app-bar v-if="$route.meta.title != '로그인'" fixed color="white" elevate-on-scroll>
-        <!-- <v-app-ba></v-app-ba r-nav-icon> -->
-        <v-btn icon>
-          <v-icon large @click="goPrevious">
-            mdi-arrow-left
-          </v-icon>
-        </v-btn>
-
-        <v-toolbar-title>{{ $route.meta.title }}</v-toolbar-title>
-
-        <v-spacer></v-spacer>
+        <v-app-bar
+          v-if="$route.meta.title != '로그인'"
+          fixed
+          color="white"
+          elevate-on-scroll
+        >
+          <!-- <v-app-ba></v-app-ba r-nav-icon> -->
+          <!-- <v-btn icon>
+            <v-icon
+              large
+              @click="goPrevious"
+            >
+              mdi-arrow-left
+            </v-icon>
+          </v-btn> -->
 
         <v-btn
           v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
@@ -94,9 +98,10 @@ export default {
     //   this.$router.push({ name: 'ChangePassword' })
     //   .catch (err=>{})
     // },
-    goPrevious() {
-      this.$router.go(-1);
-    },
+    // goPrevious() {
+    //   // this.$router.go(-1)
+    //   document.location.replace("");
+    // },
     goSearch() {
       this.$router.push({ name: 'Search' }).catch((err) => {
         if (err.name === 'NavigationDuplicated') {
@@ -166,7 +171,7 @@ export default {
       this.login = true;
     }
   },
-};
+}
 </script>
 
 <style scoped>

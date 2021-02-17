@@ -48,7 +48,7 @@ public class AccountController {
 
     @ApiOperation(value = "회원 탈퇴")
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> delete(@PathVariable(value = "userId") String userId){
+    public ResponseEntity<String> delete(@PathVariable(value = "userId") String userId){
         accountService.delete(userId);
         return new ResponseEntity<String>("Deleted: " + userId, HttpStatus.OK);
     }

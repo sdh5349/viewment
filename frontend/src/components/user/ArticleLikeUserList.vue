@@ -20,6 +20,7 @@
   >
     <template v-slot:default="{ item }">
       <v-list-item
+        class="pa-2"
         @click="onProfileListItem(item.userId)"
       >
         <v-list-item-content class="pa-0">
@@ -82,7 +83,7 @@ export default {
   data() {
     return {
       loading: true,
-      loginUserId: '',
+      loginUserId: sessionStorage.getItem('uid'),
       articleLikeUsers: [],
       imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
@@ -104,7 +105,6 @@ export default {
   },
   created() {
     // 현재 프로필 사용자의 팔로워 정보를 원하는 갯수 만큼 요청하는 메서드 readMore와 동일하나 loading 변수를 한번만 false로 할당하기위해
-    this.loginUserId = sessionStorage.getItem('uid')
     this.readMore()
   },
   methods: {
@@ -118,6 +118,7 @@ export default {
         this.articleLikeUsers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+        console.log(this.articleLikeUsers)
       })
       .then(() => {
         this.loading = false
@@ -131,7 +132,7 @@ export default {
     // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
     scrolling (event) {
       const scrollInfo = event.target
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
+      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop <= scrollInfo.clientHeight && !this.last) {
         this.readMore()
       }
     },
@@ -144,29 +145,14 @@ export default {
         }
       })
     },
-    // 본인 팔로워 리스트일 경우 삭제를 희망하는 유저의 인덱스를 찾아 삭제하는 메서드
-    onFollowerDeleteButton (targetUser) {
-      if (confirm("삭제하시겠습니까?")) {
-        axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followers/${targetUser.userId}`, this.getToken)
-        .then(() => {
-        const targetUserIdx = this.followers.indexOf(targetUser)
-        this.followers.splice(targetUserIdx, 1)
-        })
-        .catch(err => {
-          alert("오류"); // TODO: 오류페이지로 변경
-          console.log('Error', err.message);
-          // self.$router.push({ name: 'Error' })
-        })
-      }
-    },
     // 팔로우/언팔로우 메서드
     onFollowButton (targetUser) {
-      const targetUserIdx = this.followers.indexOf(targetUser)
+      const targetUserIdx = this.articleLikeUsers.indexOf(targetUser)
       
       if (targetUser.followed) {
         axios.delete(`${SERVER_URL}/users/${this.loginUserId}/followings/${targetUser.userId}`, this.getToken)
         .then(() => {
-          this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed
+          this.articleLikeUsers[targetUserIdx].followed = !this.articleLikeUsers[targetUserIdx].followed
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경
@@ -177,7 +163,7 @@ export default {
         var params = {'targetUserId' : targetUser.userId }
         axios.post(`${SERVER_URL}/users/${this.loginUserId}/follow`, params, this.getToken)
         .then(() => {
-          this.followers[targetUserIdx].followed = !this.followers[targetUserIdx].followed 
+          this.articleLikeUsers[targetUserIdx].followed = !this.articleLikeUsers[targetUserIdx].followed 
         })
         .catch(err => {
           alert("오류"); // TODO: 오류페이지로 변경

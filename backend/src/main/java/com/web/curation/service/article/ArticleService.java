@@ -39,6 +39,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -150,8 +152,8 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ArticleSimpleDto> findByUserId(String userId, PageRequest pageable) {
-        Page<Article> articles = articleRepository.findByUserId(userId, pageable.of(Sort.by("wdate").descending()));
+    public Page<ArticleSimpleDto> findByUserId(String userId, Pageable pageable) {
+        Page<Article> articles = articleRepository.findByUserId(userId, pageable);
 
         Page<ArticleSimpleDto> result = articles
                 .map(article -> {
@@ -191,7 +193,7 @@ public class ArticleService {
         return result;
     }
 
-    public Page<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng, PageRequest pageRequest) {
+    public Page<ArticleFeedDto> getArticlesForFeed(String userId, double lat, double lng, Pageable pageable) {
         Set<Article> articles = new HashSet<>();
 
         User user = getUser(userId);
@@ -220,15 +222,16 @@ public class ArticleService {
 
         Collections.sort(result, (a, b)-> Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
 
-        Pageable pageable = pageRequest.of();
         int s = pageable.getPageNumber();
         int e = pageable.getPageSize();
 
         int fromIdx = s*e<result.size() ? (s*e) : result.size();
         int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+        int total = result.size();
+
         result = result.subList(fromIdx, toIdx);
 
-        return new PageImpl<ArticleFeedDto>(result, pageable, result.size()) ;
+        return new PageImpl<ArticleFeedDto>(result, pageable, total) ;
     }
 
     @Transactional(readOnly = true)
@@ -347,6 +350,10 @@ public class ArticleService {
         User user = getUser(userId);
         Article article = getArticle(articleId);
 
+        likeRepository.findByUserAndArticle(user, article).ifPresent(
+                likes->{throw new IllegalStateException("이미 좋아요를 누른 게시글입니다.");}
+        );
+
         Likes like = new Likes();
         like.setUser(user);
         like.setArticle(article);
@@ -362,20 +369,19 @@ public class ArticleService {
 
     @Transactional
     public void unlike(String userId, Long articleId) {
-        Likes like = likeRepository.findByUserIdAndArticleId(userId, articleId).orElseThrow(
-                () -> {
-                    throw new ElementNotFoundException("User, Article", "userId " + articleId.toString());
-                }
-        );
-
         User user = getUser(userId);
         Article article = getArticle(articleId);
+
+        Likes like = likeRepository.findByUserAndArticle(user, article).orElseThrow(
+                () -> {
+                    throw new ElementNotFoundException("User, Article", "article " + articleId.toString());
+                }
+        );
 
         user.removeLike(like);
         article.removeLike(like);
 
         likeRepository.delete(like);
-
     }
 
     public Page<SimpleUserInfoDto> findLikeUsers(String currentUserId, Long articleId, Pageable pageable) {

@@ -14,7 +14,30 @@
   <div
     v-else
   >
+    <!-- 디바이더 -->
+    <v-divider class="pb-2"></v-divider>
+
+    <v-card elevation="0">
+      
+      
+    
+      <!-- 사진을 조회하는 캐러셀 시작 -->
+      <v-carousel 
+        :show-arrows="false" 
+        hide-delimiter-background  
+        height="300"
+        mouse-drag=true
+      >
+        <v-carousel-item 
+          v-for="(articleImage, idx) in articleInfo.images"
+          :key="idx" 
+          :src="imageServerPrefix +  articleImage.path">
+        </v-carousel-item>
+      </v-carousel>      
+      <!-- 사진을 조회하는 캐러셀 끝 -->
     <!-- 게시물 헤더 부분 시작 -->
+    <div class="text-right" @click="goDetail(articleInfo.articleId)">...더보기</div>
+
     <v-list-item
       class="pa-0"
     >
@@ -76,46 +99,7 @@
       </v-list-item-content>
     </v-list-item>
     <!-- 게시물 헤더 부분 끝 -->
-  
-    <!-- 디바이더 -->
-    <v-divider class="pb-2"></v-divider>
 
-    <v-card elevation="0">
-      <!-- 주소정보 시작 -->
-      <v-card-title class="pa-0 pb-1">
-        <v-icon
-          left
-        >
-          mdi-map-marker
-        </v-icon>
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
-            <span 
-              v-if="articleInfo.pin.addressName"
-              v-bind="attrs"
-              v-on="on" 
-              class="text-body-1"
-            >{{ articleInfo.pin.addressName | truncate(15, '...')}}</span>
-          </template>
-          <span>{{articleInfo.pin.addressName}}</span>
-        </v-tooltip>
-      </v-card-title>
-      <!-- 주소정보 끝 -->
-    
-      <!-- 사진을 조회하는 캐러셀 시작 -->
-      <v-carousel 
-        :show-arrows="false" 
-        hide-delimiter-background  
-        height="300"
-        mouse-drag=true
-      >
-        <v-carousel-item 
-          v-for="(articleImage, idx) in articleInfo.images"
-          :key="idx" 
-          :src="imageServerPrefix +  articleImage.path">
-        </v-carousel-item>
-      </v-carousel>      
-      <!-- 사진을 조회하는 캐러셀 끝 -->
 
       <!-- 해시태그 시작 -->
       <v-card-actions class="pa-0">
@@ -136,11 +120,7 @@
       </v-card-actions>
       <!-- 해시태그 끝 -->
 
-      <!-- 게시글 내용 시작 -->
-      <p v-if="articleInfo.contents" class="pa-2 mb-0 text-body-1">
-        {{articleInfo.contents}}
-      </p>
-      <!-- 게시글 내용 끝 -->
+
 
       <!-- 게시글 좋아요 수, 좋아요 버튼 시작 -->
       <div class="d-flex justify-space-between align-center">
@@ -180,17 +160,6 @@
           </v-card>
         </v-dialog>
         <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 끝 -->
-
-        <!-- 좋아요 버튼 시작 -->
-        <v-btn 
-          icon
-          class="mx-3"
-          @click="onLikeButton"
-        >        
-          <v-icon v-if="articleInfo.liked" x-large color="error">mdi-heart</v-icon>
-          <v-icon v-else x-large>mdi-heart-outline</v-icon>
-        </v-btn>
-        <!-- 좋아요 버튼 시작 -->
 
       </div>
       <!-- 게시글 좋아요 수, 좋아요 버튼 끝 -->
@@ -245,13 +214,29 @@ export default {
         }
       }
       return config
+    },
+  },
+  watch: {
+    article: function() {
+      this.pickArticle()  
     }
   },
   created() {
-    this.articleInfo = this.article
+    this.pickArticle()
     this.loading = false
   },
   methods: {
+    goDetail(res){  
+      this.$router.push({ 
+        name: 'DetailArticle', 
+        params: {
+          articleId: res,
+        }
+      })
+    },
+    pickArticle(){
+      this.articleInfo = this.article
+    },
     updateArticle(){
       this.$router.replace({name: 'UpdateArticle', params: {
         articleId: this.articleInfo.articleId,
@@ -269,7 +254,7 @@ export default {
       .then(res => {
         if (confirm('게시물을 삭제하시겠습니까?')) {
           alert('게시물 삭제 완료')
-          this.$router.push({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
+          this.$router.replace({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
         }
       })
     },
@@ -284,28 +269,6 @@ export default {
         params: { profileUserId : this.articleInfo.user.userId }
       })
     },
-    onLikeButton() {
-      if (this.articleInfo.liked) {
-        axios.delete(`${SERVER_URL}/articles/${this.articleInfo.articleId}/unlike`, this.getToken)
-        .then(res => {
-          this.articleInfo.liked = !this.articleInfo.liked
-          this.articleInfo.likes -= 1 
-        })
-        .catch(err => {
-          console.log(err)
-        })
-      } else {
-        axios.post(`${SERVER_URL}/articles/${this.articleInfo.articleId}/like`, {}, this.getToken)
-        .then(res => {
-          this.articleInfo.liked = !this.articleInfo.liked
-          this.articleInfo.likes += 1 
-        })
-        .catch(err => {
-          console.log(err)
-
-        })
-      }
-    }
   },
 }
 </script>

@@ -30,7 +30,7 @@ public class NotificationController {
 
     @ApiOperation(value = "푸시 알림 정보 조회")
     @GetMapping({"/{userId}"})
-    public ResponseEntity<?> getNotiInfo(@PathVariable("userId") String userId){
+    public ResponseEntity<UserNotiDto> getNotiInfo(@PathVariable("userId") String userId){
         UserNotiDto dto = notificationService.getNotiInfo(userId);
         return ResponseEntity.ok().body(dto);
     }
