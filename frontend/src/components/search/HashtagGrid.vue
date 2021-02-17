@@ -1,10 +1,7 @@
 <template>
   <v-row 
-    v-if="loading"
-    style="height: 50vh;"
-    class="fill-height ma-0"
-    align="center"
-    justify="center"
+    class="scroll-container"
+    
   >
     <v-progress-circular
       indeterminate
@@ -24,20 +21,18 @@
       
     >
     <v-col
-      :key="item.articleId"
-      class="d-flex child-flex "
+      v-for="(hashArticle,index) in hashArticles"
+      :key="index"
+      class="d-flex child-flex grid-item-padding"
       cols="4"
     >
-    <template v-slot:default="{ item }">    
-      <!-- v-for="item in items" -->
-
+     
         <v-scale-transition>
           <v-img
             :src="imageServerPrefix + item.thumbnail.path"
             :lazy-src="imageServerPrefix + item.thumbnail.path"
             aspect-ratio="1"
-            class="grey lighten-2 image-hover grid-item-padding"
-            @click="goDetail(item.articleId)"
+            @click="goDetail(hashArticle.articleId)"
           >
         </v-img>
 
@@ -48,6 +43,7 @@
     </v-virtual-scroll>
   </v-row>
 </template>
+
 
 
 <script>
@@ -62,9 +58,7 @@ export default {
       imageServerPrefix: `${SERVER_URL}/images/`,
       loading: true,
       page: 0,
-      size: 20,
-      last: false,
-      first: true,
+      size: 12,
     }
   },
   props: {
@@ -84,15 +78,23 @@ export default {
       return config
     }
   },
+  created() {
+    window.addEventListener('scroll', this.handleScroll);
+    this.fetchData()
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.handleScroll);
+  },
   methods: {
     fetchData() {
       this.loading = true
-      var params = {page:this.page, size:this.size,}
-      axios.get(`${SERVER_URL}/articles/searchbyhashtag/${this.hash}/pg`,{params:params,headers:this.getToken.headers})
+      axios.get(`${SERVER_URL}/articles/searchbyhashtag/${this.hash}/pg?page=${this.page}&size=${this.size}`,this.getToken)
       .then((res) => {
+        console.log(res.data)
         this.hashArticles.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
+        console.log(this.hashArticles)
       })
       .then(() => {
         this.loading = false
@@ -104,16 +106,17 @@ export default {
     goDetail(res) {
       this.$router.push({name: 'DetailArticle', params: {articleId :res,}})
     },
-    // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
-    scrolling (event) {
-      const scrollInfo = event.target
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
-        this.fetchData()
+    handleScroll() {
+      console.log('스크롤')
+      if (Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
+        console.log(document.documentElement.scrollTop)
+        console.log(window.innerHeight)
+        console.log(document.documentElement.offsetHeight)
+        console.log(document.documentElement.scrollTop + window.innerHeight,document.documentElement.offsetHeight)
+        console.log(this.hashArticles)
+        this.fetchData() 
       }
-    },
-  },
-  created() {
-    this.fetchData()
+    }
   },
   watch: {
     '$route': 'fetchData'
@@ -124,7 +127,14 @@ export default {
 <style scoped>
 /* 그리드 각 아이템 패딩 설정 */
 .grid-item-padding {
-  /* padding: 0.3rem; */
-  padding-top: 70px;
+  padding: 0.3rem;
 }
+
+/* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
+.scroll-container {
+  height: 100%;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
+
 </style>
