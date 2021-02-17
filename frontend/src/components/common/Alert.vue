@@ -1,5 +1,15 @@
 <template>
   <v-snackbar
+    v-if="isBottom"
+    v-model="alertMessage"
+    :color="alertColor"
+    :timeout="alertTimeout"
+    bottom
+  >
+    <span v-html="alertMessage"></span>
+  </v-snackbar>
+  <v-snackbar
+    v-else
     v-model="alertMessage"
     :color="alertColor"
     :timeout="alertTimeout"
@@ -24,6 +34,10 @@ export default {
       type: Number,
       default : 2000
     },
+    isBottom: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
