@@ -3,12 +3,12 @@
     <v-col>
       <div id="map" class="map"></div>
     </v-col>
-      
   </v-row>
 </template>
 
 <script>
 import axios from 'axios' // back에 axios 요청을 위한 라이브러리
+
 const SERVER_URL = process.env.VUE_APP_SERVER_URL 
 
 export default {
@@ -40,10 +40,8 @@ export default {
       script.src =
         "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41dd8e1c2fab039d8dbbff2e13e8d5a5&libraries=services,clusterer,drawing";
       document.head.appendChild(script);
-      
     },
     initMap() {
-      
       const self = this
 
       self.centerPosition = { // 센터 좌표를 직접 설정해준다. 지금은 대전 자취방 좌표

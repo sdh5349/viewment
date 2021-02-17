@@ -102,20 +102,12 @@ export default {
       this.$router.push({name: 'DetailArticle', params: {articleId :res,}})
     },
     handleScroll() {
-      console.log('스크롤')
-      if (Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
-        console.log(document.documentElement.scrollTop)
-        console.log(window.innerHeight)
-        console.log(document.documentElement.offsetHeight)
-        console.log(document.documentElement.scrollTop + window.innerHeight,document.documentElement.offsetHeight)
-        console.log(this.hashArticles)
-        this.fetchData() 
+      if (this.loading === false && Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
+        console.log('스크롤')
+        this.fetchData()
       }
     }
   },
-  watch: {
-    '$route': 'fetchData'
-  }
 }
 </script>
 

@@ -130,12 +130,11 @@ export default {
     },
     // 기억하기 장소로 이동하는 메서드
     onMemoryListItem (targetMemory) {
-      // this.$router.push({ 
-      //   name: 'Feed', 
-      //   params: {
-      
-      //   }
-      // })
+      console.log(targetMemory.lat)
+      this.$router.push({ 
+        name: 'NewsFeed', 
+        params: { lat: targetMemory.lat, lng: targetMemory.lng }
+      })
     },
     // 본인 팔로워 리스트일 경우 삭제를 희망하는 유저의 인덱스를 찾아 삭제하는 메서드
     onMemoryDeleteButton (targetMemory) {

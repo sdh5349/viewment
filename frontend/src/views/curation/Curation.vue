@@ -23,7 +23,7 @@
     >
     
       <div class="px-3 pt-3">
-        <p class="text-caption mb-1">현재 위치를 기반으로 인기가 많은 게시글을 추천해드립니다.</p>
+        <p class="text-caption mb-1">현재 위치를 기반으로 인기가 많은 장소를 추천해드립니다.</p>
       </div>
    
       <RecommandsByLocation />
