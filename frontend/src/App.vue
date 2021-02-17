@@ -2,113 +2,87 @@
   <div id="app">
     <v-app id="inspire">
       <!-- <v-card class="overflow-hidden"> -->
-        <v-app-bar
-          v-if="$route.meta.title != '로그인'"
-          fixed
-          color="white"
-          elevate-on-scroll
-        >
-          <!-- <v-app-ba></v-app-ba r-nav-icon> -->
-          <v-btn icon>
-            <v-icon
-              large
-              @click="goPrevious"
-            >
-              mdi-arrow-left
-            </v-icon>
-          </v-btn>
+      <v-app-bar v-if="$route.meta.title != '로그인'" fixed color="white" elevate-on-scroll>
+        <!-- <v-app-ba></v-app-ba r-nav-icon> -->
+        <v-btn icon>
+          <v-icon large @click="goPrevious">
+            mdi-arrow-left
+          </v-icon>
+        </v-btn>
 
-          <v-toolbar-title>{{$route.meta.title}}</v-toolbar-title>
-        
-          <v-spacer></v-spacer>
-  
-    
-          <v-btn 
-            v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
-            icon
-            @click="goAlarm"
-          >
-            <v-icon>mdi-bell</v-icon>
-          </v-btn>
-        
-        </v-app-bar>
-        <h1 v-else>
-          {{ this.$route.meta.title }}
-        </h1>
-        <!-- <v-sheet
+        <v-toolbar-title>{{ $route.meta.title }}</v-toolbar-title>
+
+        <v-spacer></v-spacer>
+
+        <v-btn
+          v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
+          icon
+          @click="goNotiList"
+        >
+          <v-badge v-if="uncheckedNoti" bordered dot left color="blue"></v-badge>
+          <v-icon>mdi-bell</v-icon>
+        </v-btn>
+      </v-app-bar>
+      <h1 v-else>
+        {{ this.$route.meta.title }}
+      </h1>
+      <!-- <v-sheet
           id="scrolling-techniques-7"
           class="overflow-y-auto"
           max-height="600"
         > -->
-          <v-container fluid class="mt-5">
-            <router-view
-            class="mt-5"
-            @login="login=true"
-            />
-          </v-container>
-        <!-- </v-sheet> -->
+      <v-container fluid class="mt-5">
+        <router-view class="mt-5" @login="loginAndNotiOn()" />
+      </v-container>
+      <!-- </v-sheet> -->
       <!-- </v-card> -->
-       <v-bottom-navigation grow fixed
+      <v-bottom-navigation
+        grow
+        fixed
         v-if="$route.meta.title != '로그인' && $route.meta.title != '회원가입'"
-       >
-        <v-btn
-          icon
-          @click="goCuration"
-        >
+      >
+        <v-btn icon @click="goCuration">
           <v-icon large>
             mdi-home
           </v-icon>
-        </v-btn>  
+        </v-btn>
 
-        <v-btn
-          icon
-          @click="goFeed"
-        >
+        <v-btn icon @click="goFeed">
           <!-- <span>Nearby</span> -->
           <v-icon large>mdi-map-marker</v-icon>
         </v-btn>
 
-        <v-btn
-          icon
-          @click="goCreateArticle"
-        >
+        <v-btn icon @click="goCreateArticle">
           <!-- <span>Favorites</span> -->
-    
+
           <v-icon large>mdi-plus-box</v-icon>
         </v-btn>
 
-        <v-btn 
-          icon
-          @click="goSearch"
-        >
-          <v-icon
-            style="width: 28px; height: 28px" 
-          >
+        <v-btn icon @click="goSearch">
+          <v-icon style="width: 28px; height: 28px">
             fas fa-search
           </v-icon>
         </v-btn>
 
-        <v-btn
-          icon
-          @click="goProfile"
-        >
+        <v-btn icon @click="goProfile">
           <!-- <span>Nearby</span> -->
-    
+
           <v-icon large>mdi-account</v-icon>
         </v-btn>
       </v-bottom-navigation>
     </v-app>
   </div>
-  
 </template>
 
 <script>
+import firebase from 'firebase/app';
 export default {
   name: 'App',
-  components: {
-  },
+  components: {},
   data: () => ({
     login: false,
+    notiRef: null,
+    uncheckedNoti: false,
   }),
   methods: {
     // onLogout() {
@@ -121,71 +95,75 @@ export default {
     //   .catch (err=>{})
     // },
     goPrevious() {
-      this.$router.go(-1)
+      this.$router.go(-1);
     },
     goSearch() {
-      this.$router.push({ name: 'Search' })
-      .catch (err=>{
-        if(err.name === "NavigationDuplicated" ){
+      this.$router.push({ name: 'Search' }).catch((err) => {
+        if (err.name === 'NavigationDuplicated') {
           location.reload();
         }
-      })
+      });
     },
     goFeed() {
-      const token = sessionStorage.getItem('jwt')
+      const token = sessionStorage.getItem('jwt');
       if (token) {
-        this.$router.push({ name: 'NewsFeed' })
-        .catch (err=>{
-        if(err.name === "NavigationDuplicated" ){
-          location.reload();
-        }
-        })
-      }
-      else{
-        alert("login required")
+        this.$router.push({ name: 'NewsFeed' }).catch((err) => {
+          if (err.name === 'NavigationDuplicated') {
+            location.reload();
+          }
+        });
+      } else {
+        alert('login required');
       }
     },
-    goAlarm() {
-      this.$router.push({ name: '' })
-      .catch (err=>{
-        if(err.name === "NavigationDuplicated" ){
+    goNotiList() {
+      this.$router.push({ name: 'NotiList' }).catch((err) => {
+        if (err.name === 'NavigationDuplicated') {
           location.reload();
         }
-      })
+      });
+      this.uncheckedNoti = false;
     },
     goCuration() {
-      this.$router.push({ name: 'Curation' })
-      .catch (err=>{
-        if(err.name === "NavigationDuplicated" ){
+      this.$router.push({ name: 'Curation' }).catch((err) => {
+        if (err.name === 'NavigationDuplicated') {
           location.reload();
         }
-      })
+      });
     },
     goProfile() {
-      const loginUserId = sessionStorage.getItem('uid')
-      this.$router.push({ 
-        name: 'Profile', 
-        params: { profileUserId : loginUserId }
-      })
-      .catch (err=>{
-        if(err.name === "NavigationDuplicated" ){
-          location.reload();
-        }
-      })
+      const loginUserId = sessionStorage.getItem('uid');
+      this.$router
+        .push({
+          name: 'Profile',
+          params: { profileUserId: loginUserId },
+        })
+        .catch((err) => {
+          if (err.name === 'NavigationDuplicated') {
+            location.reload();
+          }
+        });
     },
     goCreateArticle() {
-      this.$router.push({ name: 'CreateArticle' })
-      .catch (err=>{
-        if(err.name === "NavigationDuplicated" ){
+      this.$router.push({ name: 'CreateArticle' }).catch((err) => {
+        if (err.name === 'NavigationDuplicated') {
           location.reload();
         }
-      })
-    }
+      });
+    },
+    loginAndNotiOn() {
+      console.log('로그인');
+      this.login = true;
+      this.notiRef = firebase.database().ref('noti/' + sessionStorage.getItem('uid'));
+      this.notiRef.on('value', (snapshot) => {
+        this.uncheckedNoti = true;
+      });
+    },
   },
   created() {
-    const token = sessionStorage.getItem('jwt')
+    const token = sessionStorage.getItem('jwt');
     if (token) {
-      this.login = true
+      this.login = true;
     }
   },
 };
@@ -193,9 +171,9 @@ export default {
 
 <style scoped>
 /* 컨테이너의 높이를 화면에 꽉차게 늘린다 */
-  .stretch-height {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
+.stretch-height {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 </style>
