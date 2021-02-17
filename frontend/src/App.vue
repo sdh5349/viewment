@@ -1,39 +1,18 @@
 <template>
   <div id="app">
     <v-app id="inspire">
-        <v-app-bar
-          v-if="$route.meta.title != '로그인'"
-          fixed
-          color="white"
-          elevate-on-scroll
-        >
-          <v-toolbar-title>{{$route.meta.title}}</v-toolbar-title>
-        
-          <v-spacer></v-spacer>
-  
-    
-          <v-btn 
-            v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
-            icon
-            @click="goAlarm"
-          >
-            <v-icon>mdi-bell</v-icon>
-          </v-btn>
-        
-        </v-app-bar>
-        <h1 v-else>
-          {{ this.$route.meta.title }}
-        </h1>
+      <!-- <v-card class="overflow-hidden"> -->
+      <v-app-bar v-if="$route.meta.title != '로그인'" fixed color="white" elevate-on-scroll>
+        <!-- <v-app-ba></v-app-ba r-nav-icon> -->
+        <!-- <v-btn icon>
+            <v-icon
+              large
+              @click="goPrevious"
+            >
+              mdi-arrow-left
+            </v-icon>
+          </v-btn> -->
 
-          <v-container fluid class="mt-5">
-            <router-view
-            class="mt-5"
-            @login="login=true"
-            />
-          </v-container>
-
-
-       <v-bottom-navigation grow fixed
         <v-btn
           v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
           icon
@@ -46,11 +25,16 @@
       <h1 v-else>
         {{ this.$route.meta.title }}
       </h1>
-
+      <!-- <v-sheet
+          id="scrolling-techniques-7"
+          class="overflow-y-auto"
+          max-height="600"
+        > -->
       <v-container fluid class="mt-5">
         <router-view class="mt-5" @login="loginAndNotiOn()" />
       </v-container>
-
+      <!-- </v-sheet> -->
+      <!-- </v-card> -->
       <v-bottom-navigation
         grow
         fixed
@@ -61,12 +45,15 @@
             mdi-home
           </v-icon>
         </v-btn>
-    
+
         <v-btn icon @click="goFeed">
+          <!-- <span>Nearby</span> -->
           <v-icon large>mdi-map-marker</v-icon>
         </v-btn>
 
         <v-btn icon @click="goCreateArticle">
+          <!-- <span>Favorites</span> -->
+
           <v-icon large>mdi-plus-box</v-icon>
         </v-btn>
 
@@ -76,10 +63,9 @@
           </v-icon>
         </v-btn>
 
-        <v-btn
-          icon
-          @click="goProfile"
-        >
+        <v-btn icon @click="goProfile">
+          <!-- <span>Nearby</span> -->
+
           <v-icon large>mdi-account</v-icon>
         </v-btn>
       </v-bottom-navigation>
@@ -98,6 +84,19 @@ export default {
     uncheckedNoti: false,
   }),
   methods: {
+    // onLogout() {
+    //   sessionStorage.removeItem('jwt')
+    //   this.login = false
+    //   this.$router.push({ name: 'Login' })
+    // },
+    // onChangePassword() {
+    //   this.$router.push({ name: 'ChangePassword' })
+    //   .catch (err=>{})
+    // },
+    // goPrevious() {
+    //   // this.$router.go(-1)
+    //   document.location.replace("");
+    // },
     goSearch() {
       this.$router.push({ name: 'Search' }).catch((err) => {
         if (err.name === 'NavigationDuplicated') {
@@ -153,12 +152,16 @@ export default {
       });
     },
     loginAndNotiOn() {
-      console.log('로그인');
       this.login = true;
-      this.notiRef = firebase.database().ref('noti/' + sessionStorage.getItem('uid'));
-      this.notiRef.on('value', (snapshot) => {
-        this.uncheckedNoti = true;
-      });
+      this.notiOn();
+    },
+    notiOn() {
+      if (this.login) {
+        this.notiRef = firebase.database().ref('noti/' + sessionStorage.getItem('uid'));
+        this.notiRef.on('value', (snapshot) => {
+          this.uncheckedNoti = true;
+        });
+      }
     },
   },
   created() {
@@ -166,8 +169,9 @@ export default {
     if (token) {
       this.login = true;
     }
+    this.notiOn();
   },
-}
+};
 </script>
 
 <style scoped>
@@ -178,4 +182,3 @@ export default {
   overflow: hidden;
 }
 </style>
-
