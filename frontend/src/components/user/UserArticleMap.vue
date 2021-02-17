@@ -26,6 +26,9 @@ export default {
       imageServerPrefix: `${SERVER_URL}/images/`,
     }
   },
+  props: {
+    profileUserId: String,
+  },
   mounted() {
     window.kakao && window.kakao.maps
       ? this.initMap() // 참
@@ -72,7 +75,7 @@ export default {
     },
     getArticlePin() {
       this.loginUserId = sessionStorage.getItem('uid')
-      axios.get(`${SERVER_URL}/pins/forusermap?userId=${this.loginUserId}`, this.getToken)
+      axios.get(`${SERVER_URL}/pins/forusermap?userId=${this.profileUserId}`, this.getToken)
       .then((res)=> {
         console.log(res.data)
         this.articlePins = res.data
@@ -82,8 +85,6 @@ export default {
     },
     createArticlePin() {
       const self = this
-
-
       const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
       const imageSize = new kakao.maps.Size(24, 35)
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
