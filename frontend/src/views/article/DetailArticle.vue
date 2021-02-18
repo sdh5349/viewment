@@ -95,7 +95,6 @@ export default {
     fetchData() {
       axios.get(`${SERVER_URL}/articles/`+ this.articleId, this.getToken)
       .then(res => {
-        console.log(res.data)
         this.articleInfo = res.data
         // TODO: 지금 접속한 유저의 정보를 불러와 해당 유저가 이 게시물을 좋아요 하는지 알아내야함
       })

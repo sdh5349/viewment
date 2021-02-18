@@ -1,5 +1,5 @@
 <template>
-  <v-row style="margin-top: 0 !important;">
+  <v-row style="">
     <v-col class="pa-0">
       <div id="map" class="map"></div>
     </v-col>
@@ -54,7 +54,7 @@ export default {
       
       self.options = { // 좌표 옵션 센터 + 확대 레벨
           center: new kakao.maps.LatLng(self.centerPosition.lat, self.centerPosition.lng),
-          level: 14
+          level: 13
       }
 
       self.container = document.getElementById("map") // 맵을 가져와서 container변수에 넣어줌
@@ -77,7 +77,6 @@ export default {
       this.loginUserId = sessionStorage.getItem('uid')
       axios.get(`${SERVER_URL}/pins/forusermap?userId=${this.profileUserId}`, this.getToken)
       .then((res)=> {
-        console.log(res.data)
         this.articlePins = res.data
         this.createArticlePin()
         
@@ -85,8 +84,9 @@ export default {
     },
     createArticlePin() {
       const self = this
-      const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
-      const imageSize = new kakao.maps.Size(24, 35)
+
+      const imageSrc = require('@/assets/images/pin.png'); 
+      const imageSize = new kakao.maps.Size(24, 24); 
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       
       self.articlePins.forEach( articlePin => {
@@ -172,7 +172,7 @@ export default {
 
 <style scoped>
 .map {
-  height: 40vh;
+  height: calc(100vh - 412px);
 }
 
 </style>

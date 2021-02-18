@@ -121,16 +121,7 @@ export default {
         // self.$router.push({ name: 'Error' })
       })
     },
-    // 현재는 데이터를 한번에 받아 사용하지 않지만 추후 데이터를 특정 개수씩 받아오면 필요함
-    scrolling (event) {
-      const scrollInfo = event.target
-      if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
-        console.log("끝이다!")
-      }
-    },
-    // 기억하기 장소로 이동하는 메서드
     onMemoryListItem (targetMemory) {
-      console.log(targetMemory.lat)
       this.$router.push({ 
         name: 'NewsFeed', 
         params: { lat: targetMemory.lat, lng: targetMemory.lng }

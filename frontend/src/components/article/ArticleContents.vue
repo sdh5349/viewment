@@ -64,7 +64,7 @@
               </v-list>
             </v-menu>
             <v-chip
-              v-else-if="articleInfo.recommanded"
+              v-else-if="articleInfo.recommended"
               label
               color="yellow lighten-2"
             >
@@ -95,7 +95,7 @@
               v-if="articleInfo.pin.addressName"
               v-bind="attrs"
               @click="onTooltip" 
-              class=""
+              style="font-size: 1rem;"
             >{{ articleInfo.pin.addressName | truncate(15, '...')}}</span>
           </template>
           <span>{{articleInfo.pin.addressName}}</span>
