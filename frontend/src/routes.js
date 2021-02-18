@@ -18,6 +18,8 @@ import UpdateArticle from './views/article/UpdateArticle.vue'
 import BindArticle from './views/article/BindArticle.vue'
 import SearchHashtagGrid from './views/search/SearchHashtagGrid.vue'
 import Curation from './views/curation/Curation.vue'
+import NotiList from './views/noti/NotiList.vue'
+import NotiSettings from './views/user/NotiSettings.vue'
 
 export default [
     {
@@ -140,4 +142,14 @@ export default [
         component : SearchHashtagGrid,
         props: true,
     },  
+    {
+        path : '/noti-list',
+        name : 'NotiList',
+        component : NotiList,
+    },
+    {
+        path : '/user/profile/noti',
+        name : 'NotiSettings',
+        component : NotiSettings,
+    },
 ]

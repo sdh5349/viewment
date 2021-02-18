@@ -4,8 +4,8 @@
     
   >
     <v-col
-      v-for="(hashArticle,index) in hashArticles"
-      :key="index"
+      v-for="hashArticle in hashArticles"
+      :key="hashArticle.articleId"
       class="d-flex child-flex grid-item-padding"
       cols="4"
     >
@@ -47,13 +47,14 @@ import axios from 'axios'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
+  name: 'HashtagGrid',
   data () {
     return {
       hashArticles: [],
       imageServerPrefix: `${SERVER_URL}/images/`,
-      loading: true,
       page: 0,
-      size: 12,
+      size: 15,
+      flag: false
     }
   },
   props: {
@@ -82,7 +83,7 @@ export default {
   },
   methods: {
     fetchData() {
-      this.loading = true
+      this.flag = true
       axios.get(`${SERVER_URL}/articles/searchbyhashtag/${this.hash}/pg?page=${this.page}&size=${this.size}`,this.getToken)
       .then((res) => {
         console.log(res.data)
@@ -90,20 +91,29 @@ export default {
         this.page += 1
         this.last = res.data.last
         console.log(this.hashArticles)
+        console.log(this.last)
       })
-      .then(() => {
-        this.loading = false
-      })      
+      .then((res) => {
+        this.flag = false
+      })
+        
       .catch((err) => {
         alert('error' + err.message)
       })
     },
-    goDetail(res) {
-      this.$router.push({name: 'DetailArticle', params: {articleId :res,}})
+    goDetail(articleId) {
+      console.log(articleId)
+      this.$router.push({name: 'DetailArticle', params: {articleId,}})
     },
     handleScroll() {
-      if (this.loading === false && Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
+      console.log('스크롤')
+      if (this.flag === false && Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
         console.log('스크롤')
+        console.log(document.documentElement.scrollTop)
+        console.log(window.innerHeight)
+        console.log(document.documentElement.offsetHeight)
+        console.log(document.documentElement.scrollTop + window.innerHeight,document.documentElement.offsetHeight)
+        console.log(this.hashArticles)
         this.fetchData()
       }
     }

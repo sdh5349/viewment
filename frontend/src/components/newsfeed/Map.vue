@@ -16,7 +16,7 @@
   
         <!-- 기억하기 핀 버튼 (시작) -->
         <v-btn icon color="black" @click="checkMemory" class="d-flex" position: absolute
-          style="z-index: 1; left: 50px; top:7px;">
+          style="z-index: 1; top:54px;">
           <v-icon>
             mdi-pin
           </v-icon>
@@ -25,12 +25,12 @@
   
 
         <!-- 기억하기로 이동 관련 (시작) -->
-        <v-dialog v-model="moveMemoryDialog" scrollable max-width="300px">
+        <v-dialog v-model="moveMemoryDialog" scrollable>
           <template v-slot:activator="{ on, attrs }">
 
             <!-- 기억하기로 이동 버튼 (시작) -->
             <v-btn icon color="black" class="d-flex" v-bind="attrs" v-on="on" position: absolute
-              style="z-index: 1; left: 99px; top:7px;">
+              style="z-index: 1; top:100px;">
               <v-icon>
                 mdi-book
               </v-icon>
@@ -40,17 +40,13 @@
           </template>
 
           <!-- 기억하기로 이동 버튼 누르면 기억하기를 선택할수있는 카드창 (시작) -->
-          <v-card>
+          <v-card >
             <v-card-title>기억하기 선택</v-card-title>
             <v-divider></v-divider>
             <v-card-text style="height: 300px;" class="pa-1">
               <v-list dense>
                 <v-list-item-group color="primary">
-                  <v-list-item class="pa-2" v-for="(memory, i) in myMemories" :key="i">
-                    <!-- <v-list-item-icon>
-                    <v-icon v-text="item.icon"></v-icon>
-                  </v-list-item-icon> -->
-                  
+                  <v-list-item class="pa-2" v-for="(memory, i) in myMemories" :key="i">                  
                     <v-list-item-content>
                       <v-list-item-title v-text="memory.name" @click="moveMemory(memory)"></v-list-item-title>
                     </v-list-item-content>
@@ -80,7 +76,7 @@
       <!-- 기억하기핀 버튼을 누르고 map을 누르면 기억하기를 저장할때 이름과 반경을 정할수 있는 카드 (시작) -->
 
       <v-row justify="center">
-        <v-dialog v-model="saveMemoryDialog" persistent max-width="290">
+        <v-dialog v-model="saveMemoryDialog" persistent >
           <template v-slot:activator="{ on, attrs }" v-if="pinInfo">
             <v-btn color="primary" dark v-bind="attrs" v-on="on">
               기억하기
@@ -88,24 +84,24 @@
           </template>
   
   <!-- v-slot="{ invalid }" -->
-          <v-card>
-            
-            <v-card-title class="headline">
-              기억할 장소의 이름과 반경을 적어주세요
-            </v-card-title>
-            <v-card-text>
-              <v-col cols='12'>
-                <div class="modal-card">
-                  <validation-observer
-                    ref="observer"
-                    v-slot="{ invalid }"
-                  >
+          <v-card >
+            <v-card-title>기억하기 저장</v-card-title>
+            <v-divider></v-divider>
+
+              <validation-observer
+                ref="observer"
+                v-slot="{ invalid }"
+              >
+              <v-card-text style="height: 300px;" class="pa-1">
+
+              
                   <validation-provider
                     mode="aggressive"
                     rules="required|max:10"
                     v-slot="{ errors }"
                   >
                   <v-text-field 
+                    block
                     v-model="memoryName" 
                     label='기억하기 이름' 
                     @click="resetMemoryName"
@@ -119,23 +115,39 @@
                     v-slot="{ errors }"
                   >
                   <v-text-field 
+                    block
                     v-model="memoryRadius" 
                     label='반경(m)' 
                     @click="resetMemoryRadius"
                     :error-messages="errors"
                   ></v-text-field>
                   </validation-provider>
+                  </v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-actions > 
+                    
+                    <v-col cols="6" >
+                    <v-btn  
+                      @click="saveMemoryDialog = false" 
+                      text 
+                    >닫기</v-btn>
+                    </v-col>
 
-                  <v-btn 
-                    @click='saveMemory' 
-                    text color='primary'
-                    :disabled="invalid"
-                  >기억 저장</v-btn>
-                  <v-btn @click="saveMemoryDialog = false" text color="red">닫기</v-btn>
+                    <v-col cols="6" class="text-right">
+                    <v-btn 
+                      @click='saveMemory' 
+                      text 
+                      color='primary'
+                      :disabled="invalid"
+                    >기억 저장</v-btn>
+                    </v-col>
+                  
+                  </v-card-actions>
                   </validation-observer>
-                </div>
-              </v-col>
-            </v-card-text>
+                
+              
+            
+            
           </v-card>
         </v-dialog>
       </v-row>
@@ -399,7 +411,7 @@ export default {
         
 
         var content = document.createElement('input')
-        var yAnchor = 2
+        var yAnchor = 2.5
         content.type = 'button'
         content.value = `${myMemory.name} 삭제`
         content.style = `background-color: #E80909; 
