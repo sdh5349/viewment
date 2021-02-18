@@ -41,7 +41,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findByPin(Pin pin);
 
-    List<Article> findByPinAndDateBetween(Pin pin, String start, String end);
+    List<Article> findByPinOrderByDate(Pin pin);
+
+    List<Article> findByPinAndDateBetweenOrderByDate(Pin pin, String start, String end);
 
     List<Article> findByUserIn(Collection<User> list);
 
