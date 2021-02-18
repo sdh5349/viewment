@@ -2,12 +2,12 @@
   <div>
   <v-sheet
     class="mx-0 px-0 border-sheet"
-    elevation="8"
+    elevation="5"
     max-width="100%"
   >
     <v-slide-group
       v-model="model"
-      class="pa-4"
+      class="pa-0"
       mandatory
     >
       <v-slide-item
@@ -16,8 +16,8 @@
       >
         <v-card
           class="ma-1"
-          height="50"
-          width="50"
+          height="100px"
+          width="100px"
           @click="clickArticle(article)"
         > 
           <v-img

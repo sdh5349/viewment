@@ -119,8 +119,6 @@ export default {
       this.alert.alerted = false
       const self = this
       // 1시간 단위로 만료되는 토큰을 세션 종료 전(브라우저 창을 닫는 행위로)이나 직접 로그아웃을 할때 까지 유지
-      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-      .then(() => {
         firebase.auth().signInWithEmailAndPassword(self.email, self.password)
         .then(res => {
           
@@ -150,7 +148,6 @@ export default {
               this.alert.message = '인증메일이 발송된지 얼마지나지 않았습니다.</br>이메일에서 인증메일을 확인해주세요.'
             })
           } 
-  
         })
         .catch(err => {
           this.alert.alerted = true
@@ -163,11 +160,6 @@ export default {
             this.alert.message = '비정상적인 로그인 시도가 있었습니다.</br>잠시 후 다시 시도해주세요.'
           }
         })  
-      })
-      .catch(err => {
-        this.alert.alerted = true
-        this.alert.message = 'FireBase 오류'
-      })
     },
     onResetPassword() {
       this.$router.push({ name: 'ConfirmEmail' })

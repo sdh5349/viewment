@@ -188,14 +188,18 @@ import axios from 'axios' // back에 axios 요청을 위한 라이브러리
 import { required, min, max, max_value } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL  // 기본 서버 URL 제일 위의 파일보면 .env파일에 해당
+
 extend('required', {
   ...required,
   message: '필수 입력 항목입니다.'
 })
+
 extend('max', {
   ...max,
-  message: '기억하기 이름은 10글자 이하이어야 합니다.'
+  params: ['length'],
+  message: '{length}자 이하로 입력해주세요.'
 })
+
 extend('max_value', {
   ...max_value,
   message: '기억하기 반경은 1500m 이하이어야 합니다.'
@@ -412,7 +416,7 @@ export default {
     alreadyMemoryPin() {
       const self = this
       const imageSrc = require('@/assets/images/flag2.png')
-      const imageSize = new kakao.maps.Size(35, 35)
+      const imageSize = new kakao.maps.Size(50, 50)
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
       self.myMemories.forEach( myMemory => {
@@ -591,10 +595,6 @@ export default {
       self.is_Memoryshow = !self.is_Memoryshow
       res.lat= self.position.Ma
       res.lng= self.position.La
-      
-      const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"
-      const imageSize = new kakao.maps.Size(24, 35)
-      const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
       self.position = new kakao.maps.LatLng(self.position.Ma, self.position.La)
 

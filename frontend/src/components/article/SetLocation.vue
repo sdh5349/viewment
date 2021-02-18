@@ -236,8 +236,9 @@ export default {
     },
     articlePins() {   
       const self = this
-      const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
-      const imageSize = new kakao.maps.Size(24, 35)
+
+      const imageSrc = require('@/assets/images/pin.png'); 
+      const imageSize = new kakao.maps.Size(24, 24); 
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
       
       for (var i = 0; i < self.articles.length; i ++) {
