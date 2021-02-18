@@ -1,6 +1,6 @@
 <template>
-  <v-row>
-    <v-col>
+  <v-row style="margin-top: 0 !important;">
+    <v-col class="pa-0">
       <div id="map" class="map"></div>
     </v-col>
   </v-row>

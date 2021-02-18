@@ -16,7 +16,7 @@
     </v-avatar>
     <div class="pl-1 align-self-center">
       <span :style="`font-size: ${fontSize}rem;`">{{nickname}}</span>
-      <p class="mb-0 text-caption" style="color: grey;" v-if="writeDate">{{writeDate}}</p>
+      <p class="mb-0" style="color: grey;" v-if="writeDate">{{writeDate}}</p>
     </div>
   </div>
 </template>

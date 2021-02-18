@@ -16,6 +16,7 @@
     justify="center"
   >
     <v-col
+      class="pa-0"
       lg="4"
       md="4"
       sm="6"
@@ -25,7 +26,7 @@
     <v-card
       outlined
       elevation="2"
-      class="py-3"
+      class="py-3 mx-3"
     >
       <!-- 프로필 사진 및 사용자 본인인 경우 사용자 설정 버튼 -->
       <v-list-item three-line>
@@ -65,7 +66,7 @@
         >
           <v-list-item-title
             align="right"
-            class="headline mb-2"
+            class="mb-2"
           >
             {{ profileUserInfo.nickname}}
           </v-list-item-title>
@@ -122,24 +123,25 @@
 
 
     <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 시작 -->
-    <v-btn
-      v-if="loginUserId !== profileUserId"
-      class="my-4"
-      :color="profileUserInfo.followed ? 'error' : 'primary'"
-      block
-      @click="onFollowButton"
-    >
-      <span v-if="profileUserInfo.followed">언팔로우</span>
-      <span v-else>팔로우</span>
-    </v-btn>
-    <v-btn
-      v-else
-      class="my-4"
-      color="success"
-      block
-      @click="onEditProfileButton"
-    >프로필 편집
-    </v-btn>
+    <div class="my-4 mx-3">
+      <v-btn
+        v-if="loginUserId !== profileUserId"
+        class="my-4"
+        :color="profileUserInfo.followed ? 'error' : 'primary'"
+        block
+        @click="onFollowButton"
+      >
+        <span v-if="profileUserInfo.followed">언팔로우</span>
+        <span v-else>팔로우</span>
+      </v-btn>
+      <v-btn
+        v-else
+        color="#dbebff"
+        block
+        @click="onEditProfileButton"
+      >프로필 편집
+      </v-btn>
+    </div>
     <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 끝 -->
 
 

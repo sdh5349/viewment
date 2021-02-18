@@ -341,11 +341,19 @@ export default {
     mapClick(mouseEvent) {
         const self = this
         if (self.checkMemoryState){  
+          const imageSrc = require('@/assets/images/flag2.png')
+          const imageSize = new kakao.maps.Size(35, 35)
+          const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+         
           self.checkMemoryState = false
+
           var latlng = mouseEvent.latLng;   
+         
           self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
+          
           var pin = new kakao.maps.Marker({
-             position: self.position
+             position: self.position,
+             image: pinImage
           })        
           // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
           if (self.pinInfo==''){
@@ -401,7 +409,6 @@ export default {
     },
     // 기억 되있는 마커 찍어 놓기
     alreadyMemoryPin() {
-      
       const self = this
       const imageSrc = require('@/assets/images/flag2.png')
       const imageSize = new kakao.maps.Size(35, 35)
@@ -493,14 +500,9 @@ export default {
     articlePins() {   
       const self = this
 
-      // const imageSrc = require('@/assets/images/pin.png')
-      // const imageSize = new kakao.maps.Size(24, 24)
-
-      const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
-      const imageSize = new kakao.maps.Size(24, 35)
-
+      const imageSrc = require('@/assets/images/pin.png'); 
+      const imageSize = new kakao.maps.Size(24, 24); 
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
-      
       
       self.articles.forEach( article => {
         var position = new kakao.maps.LatLng(article.lat, article.lng)
