@@ -10,8 +10,10 @@
             <v-text-field 
               v-model="address" 
               label='주소 검색'
-              class="address-search-field"
+              class="address-search-field mt-0 pt-5"
               height="50px"
+              clearable
+              clear-icon="mdi-close-circle"
               >
             </v-text-field>
 
@@ -145,6 +147,7 @@ export default {
         })
     },
     searchAddress(res) {
+      
       const self = this
       self.address = res.place_name
       var places = new kakao.maps.services.Places()
@@ -153,29 +156,29 @@ export default {
       self.map.setCenter(new kakao.maps.LatLng(self.coordinates.Ma, self.coordinates.La))
 
       // 주소 넣기
-      var geocoder = new kakao.maps.services.Geocoder()
-      var callback = function(result, status) {
-        if (status === kakao.maps.services.Status.OK) {
-            self.addressName = result[0].address_name
-        }
-      }
+      // var geocoder = new kakao.maps.services.Geocoder()
+      // var callback = function(result, status) {
+      //   if (status === kakao.maps.services.Status.OK) {
+      //       self.addressName = result[0].address_name
+      //   }
+      // }
       if (self.pinInfo !=''){
         self.pinInfo.setMap(null)
       }
-      geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
+      // geocoder.coord2RegionCode(self.coordinates.La, self.coordinates.Ma, callback)
       self.pin = new kakao.maps.Marker({
         map: self.map,
         position: self.coordinates
       })
       self.pinInfo = self.pin  
-
-      const clickInfo = {
+      
+      const searchInfo = {
         lat: self.coordinates.Ma,
         lng: self.coordinates.La,
-        addressName: self.addressName
+        addressName: res.address_name
       }
-      this.$emit('onClick', clickInfo)
-      
+      console.log(searchInfo)
+      this.$emit('onClick', searchInfo)
       
       self.address = ''
       self.searchedLocations = []
@@ -218,6 +221,11 @@ export default {
       this.is_show = !this.is_show
     },
     getLocation(res) {
+      if (res==null){
+        this.searchedLocations= []
+      }
+      
+      console.log(this.searchedLocations)
       const self = this
       var places = new kakao.maps.services.Places()
 

@@ -20,9 +20,9 @@
     justify="center"
     class="scroll-container"
   >
-    <v-col lg="4" md="4" sm="6">
+    <v-col class="px-0" lg="4" md="4" sm="6">
       
-      <ArticleComponents 
+      <ArticleContents 
         :article="articleInfo"
       />
     
@@ -54,7 +54,7 @@
 
 <script>
 import axios from 'axios'
-import ArticleComponents from '@/components/article/ArticleContents'
+import ArticleContents from '@/components/article/ArticleContents'
 import ReplyList from '@/components/reply/ReplyList'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
@@ -62,7 +62,7 @@ const SERVER_URL = process.env.VUE_APP_SERVER_URL
 export default {
   name: 'DatailArticle',
   components: {
-    ArticleComponents,
+    ArticleContents,
     ReplyList,
   },
   props: {
@@ -89,8 +89,6 @@ export default {
     }
   },
   created() {
-    window.history.forward()
-    function noBack(){window.history.forward()}
     this.fetchData()
   },
   methods: {

@@ -1,9 +1,14 @@
 <template>
-  <v-row v-if="loading">
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
     <v-progress-circular
-      :width="3"
-      color="red"
       indeterminate
+      color="primary"
     ></v-progress-circular>
   </v-row>
   <v-row
@@ -64,7 +69,9 @@
           >
             {{ profileUserInfo.nickname}}
           </v-list-item-title>
-          <v-list-item-subtitle>
+          <v-list-item-subtitle
+            align="right"
+          >
             {{ profileUserInfo.message}}
           </v-list-item-subtitle>
         </v-list-item-content>

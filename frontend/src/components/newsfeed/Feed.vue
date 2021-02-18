@@ -14,22 +14,40 @@
   <v-alert
     v-else-if="feedItems.length === 0 && feedType === 'recommend'"
     v-html="'다른 회원을 팔로우하거나<br/>마음에 드는 게시글에 좋아요를 눌러 주세요.'"
-    class="ma-0 pa-2 text-center"
+    class="ma-2 text-center"
+    dense
     type="info"
   >
   </v-alert>
   <v-alert
     v-else-if="feedItems.length === 0 && feedType === 'newsfeed'"
     v-html="'기억하기 장소 주변에 게시물이 없거나</br>기억하는 장소가 없습니다.'"
-    class="ma-0 pa-2 text-center"
+    class="ma-2 text-center"
+    dense
     type="info"
   >
   </v-alert>
+  <div v-else-if="feedType === 'recommend'" style="margin-bottom: 56px;">
+    <div
+      v-for="(item, idx) in feedItems"
+      :key=idx
+      class="mx-0"
+    >
+      <ArticleContents class="mb-3" :article="item" :is-not-detail="true"/>
+    </div>
+    <Alert
+      v-if="alert.alerted"
+      :message="alert.message"
+      :color="alert.color ? alert.color : 'error'"
+      :is-bottom="true"
+    />
+  </div>
   <v-virtual-scroll
     v-else
-    class="mx-3"
+    class="mx-0"
+    style="padding-bottom: 56px;"
     :items="feedItems"
-    :item-height="500"
+    :item-height="560"
     max-height="80vh"
     @scroll.native="scrolling"
   >
@@ -42,6 +60,7 @@
 <script>
 import axios from 'axios'
 import ArticleContents from '../article/ArticleContents.vue'
+import Alert from '../common/Alert.vue'
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
@@ -49,6 +68,7 @@ export default {
   name: 'Feed',
   components: {
     ArticleContents,
+    Alert
   },
   props: {
     feedType: String,
@@ -57,6 +77,11 @@ export default {
   data() {
     return {
       loading: true,
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
       feedItems: [],
       page: 0,
       size: 2,
@@ -76,8 +101,12 @@ export default {
       return config
     }
   },
-  created() {
+  created () {
+    window.addEventListener('scroll', this.handleScroll);
     this.readMore()
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
     readMore() {
@@ -104,6 +133,15 @@ export default {
         this.readMore()
       }
     },
+    handleScroll() {
+      if (this.feedType === 'recommend' && Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
+        this.readMore() 
+      } else if (this.feedType === 'recommend' && Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && this.last) {
+        this.alert.message = '더 이상 추천 게시물이 없습니다.'
+        this.alert.color = 'primary'
+        this.alert.alerted = true
+      }
+    }
   }
 }
 </script>

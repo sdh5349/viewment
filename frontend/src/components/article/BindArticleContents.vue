@@ -6,6 +6,11 @@
     align="center"
     justify="center"
   >
+  <Alert
+      v-if="alert.alerted"
+      :message="alert.message"
+      :color="alert.color ? alert.color : 'error'"
+    />
     <v-progress-circular
       indeterminate
       color="primary"
@@ -14,6 +19,12 @@
   <div
     v-else
   >
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
+
     <!-- 디바이더 -->
     <v-divider class="pb-2"></v-divider>
 
@@ -32,12 +43,13 @@
           v-for="(articleImage, idx) in articleInfo.images"
           :key="idx" 
           :src="imageServerPrefix +  articleImage.path">
+          <span class="digital-font">{{articleInfo.date}}</span>
         </v-carousel-item>
       </v-carousel>      
       <!-- 사진을 조회하는 캐러셀 끝 -->
     <!-- 게시물 헤더 부분 시작 -->
     <div class="text-right" @click="goDetail(articleInfo.articleId)">...더보기</div>
-
+    
     <v-list-item
       class="pa-0"
     >
@@ -86,13 +98,6 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <v-chip
-              v-else-if="articleInfo.recommanded"
-              label
-              color="yellow lighten-2"
-            >
-              추천
-            </v-chip>
             <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 끝 -->
           </v-row>
         </v-list-item-action>
@@ -171,7 +176,7 @@
 import axios from 'axios'
 import UserProfileImage from '@/components/user/UserProfileImage'
 import ArticleLikeUserList from '@/components/user/ArticleLikeUserList'
-
+import Alert from '@/components/common/Alert'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 export default {
@@ -179,6 +184,7 @@ export default {
   components: {
     ArticleLikeUserList,
     UserProfileImage,
+    Alert, // alert 컴포넌트
   },
   props: {
     article: Object
@@ -203,6 +209,11 @@ export default {
       imageServerPrefix: `${SERVER_URL}/images/`,
       articleInfo: '',
       loginUserId: sessionStorage.getItem('uid'),
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
     }
   },
   computed: {
@@ -250,13 +261,16 @@ export default {
       }})
     },
     deleteArticle(){
-      axios.delete(`${SERVER_URL}/articles/`+ this.articleInfo.articleId, this.getToken )
-      .then(res => {
-        if (confirm('게시물을 삭제하시겠습니까?')) {
-          alert('게시물 삭제 완료')
+      this.alert.alerted = false
+      if (confirm('게시물을 삭제하시겠습니까?')) {
+        axios.delete(`${SERVER_URL}/articles/`+ this.articleInfo.articleId, this.getToken )
+        .then(res => {    
+          this.alert.message = '게시물 삭제 완료'
+          this.alert.color = 'primary'
+          this.alert.alerted = true
           this.$router.replace({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
-        }
-      })
+        })
+      }
     },
     clickHashtag(res){
       this.$router.push({name: 'SearchHashtagGrid', params: {
@@ -289,5 +303,16 @@ export default {
   /* height: 70vh;
   padding: 12px 0 12px 0 !important; */
   height: 300px;
+}
+
+.digital-font { 
+  font-family: "Digital", Helvetica, Arial;
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  text-shadow:1px 1px 10px #d4bd55;
+  bottom: 0.2rem; 
+  right: 0.5rem;
+  color: #d4bd55;
 }
 </style>

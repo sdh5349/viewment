@@ -2,14 +2,9 @@
   <div id="app">
     <v-app id="inspire">
       <!-- <v-card class="overflow-hidden"> -->
-        <v-app-bar
-          v-if="$route.meta.title != '로그인'"
-          fixed
-          color="white"
-          elevate-on-scroll
-        >
-          <!-- <v-app-ba></v-app-ba r-nav-icon> -->
-          <!-- <v-btn icon>
+      <v-app-bar v-if="$route.meta.title != '로그인'" fixed color="white" elevate-on-scroll>
+        <!-- <v-app-ba></v-app-ba r-nav-icon> -->
+        <!-- <v-btn icon>
             <v-icon
               large
               @click="goPrevious"
@@ -157,12 +152,16 @@ export default {
       });
     },
     loginAndNotiOn() {
-      console.log('로그인');
       this.login = true;
-      this.notiRef = firebase.database().ref('noti/' + sessionStorage.getItem('uid'));
-      this.notiRef.on('value', (snapshot) => {
-        this.uncheckedNoti = true;
-      });
+      this.notiOn();
+    },
+    notiOn() {
+      if (this.login) {
+        this.notiRef = firebase.database().ref('noti/' + sessionStorage.getItem('uid'));
+        this.notiRef.on('value', (snapshot) => {
+          this.uncheckedNoti = true;
+        });
+      }
     },
   },
   created() {
@@ -170,8 +169,9 @@ export default {
     if (token) {
       this.login = true;
     }
+    this.notiOn();
   },
-}
+};
 </script>
 
 <style scoped>

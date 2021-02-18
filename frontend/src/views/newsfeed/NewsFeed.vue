@@ -3,7 +3,7 @@
     justify="center"
   >
       <v-col
-        class="px-0"
+        
         lg="4"
         md="4"
         sm="6"
@@ -23,7 +23,10 @@
             v-for="tabItem in tabItems" 
             :key="tabItem.tabId" 
           >
-            {{ tabItem.tabName }}
+            <v-icon>
+              {{ tabItem.tabIcon }}
+
+            </v-icon>
           </v-tab>
         </v-tabs>
         <!-- 탭 끝 -->
@@ -91,8 +94,8 @@ export default {
       },
       activeTab: "",
       tabItems: [
-        { tabId: 0, tabName: 'map', content: 'Map' },
-        { tabId: 1, tabName: 'feed', content: 'Feed' }
+        { tabId: 0, tabIcon: 'mdi-map-marker', content: 'Map' },
+        { tabId: 1, tabIcon: 'mdi-image-multiple', content: 'Feed' }
       ]
     }
   },

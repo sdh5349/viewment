@@ -16,7 +16,7 @@
   >
     <!-- 게시물 헤더 부분 시작 -->
     <v-list-item
-      class="pa-0"
+      class="pa-0 mx-3"
     >
       <v-list-item-content class="pa-0">
         <v-list-item-action class="pa-0 ma-0">
@@ -88,12 +88,12 @@
         >
           mdi-map-marker
         </v-icon>
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
+        <v-tooltip v-model="showTip" top>
+          <template v-slot:activator="{ attrs }">
             <span 
               v-if="articleInfo.pin.addressName"
               v-bind="attrs"
-              v-on="on" 
+              @click="onTooltip" 
               class="text-body-1"
             >{{ articleInfo.pin.addressName | truncate(15, '...')}}</span>
           </template>
@@ -103,18 +103,36 @@
       <!-- 주소정보 끝 -->
     
       <!-- 사진을 조회하는 캐러셀 시작 -->
-      <v-carousel 
-        :show-arrows="false" 
-        hide-delimiter-background  
-        height="300"
-        mouse-drag=true
-      >
-        <v-carousel-item 
-          v-for="(articleImage, idx) in articleInfo.images"
-          :key="idx" 
-          :src="imageServerPrefix +  articleImage.path">
-        </v-carousel-item>
-      </v-carousel>      
+      <div style="position: relative;">
+        <v-carousel
+          :show-arrows="false"
+          hide-delimiter-background  
+          mouse-drag=true
+        >
+          <v-carousel-item 
+            v-for="(articleImage, idx) in articleInfo.images"
+            :key="idx" 
+          >
+          <v-img
+            :aspect-ratio="1"
+            style="max-width: 100%;"
+            :src="imageServerPrefix +  articleImage.path"
+          ></v-img>
+          </v-carousel-item>
+        </v-carousel>
+
+        <!-- 필름 사진과 같은 날짜 효과 시작 -->
+        <span class="digital-font">{{articleInfo.date}}</span>
+        <!-- 필름 사진과 같은 날짜 효과 끝 -->
+
+      </div>
+
+      <!-- 디테일 페이지가 아닌 피드에서 넘어오는 경우 다음 버튼을 누르면 디테일 페이지로 이동한다 -->
+      <div v-if="isNotDetail" class="d-flex justify-end">
+        <v-btn class="px-0" height="20" dense text right @click="onMoreButton">...더보기</v-btn>
+      </div>
+      <!-- 디테일 페이지가 아닌 피드에서 넘어오는 경우 다음 버튼을 누르면 디테일 페이지로 이동한다 -->
+
       <!-- 사진을 조회하는 캐러셀 끝 -->
 
       <!-- 해시태그 시작 -->
@@ -212,7 +230,11 @@ export default {
     UserProfileImage,
   },
   props: {
-    article: Object
+    article: Object,
+    isNotDetail: {
+      type: Boolean,
+      default: false,
+    }
   },
   filters: {
     truncate(text, length, suffix) {
@@ -234,6 +256,7 @@ export default {
       imageServerPrefix: `${SERVER_URL}/images/`,
       articleInfo: '',
       loginUserId: sessionStorage.getItem('uid'),
+      showTip: false
     }
   },
   computed: {
@@ -265,13 +288,13 @@ export default {
       }})
     },
     deleteArticle(){
-      axios.delete(`${SERVER_URL}/articles/`+ this.articleInfo.articleId, this.getToken )
-      .then(res => {
-        if (confirm('게시물을 삭제하시겠습니까?')) {
+      if (confirm('게시물을 삭제하시겠습니까?')) {
+        axios.delete(`${SERVER_URL}/articles/`+ this.articleInfo.articleId, this.getToken )
+        .then(res => { 
           alert('게시물 삭제 완료')
           this.$router.push({name: 'Profile', params: {profileUserId: sessionStorage.getItem('uid')}})
-        }
-      })
+        })
+      }
     },
     clickHashtag(res){
       this.$router.push({name: 'SearchHashtagGrid', params: {
@@ -286,31 +309,64 @@ export default {
     },
     onLikeButton() {
       if (this.articleInfo.liked) {
+        this.articleInfo.liked = !this.articleInfo.liked
+        this.articleInfo.likes -= 1 
+
         axios.delete(`${SERVER_URL}/articles/${this.articleInfo.articleId}/unlike`, this.getToken)
         .then(res => {
-          this.articleInfo.liked = !this.articleInfo.liked
-          this.articleInfo.likes -= 1 
         })
         .catch(err => {
           console.log(err)
         })
       } else {
+        this.articleInfo.liked = !this.articleInfo.liked
+        this.articleInfo.likes += 1 
+        
         axios.post(`${SERVER_URL}/articles/${this.articleInfo.articleId}/like`, {}, this.getToken)
         .then(res => {
-          this.articleInfo.liked = !this.articleInfo.liked
-          this.articleInfo.likes += 1 
         })
         .catch(err => {
           console.log(err)
 
         })
       }
+    },
+    onMoreButton() {
+      this.$router.push({ 
+        name: 'DetailArticle', 
+        params: {
+          articleId: this.articleInfo.articleId,
+        }
+      })
+    },
+    onTooltip() {
+      this.showTip = true;
+     setTimeout(() => {
+        this.showTip = false
+      }, 1000)
     }
   },
 }
 </script>
 
 <style scoped>
+@font-face {
+  font-family: "Digital";
+  src: local("Digital"),
+   url(../../assets/fonts/digital.ttf) format("truetype");
+}
+
+.digital-font { 
+  font-family: "Digital", Helvetica, Arial;
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  text-shadow:1px 1px 10px #d4bd55;
+  bottom: 0.2rem; 
+  right: 0.5rem;
+  color: #d4bd55;
+}
+
 /* 마우스를 버튼에 올리면 포인터로 활성화 된다 */
 .mouse-hover:hover {
   cursor: pointer;

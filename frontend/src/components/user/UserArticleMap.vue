@@ -3,12 +3,12 @@
     <v-col>
       <div id="map" class="map"></div>
     </v-col>
-      
   </v-row>
 </template>
 
 <script>
 import axios from 'axios' // back에 axios 요청을 위한 라이브러리
+
 const SERVER_URL = process.env.VUE_APP_SERVER_URL 
 
 export default {
@@ -26,6 +26,9 @@ export default {
       imageServerPrefix: `${SERVER_URL}/images/`,
     }
   },
+  props: {
+    profileUserId: String,
+  },
   mounted() {
     window.kakao && window.kakao.maps
       ? this.initMap() // 참
@@ -40,10 +43,8 @@ export default {
       script.src =
         "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41dd8e1c2fab039d8dbbff2e13e8d5a5&libraries=services,clusterer,drawing";
       document.head.appendChild(script);
-      
     },
     initMap() {
-      
       const self = this
 
       self.centerPosition = { // 센터 좌표를 직접 설정해준다. 지금은 대전 자취방 좌표
@@ -74,7 +75,7 @@ export default {
     },
     getArticlePin() {
       this.loginUserId = sessionStorage.getItem('uid')
-      axios.get(`${SERVER_URL}/pins/forusermap?userId=${this.loginUserId}`, this.getToken)
+      axios.get(`${SERVER_URL}/pins/forusermap?userId=${this.profileUserId}`, this.getToken)
       .then((res)=> {
         console.log(res.data)
         this.articlePins = res.data
@@ -84,8 +85,6 @@ export default {
     },
     createArticlePin() {
       const self = this
-
-
       const imageSrc = 'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png'
       const imageSize = new kakao.maps.Size(24, 35)
       const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
