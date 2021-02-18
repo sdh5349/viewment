@@ -74,6 +74,7 @@ public class RecommendServiceImpl implements RecommendService{
                 .collect(Collectors.toList());
 
         List<ArticleFeedDto> followingsArticles = articleRepository.findByUserIn(followings).stream()
+                .filter(article -> !recommend.contains(article.getArticleId()))
                 .map(article -> {
                     ArticleFeedDto dto = new ArticleFeedDto(article);
                     int likes = likeRepository.countByArticle(article).intValue();
