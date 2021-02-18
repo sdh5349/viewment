@@ -63,13 +63,14 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <v-chip
-              v-else-if="articleInfo.recommended"
-              label
-              color="yellow lighten-2"
-            >
-              추천
-            </v-chip>
+            <div v-else>
+              <v-img
+                max-width="2rem"
+                height="auto"
+                src="@/assets/images/recommend.png"
+              >
+              </v-img>
+            </div>
             <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 끝 -->
           </v-row>
         </v-list-item-action>

@@ -243,7 +243,6 @@ export default {
           // DOM에 b 유저 사진 데이터가 남아 있으므로 사진이 없는 경우 null 처리 해야함
           this.profileImageUrl = null
         }
-        console.log(this.profileUserInfo)
       })
       .then(() => {
         this.loading = false
