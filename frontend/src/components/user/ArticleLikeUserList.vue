@@ -118,7 +118,6 @@ export default {
         this.articleLikeUsers.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
-        console.log(this.articleLikeUsers)
       })
       .then(() => {
         this.loading = false

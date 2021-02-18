@@ -23,7 +23,6 @@
     methods: { //
       handleVerifyEmail(auth, actionCode) { // 인증을 요청한 사용자의 emailVerifyied 필드의 값을 true로 체크해주는 함수
         const self = this
-        console.log(">>>>>>")
         auth.applyActionCode(actionCode)
         .then(() => {
           self.$router.push({ name: 'Login' })

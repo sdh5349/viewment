@@ -16,159 +16,159 @@
     justify="center"
   >
     <v-col
-      class="pa-0"
       lg="4"
       md="4"
       sm="6"
     >
 
     <!-- 프로필 카드 시작 -->
-    <v-card
-      outlined
-      elevation="2"
-      class="py-3 mx-3"
-    >
-      <!-- 프로필 사진 및 사용자 본인인 경우 사용자 설정 버튼 -->
-      <v-list-item three-line>
-        <div class="relative-container">
-            <v-avatar
-            size="6rem"
-          >
-            <img
-              v-if="this.profileUserInfo.profileImage"
-              :src="profileImageUrl"
+      <v-card
+        outlined
+        elevation="2"
+        class="py-3"
+      >
+        <!-- 프로필 사진 및 사용자 본인인 경우 사용자 설정 버튼 -->
+        <v-list-item three-line>
+          <div class="relative-container">
+              <v-avatar
+              size="6rem"
             >
-            <img
-              v-else
-              src="@/assets/images/account.png"
+              <img
+                v-if="this.profileUserInfo.profileImage"
+                :src="profileImageUrl"
+              >
+              <img
+                v-else
+                src="@/assets/images/account.png"
+              >
+            </v-avatar>
+            <!-- 계정설정 버튼 시작 -->
+            <v-btn
+              v-if="loginUserId === profileUserId"
+              class="bottom-right-position"
+              x-small
+              icon
+              @click="onEditAccountButton"
             >
-          </v-avatar>
-          <!-- 계정설정 버튼 시작 -->
-          <v-btn
-            v-if="loginUserId === profileUserId"
-            class="bottom-right-position"
-            x-small
-            icon
-            @click="onEditAccountButton"
-          >
-            <v-icon
-            large
-            color="grey"
-            >
-            mdi-cog
-            </v-icon>
-          </v-btn>
-          <!-- 계정설정 버튼 끝 -->
-        </div>
+              <v-icon
+              large
+              color="grey"
+              >
+              mdi-cog
+              </v-icon>
+            </v-btn>
+            <!-- 계정설정 버튼 끝 -->
+          </div>
 
-        <v-list-item-content
-          class="ml-2"
+          <v-list-item-content
+            class="ml-2"
+          >
+            <v-list-item-title
+              align="right"
+              style="font-size: 1.5rem;"
+              class="mb-2"
+            >
+              {{ profileUserInfo.nickname}}
+            </v-list-item-title>
+            <v-list-item-subtitle
+              align="right"
+            >
+              {{ profileUserInfo.message}}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>    
+      <!-- 프로필 카드 끝 -->
+      
+
+      <!-- 게시글, 팔로워 리스트, 팔로잉 리스트, 기억장소 리스트 시작 -->
+      <v-row class="my-4">
+        <v-btn
+          class="col-3 disable-events"
+          text
         >
-          <v-list-item-title
-            align="right"
-            class="mb-2"
-          >
-            {{ profileUserInfo.nickname}}
-          </v-list-item-title>
-          <v-list-item-subtitle
-            align="right"
-          >
-            {{ profileUserInfo.message}}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-card>    
-    <!-- 프로필 카드 끝 -->
-    
-
-    <!-- 게시글, 팔로워 리스트, 팔로잉 리스트, 기억장소 리스트 시작 -->
-    <v-row class="my-4 px-4">
-      <v-btn
-        class="col-3 disable-events"
-        text
-      >
-        {{ profileUserInfo.countArticles }}
-        <br/>
-        게시글
-      </v-btn>
-      <v-btn 
-        text 
-        class="col-3"
-        @click="onFollowerListButton"  
-      >
-        {{ profileUserInfo.countFollowers }}
-        <br/>
-        팔로워
-      </v-btn>
-      <v-btn 
-        text 
-        class="col-3"
-        @click="onFollowingListButton"
-      >
-        {{ profileUserInfo.countFollowings }}
-        <br/>
-        팔로잉
-      </v-btn>
-      <v-btn 
-        text 
-        class="col-3"
-        @click="onMemoryListButton"
-      >
-        {{ profileUserInfo.countMemories }}
-        <br/>
-        기억장소
-      </v-btn>
-    </v-row>
-    <!-- 게시글, 팔로워 리스트, 팔로잉 리스트, 기억장소 리스트 끝 -->
+          {{ profileUserInfo.countArticles }}
+          <br/>
+          게시글
+        </v-btn>
+        <v-btn 
+          text 
+          class="col-3"
+          @click="onFollowerListButton"  
+        >
+          {{ profileUserInfo.countFollowers }}
+          <br/>
+          팔로워
+        </v-btn>
+        <v-btn 
+          text 
+          class="col-3"
+          @click="onFollowingListButton"
+        >
+          {{ profileUserInfo.countFollowings }}
+          <br/>
+          팔로잉
+        </v-btn>
+        <v-btn 
+          text 
+          class="col-3"
+          @click="onMemoryListButton"
+        >
+          {{ profileUserInfo.countMemories }}
+          <br/>
+          기억장소
+        </v-btn>
+      </v-row>
+      <!-- 게시글, 팔로워 리스트, 팔로잉 리스트, 기억장소 리스트 끝 -->
 
 
-    <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 시작 -->
-    <div class="my-4 mx-3">
-      <v-btn
-        v-if="loginUserId !== profileUserId"
-        class="my-4"
-        :color="profileUserInfo.followed ? 'error' : 'primary'"
-        block
-        @click="onFollowButton"
-      >
-        <span v-if="profileUserInfo.followed">언팔로우</span>
-        <span v-else>팔로우</span>
-      </v-btn>
-      <v-btn
-        v-else
-        color="#dbebff"
-        block
-        @click="onEditProfileButton"
-      >프로필 편집
-      </v-btn>
-    </div>
-    <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 끝 -->
+      <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 시작 -->
+      <div class="my-4">
+        <v-btn
+          v-if="loginUserId !== profileUserId"
+          class="my-4"
+          :color="profileUserInfo.followed ? 'error' : 'primary'"
+          block
+          @click="onFollowButton"
+        >
+          <span v-if="profileUserInfo.followed">언팔로우</span>
+          <span v-else>팔로우</span>
+        </v-btn>
+        <v-btn
+          v-else
+          color="#dbebff"
+          block
+          @click="onEditProfileButton"
+        >프로필 편집
+        </v-btn>
+      </div>
+      <!-- 프로필 편집/팔로잉하기/팔로우 취소하기 버튼 끝 -->
 
 
-    <!-- 피드, 지도 탭 시작 -->
+      <!-- 피드, 지도 탭 시작 -->
 
-    <!-- 탭 시작 -->
-    <v-tabs v-model="tab" grow>
-      <v-tabs-slider color="grey"></v-tabs-slider>
-      <v-tab v-for="tabItem in tabItems" :key="tabItem.tabIcon">
-        <v-icon>{{ tabItem.tabIcon }}</v-icon>
-      </v-tab>
-    </v-tabs>
-    <!-- 탭 끝 -->
+      <!-- 탭 시작 -->
+      <v-tabs v-model="tab" grow>
+        <v-tabs-slider color="grey"></v-tabs-slider>
+        <v-tab v-for="tabItem in tabItems" :key="tabItem.tabIcon">
+          <v-icon>{{ tabItem.tabIcon }}</v-icon>
+        </v-tab>
+      </v-tabs>
+      <!-- 탭 끝 -->
 
-    <!-- 탭 선택에 따라 보여줄 컴포넌트 -->
-    <v-tabs-items v-model="tab" touchless>
-      <v-tab-item v-for="tabItem in tabItems" :key="tabItem.tabIcon">
-        <!-- keep-alive 태그를 통해 탭 컴포넌트를 바꿀 때마다 재 생성하는 것이 아닌 데이터를 캐시해두고 다시 볼수있도록 하는 태그 -->
-        <!-- TODO: 일단 없이 해보고 필요하다면 사용할 것임 -->
-        <!-- <keep-alive>  -->
-        <component class="mt-1 mx-0" v-bind:is="tabItem.content" :profile-user-id="profileUserId"></component>
-        <!-- </keep-alive> -->
-      </v-tab-item>
-    </v-tabs-items>
-    <!-- 탭 선택에 따라 보여줄 컴포넌트 끝 -->
+      <!-- 탭 선택에 따라 보여줄 컴포넌트 -->
+      <v-tabs-items v-model="tab" touchless>
+        <v-tab-item v-for="tabItem in tabItems" :key="tabItem.tabIcon">
+          <!-- keep-alive 태그를 통해 탭 컴포넌트를 바꿀 때마다 재 생성하는 것이 아닌 데이터를 캐시해두고 다시 볼수있도록 하는 태그 -->
+          <!-- TODO: 일단 없이 해보고 필요하다면 사용할 것임 -->
+          <!-- <keep-alive>  -->
+          <component class="mt-1 mx-0" v-bind:is="tabItem.content" :profile-user-id="profileUserId"></component>
+          <!-- </keep-alive> -->
+        </v-tab-item>
+      </v-tabs-items>
+      <!-- 탭 선택에 따라 보여줄 컴포넌트 끝 -->
 
-    <!-- 피드, 지도 탭 끝 -->
+      <!-- 피드, 지도 탭 끝 -->
 
 
     </v-col>
@@ -226,7 +226,6 @@ export default {
   },
   created() {
     this.fetchData()
-    console.log("새로 생성되었어요")
   },
   methods: {
     // 데이터 초기화 메서드
@@ -235,7 +234,6 @@ export default {
       .then(res => {
         // 현재 보고있는 프로필 페이지 유저의 정보 초기화
         this.profileUserInfo = res.data
-        console.log(res.data)
         // 현재 로그인한 유저의 uid 초기화
         this.loginUserId = sessionStorage.getItem('uid')
         if (this.profileUserInfo.profileImage) {

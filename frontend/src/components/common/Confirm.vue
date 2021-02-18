@@ -43,7 +43,6 @@ export default {
   },
   methods: {
     onClick(confirmed) {
-      console.log("??")
       this.$emit('on-confirmed', confirmed)
     }
   }

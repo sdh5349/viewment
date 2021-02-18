@@ -9,7 +9,7 @@
         <!-- 내 위치로 이동 버튼 (시작) -->
         <v-btn fab absolute small @click="moveMyLocation"
           v-bind:color="moveMyLocationState== false ? '' : 'primary'"
-          style="z-index: 1; left:82vw; top:20px;">
+          style="z-index: 1; right: 20px; top:20px;">
           <v-icon>
             mdi-apple-safari
           </v-icon>
@@ -21,7 +21,7 @@
         
         <v-btn fab absolute small @click="checkMemory" 
           v-bind:color="checkMemoryState== false ? '' : 'primary'"
-          style="z-index: 1; left:82vw; top:70px;">
+          style="z-index: 1; right: 20px; top:70px;">
           <v-icon >
             mdi-pin
           </v-icon>
@@ -37,7 +37,7 @@
             <!-- 기억하기로 이동 버튼 (시작) -->
             <v-btn fab absolute small class="text-center" v-bind="attrs" v-on="on" 
               @click="goMemory"
-              style="z-index: 1; left:82vw; top:120px;">
+              style="z-index: 1; right: 20px; top:120px;">
               <v-icon dark>
                 mdi-book
               </v-icon>
@@ -342,7 +342,7 @@ export default {
         const self = this
         if (self.checkMemoryState){  
           const imageSrc = require('@/assets/images/flag2.png')
-          const imageSize = new kakao.maps.Size(35, 35)
+          const imageSize = new kakao.maps.Size(50, 50)
           const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
          
           self.checkMemoryState = false
@@ -353,7 +353,8 @@ export default {
           
           var pin = new kakao.maps.Marker({
              position: self.position,
-             image: pinImage
+             image: pinImage,
+             xAnchor: 3
           })        
           // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
           if (self.pinInfo==''){

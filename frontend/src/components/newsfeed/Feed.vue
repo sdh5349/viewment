@@ -91,7 +91,7 @@ export default {
       },
       feedItems: [],
       page: 0,
-      size: 2,
+      size: 5,
       last: false,
       itemHeight: 0,
       loginUserId: sessionStorage.getItem('uid'),
@@ -136,7 +136,6 @@ export default {
     },
     onScroll (event) {
       const scrollInfo = event.target
-      console.log(this.last)
       if (scrollInfo && Math.round(scrollInfo.scrollHeight - scrollInfo.scrollTop) === scrollInfo.clientHeight && !this.last) {
         this.readMore()
       } else if (this.feedType === 'newsfeed' && Math.round(scrollInfo.scrollHeight - scrollInfo.scrollTop) === scrollInfo.clientHeight && this.last) {

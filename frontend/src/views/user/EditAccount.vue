@@ -116,7 +116,6 @@ export default {
       this.confirm.message = '정말 회원탈퇴 하시겠습니까?';
     },
     onDeleteConfirmed(confirmed) {
-      console.log(confirmed);
       if (confirmed) {
         // 서버 DB에서 삭제
         axios
