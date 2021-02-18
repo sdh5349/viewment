@@ -11,13 +11,15 @@
     <v-text-field
     class="mx-2 mt-5"
     rows="1"
-    prepend-icon="mdi-magnify"
     @input="onSearch"
     clearable
+    single-line
     >
+    <!-- prepend-inner-icon="mdi-magnify" -->
       <template 
         v-slot:label
       >
+      <v-icon>mdi-magnify</v-icon>
         {{searchLabel}}
       </template>
 
@@ -85,9 +87,9 @@ export default {
       search: null,
       onTab: null,
       tabItems: [
-        { tabId: 10, tabName: 'record', icon: 'mdi-heart', content: 'SearchRecord', searchLabel: "Search"},
-        { tabId: 11, tabName: 'aMap', icon: 'mdi-map', content: 'SearchLocation', searchLabel: "Map Search"},
-        { tabId: 22, tabName: 'Feesdafd', icon: 'mdi-post', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
+        { tabId: 10, tabName: 'record', icon: 'mdi-text-box-search', content: 'SearchRecord', searchLabel: "Search"},
+        { tabId: 11, tabName: 'aMap', icon: 'mdi-map-marker', content: 'SearchLocation', searchLabel: "Map Search"},
+        { tabId: 22, tabName: 'Feesdafd', icon: 'mdi-pound', content: 'SearchHashtag', searchLabel: "Hashtag Search"},
         { tabId: 33, tabName: 'Useasdfr', icon: 'mdi-account', content: 'SearchUser', searchLabel: "User Search"}
       ],
     }
