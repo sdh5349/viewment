@@ -35,7 +35,6 @@ public class FollowServiceImpl implements FollowService{
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
-
     private final ApplicationEventPublisher eventPublisher;
 
     public User getUser(String userId){
@@ -49,6 +48,10 @@ public class FollowServiceImpl implements FollowService{
     public Long follow(String userId, String targetUserId) {
         User from = getUser(userId);
         User to = getUser(targetUserId);
+
+        followRepository.findByFromAndTo(from, to).ifPresent(
+                m->{throw new IllegalStateException("이미 팔로우하고 있는 회원입니다.");}
+        );
 
         Follow follow = new Follow();
         follow.setFrom(from);

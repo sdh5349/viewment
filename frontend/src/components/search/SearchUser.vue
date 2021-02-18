@@ -121,9 +121,7 @@ export default {
         if(this.search){
           axios.get(`${SERVER_URL}/users/like/${this.search}`, {params:params, headers:this.getToken.headers})
             .then(res => {
-              console.log("res.data",res.data)
               this.scrollUsers.push(...res.data.content)
-              console.log(this.scrollUsers)
               this.page += 1
               this.last = res.data.last
             })
@@ -205,7 +203,6 @@ export default {
     // 스크롤이 맨 아래에 있고 더 요청할 유저의 정보가 남아있다면 팔로워 정보를 더 요청한다
     scrolling (event) {
       const scrollInfo = event.target
-        console.log('스크롤', scrollInfo.scrollHeight - scrollInfo.scrollTop, scrollInfo.clientHeight)
       if (scrollInfo && scrollInfo.scrollHeight - scrollInfo.scrollTop === scrollInfo.clientHeight && !this.last) {
         this.getUsers()
       }
@@ -222,7 +219,6 @@ export default {
     },
     search() {
       if(this.onTab===3){
-          console.log('22')
           this.page = 0
           this.scrollUsers = []
           this.getUsers()

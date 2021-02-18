@@ -295,7 +295,6 @@ export default {
         this.alert.message = '파일 크기는 20MB를 넘길 수 없습니다.'
         this.alert.alerted = true
       }
-
     },
     // 프로필 이미지를 삭제하는 버튼
     onDeleteProfileImageButton () {

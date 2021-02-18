@@ -1,46 +1,59 @@
 <template>
   <v-row justify="center" position: relative>
-    <v-col lg="4" md="4" sm="6">
-  
+    <v-col lg="4" md="4" sm="6" class="pa-0">
+      <Alert
+        v-if="alert.alerted"
+        :message="alert.message"
+        :color="alert.color ? alert.color : 'error'"
+      />
       <v-stepper class="stepper-container" v-model="e6" vertical>
     
-        <v-stepper-step :complete="e6 > 1" step="1">
+        <v-stepper-step :complete="e6 > 1" step="1" class="pl-2 py-1">
           사진
         </v-stepper-step>
   
   
-        <v-stepper-content step="1" class="">
+        <v-stepper-content step="1" class="ml-5">
   
           
-          <v-card class="img-card-container  " elevation='0'>
-            <v-row class="d-flex justify-space-between" v-if="this.preview.length != 0" >
-              <v-col cols="3" >
-                <v-btn  class="close-button" text @click='imageDelete(index)' color="black">
-                  <v-icon>
-                    mdi-close
-                  </v-icon>
-                </v-btn>
-              </v-col>
-  
-              <v-col cols="3">
-                <v-file-input class="plus-button" color="black" accept="image/*" v-model="files" multiple @change="previewImg"
-                  prepend-icon=mdi-camera-enhance hide-input>
-                </v-file-input>
-              </v-col>
-  
-            </v-row>
+          <v-card class="img-card-container" elevation='0'>
+
   
   
   
-            <v-file-input v-if="this.preview.length == 0" accept="image/*" multiple v-model="files" @change="previewImg"
-              hide-input prepend-icon=mdi-camera class="file-input"></v-file-input>
+            <v-file-input 
+              v-if="this.preview.length == 0" 
+              accept="image/*"
+              multiple v-model="files" 
+              @change="previewImg"
+              label="Avatar"
+              hide-input 
+              prepend-icon=mdi-camera 
+              class="file-input"></v-file-input>
   
   
-            <v-carousel class="carousel-container" :show-arrows="false" hide-delimiter-background
-              delimiter-icon="mdi-checkbox-blank-circle-outline" height="30vh">
+            <v-carousel  v-if="this.preview.length != 0" style=""  width="100%" height="100%" :show-arrows="false" hide-delimiter-background
+              delimiter-icon="mdi-checkbox-blank-circle-outline">
   
-              <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url">
-  
+              <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url" style="max-width: 100%; height: 100%;">
+                <v-row class="d-flex justify-space-between" >
+                <v-col cols="3" >
+                  <v-btn fab small class="close-button"  @click='imageDelete(index)' >
+                    <v-icon dark>
+                      mdi-close
+                    </v-icon>
+                  </v-btn>
+                </v-col>
+    
+                <v-col cols="3" >
+                  <v-btn fab small class="plus-button">
+                    <v-file-input class="plus" color="black" accept="image/*" v-model="files" multiple @change="previewImg"
+                      hide-input prepend-icon=mdi-camera-enhance >
+                    </v-file-input>
+                  </v-btn>
+                </v-col>
+
+              </v-row>
               </v-carousel-item>
             </v-carousel>
           
@@ -69,19 +82,19 @@
   
   
   
-        <v-stepper-step :complete="e6 > 2" step="2">
+        <v-stepper-step :complete="e6 > 2" step="2" class="pl-2 py-1">
           정보
   
         </v-stepper-step>
   
-        <v-stepper-content step="2" class="my-0 py-0">
+        <v-stepper-content step="2" class="ml-5">
           <v-card color="lighten-1" class="" height="50vh" elevation='0'>
   
             <v-textarea  placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" outlined class="mt-0 pt-5" ></v-textarea>
   
   
             <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup"
-              :search-input.sync="search" :delimiters="[' ']" hint="해시태그는 최대 5개 입니다.">
+              :search-input.sync="search" :delimiters="[' ']" hint="해시태그는 최대 5개 입니다. 특수문자는 불가능 합니다.">
   
               <template v-slot:selection="data">
                 <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
@@ -115,7 +128,7 @@
   
           <v-row class="button-container">
             <v-col cols="6">
-              <v-btn block @click="goHome">
+              <v-btn block  @click="e6 = 1">
                 이전
               </v-btn>
             </v-col>
@@ -128,12 +141,12 @@
 
         </v-stepper-content>
   
-        <v-stepper-step :complete="e6 > 3" step="3">
+        <v-stepper-step :complete="e6 > 3" step="3" class="pl-2 py-1">
           위치
   
         </v-stepper-step>
   
-        <v-stepper-content step="3">
+        <v-stepper-content step="3" class="ma-0 pa-2">
           <v-card color="lighten-1" class="mb-0 " height="50vh" elevation='0'>
   
             <SetLocation @onClick="savePosition"></SetLocation>
@@ -171,6 +184,7 @@ import SetLocation from "@/components/article/SetLocation.vue"
 import { required, min, max } from 'vee-validate/dist/rules'
 import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
 import { mdiCloseCircleOutline } from '@mdi/js'
+import Alert from '@/components/common/Alert'
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
 const request = axios.CancelToken.source()
@@ -188,6 +202,7 @@ extend('required', {
 export default {
   components: {
     SetLocation,
+    Alert
   },
   data: () => {
     return {
@@ -212,6 +227,11 @@ export default {
       prac:'',
       search: '',
       date: new Date().toISOString().substr(0, 10),
+      alert: {
+        alerted: false,
+        message: '',
+        color: '',
+      },
     }
   },
   methods: {
@@ -222,29 +242,49 @@ export default {
       this.getHashtags()
     },
     getHashtags() {
+      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/
       if (this.search){
         this.search.replace(" ","")
-        
-      axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
-        .then((res) => {
-          
-          for (var i = 0; i < res.data.length; i++){
-            this.items.push(res.data[i].contents)
-            }  
-          
+      
+      if(special_pattern.test(this.search) == true) { 
+        this.search = ''
+      } 
+      else {
+        console.log(this.search) 
+        axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+          .then((res) => {
+            
+            for (var i = 0; i < res.data.length; i++){
+              this.items.push(res.data[i].contents)
+              }  
+            
+            })
+          .catch((err)=> {
+            alert('error'+err.message)
           })
-        .catch((err)=> {
-          alert('error'+err.message)
-        })
+        }
       }
     },
     previewImg(res) {
-      if (res){     
-        const temp = res.map(imgObt => {
-          return {name: imgObt.name, url: URL.createObjectURL(imgObt)}
-        })
-        this.preview.push(...temp)
+      var tempSumImgSize = 0
+      var tempPreview = []
+      res.forEach(imageFile => {
+        tempSumImgSize = tempSumImgSize + imageFile.size
+        var temp = {
+          name: imageFile.name, 
+          url: URL.createObjectURL(imageFile)
+        }
+        tempPreview.push(temp)
+      })
+      
+      if (tempSumImgSize > 20971520){
+        this.alert.message = '파일 총 크기는 20MB를 넘길 수 없습니다.'
+        this.alert.alerted = true
       }
+      else{
+        this.preview.push(...tempPreview)
+      }
+      
     },
     imageDelete(index) {
       this.preview.splice(index, 1)
@@ -318,7 +358,7 @@ export default {
         })   
     },
     goHome() {
-      this.$router.push({ name:'Feed' })
+      this.$router.go(-1)
     },
   },
   computed: {
@@ -334,6 +374,14 @@ export default {
   },
   watch: {
     hashtags (val) {
+      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/;
+      if(special_pattern.test(val[val.length-1]) == true) { 
+        this.hashtags.pop()
+      } 
+      else { 
+        0
+      }
+
       var index = this.hashtags.indexOf('')
       if (index!=-1){
         this.hashtags.splice(index, 1)
@@ -348,15 +396,23 @@ export default {
 
 <style scoped>
 .stepper-container{
-  height: 85vh;
+  height: calc(100vh - 105px);
+  
 }
 .img-card-container {
   position: relative;
-  height: 40vh; 
-
+  height: 30vh; 
 }
-.carousel-container {
-  padding-top: 20px;
+
+.img-card-container-has {
+  position: relative;
+  height: 100%; 
+}
+
+.carousel-container {  
+  width: 100%;
+  height: auto;
+  
 }
 .file-input {
   position: absolute; 
@@ -368,7 +424,7 @@ export default {
   height: 30px;
   margin-left: -15px;
   margin-top: -15px;
-  z-index: 9999;
+  z-index: 0;
 }
 .button-container{
   justify-content: space-between;
@@ -377,13 +433,19 @@ export default {
 }
 .close-button {
   position: absolute;
-  top: 5px;
+  top: 10px;
+  left: 10px;
   z-index: 3;
 }
 .plus-button {
   position: absolute;
   z-index: 3;  
-  top: -10px;
+  top: 10px;
+  right: 10px;
 }
-
+.plus {
+  position: absolute;
+  bottom: -15px;
+  right: -1px;
+}
 </style>

@@ -9,7 +9,14 @@
     <v-progress-circular indeterminate color="primary"></v-progress-circular>
   </v-row>
   <v-row v-else-if="noData" justify="center">
-    <v-alert v-html="'알림이 없습니다'" class="ma-0 pa-2 text-center" type="info"> </v-alert>
+    <v-col lg="4" md="4" sm="6">
+      <v-alert
+        v-html="'알림이 없습니다.'"
+        class="ma-2 mt-5 text-center"
+        dense
+        type="info"
+      ></v-alert>
+    </v-col>
   </v-row>
   <v-row v-else justify="center">
     <v-col lg="4" md="4" sm="6">

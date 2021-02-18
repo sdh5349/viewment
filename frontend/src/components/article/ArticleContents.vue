@@ -41,7 +41,7 @@
             
             <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 시작 -->
             <v-menu
-              v-if="loginUserId === articleInfo.user.userId"
+              v-if="loginUserId === articleInfo.user.userId && !isNotDetail"
               transition="scroll-y-transition"
             >
               <template v-slot:activator="{ on, attrs }">
@@ -78,12 +78,13 @@
     <!-- 게시물 헤더 부분 끝 -->
   
     <!-- 디바이더 -->
-    <v-divider class="pb-2"></v-divider>
+    <v-divider class="pb-2 "></v-divider>
 
     <v-card elevation="0">
       <!-- 주소정보 시작 -->
       <v-card-title class="pa-0 pb-1">
         <v-icon
+          class="ml-3"
           left
         >
           mdi-map-marker
@@ -94,7 +95,7 @@
               v-if="articleInfo.pin.addressName"
               v-bind="attrs"
               @click="onTooltip" 
-              class="text-body-1"
+              class=""
             >{{ articleInfo.pin.addressName | truncate(15, '...')}}</span>
           </template>
           <span>{{articleInfo.pin.addressName}}</span>
@@ -105,6 +106,8 @@
       <!-- 사진을 조회하는 캐러셀 시작 -->
       <div style="position: relative;">
         <v-carousel
+          style="width: 100%;"
+          height="auto"
           :show-arrows="false"
           hide-delimiter-background  
           mouse-drag=true
@@ -112,6 +115,7 @@
           <v-carousel-item 
             v-for="(articleImage, idx) in articleInfo.images"
             :key="idx" 
+            style="max-width: 100%; height: auto;"
           >
           <v-img
             :aspect-ratio="1"
@@ -129,20 +133,20 @@
 
       <!-- 디테일 페이지가 아닌 피드에서 넘어오는 경우 다음 버튼을 누르면 디테일 페이지로 이동한다 -->
       <div v-if="isNotDetail" class="d-flex justify-end">
-        <v-btn class="px-0" height="20" dense text right @click="onMoreButton">...더보기</v-btn>
+        <v-btn class="px-0" height="20" dense text right @click="onMoreButton">...더 보기</v-btn>
       </div>
       <!-- 디테일 페이지가 아닌 피드에서 넘어오는 경우 다음 버튼을 누르면 디테일 페이지로 이동한다 -->
 
       <!-- 사진을 조회하는 캐러셀 끝 -->
 
       <!-- 해시태그 시작 -->
-      <v-card-actions class="pa-0">
+      <v-card-actions class="pa-0 mx-3">
         <v-chip-group
           column
         >
           <v-chip
             v-for="(hashtag, i) in articleInfo.hashtags" :key="i"
-            class="mx-1 px-2 text-body-1"
+            class="mx-1 my-0 px-2  text-body-1"
             label
             small
             color="primary"
@@ -155,13 +159,13 @@
       <!-- 해시태그 끝 -->
 
       <!-- 게시글 내용 시작 -->
-      <p v-if="articleInfo.contents" class="pa-2 mb-0 text-body-1">
+      <p v-if="articleInfo.contents" class="pa-2 mx-2 mb-0 text-body-1">
         {{articleInfo.contents}}
       </p>
       <!-- 게시글 내용 끝 -->
 
       <!-- 게시글 좋아요 수, 좋아요 버튼 시작 -->
-      <div class="d-flex justify-space-between align-center">
+      <div class="ml-3 d-flex justify-space-between align-center">
 
         <!-- 게시글 좋아요 유저 리스트를 띄우는 모달창 버튼 시작 -->
         <v-dialog
@@ -357,12 +361,12 @@ export default {
 }
 
 .digital-font { 
-  font-family: "Digital", Helvetica, Arial;
+  font-family: "Digital", Helvetica, Arial !important;
   font-size: 15px;
   font-weight: bold;
   position: absolute;
   text-shadow:1px 1px 10px #d4bd55;
-  bottom: 0.2rem; 
+  bottom: 0.2rem;
   right: 0.5rem;
   color: #d4bd55;
 }
