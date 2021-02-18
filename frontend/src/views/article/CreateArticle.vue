@@ -258,7 +258,7 @@ export default {
       this.getHashtags()
     },
     getHashtags() {
-      const validPattern = /^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/;
+      const validPattern = /^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|a-z|A-Z|0-9|]+$/;
 
       if (this.search){
         this.search.replace(" ","")
