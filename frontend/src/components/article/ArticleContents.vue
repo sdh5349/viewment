@@ -95,7 +95,7 @@
               v-if="articleInfo.pin.addressName"
               v-bind="attrs"
               @click="onTooltip" 
-              class="text-body-1"
+              class=""
             >{{ articleInfo.pin.addressName | truncate(15, '...')}}</span>
           </template>
           <span>{{articleInfo.pin.addressName}}</span>
@@ -133,7 +133,7 @@
 
       <!-- 디테일 페이지가 아닌 피드에서 넘어오는 경우 다음 버튼을 누르면 디테일 페이지로 이동한다 -->
       <div v-if="isNotDetail" class="d-flex justify-end">
-        <v-btn class="px-0" height="20" dense text right @click="onMoreButton">...더보기</v-btn>
+        <v-btn class="px-0" height="20" dense text right @click="onMoreButton">...더 보기</v-btn>
       </div>
       <!-- 디테일 페이지가 아닌 피드에서 넘어오는 경우 다음 버튼을 누르면 디테일 페이지로 이동한다 -->
 
@@ -361,7 +361,7 @@ export default {
 }
 
 .digital-font { 
-  font-family: "Digital", Helvetica, Arial;
+  font-family: "Digital", Helvetica, Arial !important;
   font-size: 15px;
   font-weight: bold;
   position: absolute;

@@ -57,7 +57,7 @@
             class="text-caption mr-2"
             style="cursor: pointer"
             @click="showInput = !showInput">댓글 달기</span>
-            <span class="text-caption" style="color: grey;">{{ replyInfo.wdate | dateFormat()}}</span>
+            <span class="" style="color: grey;">{{ replyInfo.wdate | dateFormat()}}</span>
             <v-text-field
               v-if="showInput"
               autofocus

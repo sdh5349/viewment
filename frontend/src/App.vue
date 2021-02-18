@@ -12,7 +12,7 @@
               mdi-arrow-left
             </v-icon>
           </v-btn> -->
-
+        <v-spacer></v-spacer>
         <v-btn
           v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
           icon
@@ -22,9 +22,6 @@
           <v-icon>mdi-bell</v-icon>
         </v-btn>
       </v-app-bar>
-      <h1 v-else>
-        {{ this.$route.meta.title }}
-      </h1>
       <!-- <v-sheet
           id="scrolling-techniques-7"
           class="overflow-y-auto"
@@ -62,7 +59,6 @@
             fas fa-search
           </v-icon>
         </v-btn>
-
         <v-btn icon @click="goProfile">
           <!-- <span>Nearby</span> -->
 

@@ -27,24 +27,24 @@ export default [
         name : 'Login',
         component : Login,
         props : true,
-        meta : {title: '로그인'},
+        meta : {title: 'Viewment - 로그인'},
     },
     {
         path : '/user/join/',
         name : 'Join',
-        meta : {title: '회원가입'},
+        meta : {title: 'Viewment - 회원가입'},
         component : Join,
     },
     {
         path : '/newsfeed/main',
         name : 'NewsFeed',
-        meta : {title: '피드'},
+        meta : {title: 'Viewment - 피드'},
         component : NewsFeed
     },
     {
         path : '/user/find',
         name : 'ConfirmEmail',
-        meta : {title: '비밀번호 재설정'},
+        meta : {title: 'Viewment - 비밀번호 재설정'},
         component : ConfirmEmail
     },
     {
@@ -71,6 +71,7 @@ export default [
         path : '/user/:profileUserId',
         name : 'Profile',
         component : Profile,
+        meta : { title: 'Viewment - 프로필'},
         props : true,
     },
     {
@@ -102,26 +103,26 @@ export default [
     {
         path : '/search/search',
         name : 'Search',
-        meta : { title: '검색'},
+        meta : { title: 'Viewment - 검색'},
         component : Search,
     },
     {
         path : '/article/create',
         name : 'CreateArticle',
-        meta : { title: '게시물 생성'},
+        meta : { title: 'Viewment - 게시물 생성'},
         component : CreateArticle,
     }, 
     {
         path : '/article/:articleId',
         name : 'DetailArticle',
-        meta : { title: '게시글 상세'},
+        meta : { title: 'Viewment - 게시글 상세'},
         component : DetailArticle,
         props: true,
     }, 
     {
         path : '/article/update/:articleId',
         name : 'UpdateArticle',
-        meta : { title: '게시글 수정'},
+        meta : { title: 'Viewment - 게시글 수정'},
         component : UpdateArticle,
     }, 
     {
@@ -132,13 +133,13 @@ export default [
     {
         path : '/curation',
         name : 'Curation',
-        meta : { title: '게시물 추천'},
+        meta : { title: 'Viewment - 게시물 추천'},
         component : Curation,
     },  
     {
         path : '/search/search-hashtag-grid/:clickedHash',
         name : 'SearchHashtagGrid',
-        meta : { title: '검색'},
+        meta : { title: 'Viewment - 검색'},
         component : SearchHashtagGrid,
         props: true,
     },  
