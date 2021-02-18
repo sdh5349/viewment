@@ -110,8 +110,9 @@ extend('min', {
 
 extend('max', {
   ...max,
-  message: '닉네임은 8자이하 입니다.',
-});
+  params: ['length'],
+  message: '{length}자 이하로 입력해주세요.'
+})
 
 extend('email', {
   ...email,

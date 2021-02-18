@@ -40,7 +40,7 @@
               prepend-icon=mdi-camera 
               class="file-input"></v-file-input>
             
-            <v-carousel  v-if="this.preview.length != 0" style=""  width="100%" height="100%" :show-arrows="false" hide-delimiter-background
+            <v-carousel  v-if="this.preview.length != 0" mouse-drag=true style=""  width="100%" height="100%" :show-arrows="false" hide-delimiter-background
               delimiter-icon="mdi-checkbox-blank-circle-outline">
               <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url" style="max-width: 100%; height: 100%;">
                 <v-row class="d-flex justify-space-between" >
@@ -258,7 +258,7 @@ export default {
       this.getHashtags()
     },
     getHashtags() {
-      const validPattern = /^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|a-z|A-Z|0-9|]+$/;
+      const validPattern = /^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|a-z|A-Z|0-9|ㆍ]+$/;
 
       if (this.search){
         this.search.replace(" ","")
@@ -271,7 +271,6 @@ export default {
             }  
           })
           .catch(err => {
-            alert('error'+err.message)
           })
         } 
         else {
@@ -294,8 +293,7 @@ export default {
       if (tempSumImgSize > 20971520){
         this.alert.message = '파일 총 크기는 20MB를 넘길 수 없습니다.'
         this.alert.alerted = true
-      }
-      else{
+      } else {
         this.preview.push(...tempPreview)
       }
       
@@ -306,8 +304,7 @@ export default {
     save(date) {
       this.$refs.menu.save(date)
     },
-    savePosition(res) {
-      
+    savePosition(res) {     
       if (res.pinId) {
         this.articleInfo.pinId = res.pinId
       }
