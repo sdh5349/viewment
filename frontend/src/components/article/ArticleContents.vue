@@ -349,7 +349,7 @@ export default {
      setTimeout(() => {
         this.showTip = false
       }, 1000)
-    }
+    },
   },
 }
 </script>

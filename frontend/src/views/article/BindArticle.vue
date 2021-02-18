@@ -1,50 +1,54 @@
 <template>
 
 <v-row
-    justify="center"
+  justify="center"
+  style="margin-bottom: 50px;"
+>
+  <v-col
+    class="pa-0 ma-5"
+    lg="4"
+    md="4"
+    sm="6"
   >
-    <v-col
-      lg="4"
-      md="4"
-      sm="6"
-    >
-      <Alert
-        v-if="alert.alerted"
-        :message="alert.message"
-        :color="alert.color ? alert.color : 'error'"
-      />
+    <Alert
+      v-if="alert.alerted"
+      :message="alert.message"
+      :color="alert.color ? alert.color : 'error'"
+    />
 
-  <div v-if="pickArticle">
-    <v-row class="m-auto text-center">
-      <v-col
-        cols='1'
-        class="my-auto"
-      >
-        <v-icon
-          
-        >
-          mdi-map-marker
-        </v-icon>
-      </v-col>
+    <div v-if="pickArticle">
+      <div class="d-flex justify-space-between">
+        <v-card elevation="0">
+          <!-- 주소정보 시작 -->
+          <v-card-title class="pa-0 pb-1">
+            <v-icon
+              class="ml-3"
+              left
+            >
+              mdi-map-marker
+            </v-icon>
+            <v-tooltip v-model="showTip" top>
+              <template v-slot:activator="{ attrs }">
+                <span 
+                  v-if="pickArticle.pin.addressName"
+                  v-bind="attrs"
+                  @click="onTooltip" 
+                  style="font-size: 1rem;"
+                >{{ pickArticle.pin.addressName | truncate(15, '...')}}</span>
+              </template>
+              <span>{{pickArticle.pin.addressName}}</span>
+            </v-tooltip>
+          </v-card-title>
+        <!-- 주소정보 끝 -->
+        </v-card>
 
-      <v-col 
-        cols='7'
-        class="my-auto"
-      >
-        {{pickArticle.pin.addressName}}
-      </v-col>
-
-      <v-col 
-        cols='4'
-        class=""
-      >
         <v-dialog v-model="saveMemoryDialog" persistent >
           <template v-slot:activator="{ on, attrs }" >
-            <v-btn color="primary" dark v-bind="attrs" v-on="on">
+            <v-btn class="py-0 mr-3" dense color="primary" dark v-bind="attrs" v-on="on">
               기억하기
             </v-btn>
           </template>
-  
+
   <!-- v-slot="{ invalid }" -->
           <v-card >
             <v-card-title>기억하기 저장</v-card-title>
@@ -112,124 +116,115 @@
             
           </v-card>
         </v-dialog>
-      </v-col>
-    </v-row>
-
-
-
       
-      <!-- 기억하기핀 버튼을 누르고 map을 누르면 기억하기를 저장할때 이름과 반경을 정할수 있는 카드 (끝) -->
+      </div>
+
+        <!-- 기억하기핀 버튼을 누르고 map을 누르면 기억하기를 저장할때 이름과 반경을 정할수 있는 카드 (끝) -->
+
+      <div class="d-flex">
+        <v-icon class="ml-3" @click="openBindSetting">mdi-calendar</v-icon>
 
 
-
-
-    <v-row>
-      <v-col 
-        cols="3"
-        class="text-center"
-      ><v-icon @click="openBindSetting">mdi-calendar</v-icon>
-      </v-col>
-
-      <v-col
-        cols="9" 
-        class=""
-      >
-        <div @click.stop="dialog = true">
-          {{ startDate }} ~ {{ endDate }}
-        </div>
+        <v-col
+          cols="9" 
+          class="py-2"
+        >
+          <div @click.stop="dialog = true">
+            {{ startDate }} ~ {{ endDate }}
+          </div>
+          
+        </v-col>
         
-      </v-col>
+      </div>
       
-    </v-row>
-    
-    
-    <BindArticleComponents 
-      v-if="articles != ''"
-      :article="pickArticle"
-    />
-
-
-  
-
-  <v-system-bar lights-out></v-system-bar>
-  
- <v-dialog
-      v-model="dialog"
-      max-width="100%"
       
-    >
-      <v-card height="100%">
-        <v-card-title class="headline">
-          모아보기 기간 지정
-        </v-card-title>
-
-      <v-card-text>
-        <v-row>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <v-date-picker
-              v-model="dates"
-              range
-            ></v-date-picker>
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <v-text-field
-              v-model="dateRangeText"
-              label="Date range"
-              prepend-icon="mdi-calendar"
-              readonly
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            color="green darken-1"
-            text
-            @click="dialog = false"
-          >
-            취소
-          </v-btn>
-
-          <v-btn
-            color="green darken-1"
-            text
-            @click="bindSetting"
-          >
-            설정
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <BindArticleComponents 
+        v-if="articles != ''"
+        :article="pickArticle"
+      />
 
 
-
-
-  
-  <Bind
     
-    v-if="articles"
-    :articles='articles'
-    @onClick='getBindArticle'
-    >
-  </Bind>
 
-  <div v-if="articles == ''">
-    게시물이 없습니다. 기간을 다시 설정해주세요.
-    (게시글 없을때 먼가 출력해야할듯)
-  </div>
+    <v-system-bar lights-out></v-system-bar>
+    
+  <v-dialog
+        v-model="dialog"
+        max-width="100%"
+        
+      >
+        <v-card height="100%">
+          <v-card-title class="headline">
+            모아보기 기간 지정
+          </v-card-title>
+
+        <v-card-text>
+          <v-row>
+            <v-col
+              cols="12"
+              sm="6"
+            >
+              <v-date-picker
+                v-model="dates"
+                range
+              ></v-date-picker>
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+            >
+              <v-text-field
+                v-model="dateRangeText"
+                label="Date range"
+                prepend-icon="mdi-calendar"
+                readonly
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn
+              color="green darken-1"
+              text
+              @click="dialog = false"
+            >
+              취소
+            </v-btn>
+
+            <v-btn
+              color="green darken-1"
+              text
+              @click="bindSetting"
+            >
+              설정
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
 
 
 
-  </div>
+    
+    <Bind
+      
+      v-if="articles"
+      :articles='articles'
+      @onClick='getBindArticle'
+      >
+    </Bind>
+
+    <div v-if="articles == ''">
+      게시물이 없습니다. 기간을 다시 설정해주세요.
+      (게시글 없을때 먼가 출력해야할듯)
+    </div>
+
+
+
+
+    </div>
   </v-col>
 </v-row>
 </template>
@@ -247,10 +242,13 @@ extend('required', {
   ...required,
   message: '필수 입력 항목입니다.'
 })
+
 extend('max', {
   ...max,
-  message: '기억하기 이름은 10글자 이하이어야 합니다.'
+  params: ['length'],
+  message: '{length}자 이하로 입력해주세요.'
 })
+
 extend('max_value', {
   ...max_value,
   message: '기억하기 반경은 1500m 이하이어야 합니다.'
@@ -259,6 +257,13 @@ extend('max_value', {
 
 export default {
   filters: {
+    truncate(text, length, suffix) {
+      if (text.length > length) {
+        return text.substring(0, length) + suffix;
+      } else {
+        return text;
+      }
+    },
     dateFormat(date) {
       const dateArray = date.split(' ')[0].split('-')
       return dateArray[0]+'년 '+dateArray[1]+'월 '+ dateArray[2]+'일'
@@ -273,6 +278,7 @@ export default {
   },
   data() {
     return {
+      showTip: false,
       pinId: this.$route.params.pinId,
       articles: '',
       SERVER: process.env.VUE_APP_SERVER_URL,
@@ -415,6 +421,12 @@ export default {
         console.log(err) // 에러 출력
       }) 
 
+    },
+    onTooltip() {
+      this.showTip = true;
+     setTimeout(() => {
+        this.showTip = false
+      }, 1000)
     },
   },
   created() {

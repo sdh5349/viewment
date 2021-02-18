@@ -33,16 +33,18 @@
       
     
       <!-- 사진을 조회하는 캐러셀 시작 -->
-      <v-carousel 
+      <v-carousel
+        style="width: 100%;"
+        height="auto"
         :show-arrows="false" 
         hide-delimiter-background  
-        height="300"
         mouse-drag=true
       >
         <v-carousel-item 
           v-for="(articleImage, idx) in articleInfo.images"
           :key="idx" 
-          :src="imageServerPrefix +  articleImage.path">
+          :src="imageServerPrefix +  articleImage.path"
+          style="max-width: 100%; height: auto;">
           <span class="digital-font">{{articleInfo.date}}</span>
         </v-carousel-item>
       </v-carousel>      
@@ -73,32 +75,6 @@
               />
             <!-- 사용자 아이콘, 닉네임 끝 -->
             </div>
-            
-            <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 시작 -->
-            <v-menu
-              v-if="loginUserId === articleInfo.user.userId"
-              transition="scroll-y-transition"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="m-0"
-                  v-bind="attrs"
-                  v-on="on"
-                  icon
-                >
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list class="py-0">
-                <v-list-item>
-                  <v-list-item-title class="mouse-hover" @click='updateArticle'>수정</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="mouse-hover" @click='deleteArticle'>삭제</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-            <!-- 게시글 수정, 삭제을 선택 할수있는 케밥 버튼 끝 -->
           </v-row>
         </v-list-item-action>
       </v-list-item-content>
@@ -288,6 +264,23 @@ export default {
 </script>
 
 <style scoped>
+@font-face {
+  font-family: "Digital";
+  src: local("Digital"),
+  url(../../assets/fonts/digital.ttf) format("truetype");
+}
+
+.digital-font { 
+  font-family: "Digital", Helvetica, Arial !important;
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  text-shadow:1px 1px 10px #d4bd55;
+  bottom: 0.2rem;
+  right: 0.5rem;
+  color: #d4bd55;
+}
+
 /* 마우스를 버튼에 올리면 포인터로 활성화 된다 */
 .mouse-hover:hover {
   cursor: pointer;
@@ -303,16 +296,5 @@ export default {
   /* height: 70vh;
   padding: 12px 0 12px 0 !important; */
   height: 300px;
-}
-
-.digital-font { 
-  font-family: "Digital", Helvetica, Arial;
-  font-size: 15px;
-  font-weight: bold;
-  position: absolute;
-  text-shadow:1px 1px 10px #d4bd55;
-  bottom: 0.2rem; 
-  right: 0.5rem;
-  color: #d4bd55;
 }
 </style>
