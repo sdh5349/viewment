@@ -3,7 +3,7 @@
     justify="center"
   >
       <v-col
-        
+        class="pa-0"
         lg="4"
         md="4"
         sm="6"
@@ -17,11 +17,11 @@
         <!-- 뉴스피드 지도 탭, 피드 탭 시작 -->
 
         <!-- 탭 시작 -->
-        <v-tabs v-model="activeTab" grow style="">
+        <v-tabs v-model="activeTab" grow>
           <v-tabs-slider color="grey"></v-tabs-slider>
           <v-tab 
             v-for="tabItem in tabItems" 
-            :key="tabItem.tabId" 
+            :key="tabItem.tabId"
           >
             <v-icon>
               {{ tabItem.tabIcon }}
@@ -35,10 +35,11 @@
         <v-tabs-items 
           touchless
           class="my-0 py-0"
+          style="height: 100%;"
           v-model="activeTab">
-          <v-tab-item 
+          <v-tab-item
             v-for="tabItem in tabItems"
-            class="my-0 py-0" 
+            class="my-0 py-0"
             :key="tabItem.tabId"
           >
             <!-- keep-alive 태그를 통해 탭 컴포넌트를 바꿀 때마다 재 생성하는 것이 아닌 데이터를 캐시해두고 다시 볼수있도록 하는 태그 -->
