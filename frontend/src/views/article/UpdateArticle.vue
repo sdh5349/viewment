@@ -198,7 +198,6 @@ export default {
         this.search = ''
       } 
       else {
-        console.log(this.search) 
         axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
           .then((res) => {
             

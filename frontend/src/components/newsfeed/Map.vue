@@ -342,7 +342,7 @@ export default {
         const self = this
         if (self.checkMemoryState){  
           const imageSrc = require('@/assets/images/flag2.png')
-          const imageSize = new kakao.maps.Size(35, 35)
+          const imageSize = new kakao.maps.Size(50, 50)
           const pinImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
          
           self.checkMemoryState = false
@@ -353,7 +353,8 @@ export default {
           
           var pin = new kakao.maps.Marker({
              position: self.position,
-             image: pinImage
+             image: pinImage,
+             xAnchor: 3
           })        
           // 이미 마커가 있으면 없어고 찍게 만들기 위한 if문
           if (self.pinInfo==''){

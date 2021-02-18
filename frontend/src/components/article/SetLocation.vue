@@ -177,7 +177,6 @@ export default {
         lng: self.coordinates.La,
         addressName: res.address_name
       }
-      console.log(searchInfo)
       this.$emit('onClick', searchInfo)
       
       self.address = ''
@@ -225,7 +224,6 @@ export default {
         this.searchedLocations= []
       }
       
-      console.log(this.searchedLocations)
       const self = this
       var places = new kakao.maps.services.Places()
 

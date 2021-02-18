@@ -2,19 +2,14 @@
   <div id="app">
     <v-app id="inspire">
       <!-- <v-card class="overflow-hidden"> -->
-      <v-app-bar v-if="$route.meta.title != '로그인'" fixed color="white" elevate-on-scroll>
-        <!-- <v-app-ba></v-app-ba r-nav-icon> -->
-        <!-- <v-btn icon>
-            <v-icon
-              large
-              @click="goPrevious"
-            >
-              mdi-arrow-left
-            </v-icon>
-          </v-btn> -->
+      <v-app-bar v-if="$route.meta.title != 'Viewment - 로그인'" fixed color="white" elevate-on-scroll>
+        <div>
+          <v-img src="@/assets/images/viewment.png" height="auto" width="30vw">
+          </v-img>
+        </div>
         <v-spacer></v-spacer>
         <v-btn
-          v-if="$route.meta.title != '회원가입' && $route.meta.title != '비밀번호 재설정'"
+          v-if="$route.meta.title != 'Viewment - 회원가입' && $route.meta.title != 'Viewment - 비밀번호 재설정'"
           icon
           @click="goNotiList"
         >
@@ -30,12 +25,11 @@
       <v-container fluid class="mt-5">
         <router-view class="mt-5" @login="loginAndNotiOn()" />
       </v-container>
-      <!-- </v-sheet> -->
-      <!-- </v-card> -->
+
       <v-bottom-navigation
         grow
         fixed
-        v-if="$route.meta.title != '로그인' && $route.meta.title != '회원가입'"
+        v-if="$route.meta.title != 'Viewment - 로그인' && $route.meta.title != 'Viewment - 회원가입'"
       >
         <v-btn icon @click="goCuration">
           <v-icon large>
@@ -55,7 +49,7 @@
         </v-btn>
 
         <v-btn icon @click="goSearch">
-          <v-icon style="width: 28px; height: 28px">
+          <v-icon style="width: 28px; height: 28px;">
             fas fa-search
           </v-icon>
         </v-btn>

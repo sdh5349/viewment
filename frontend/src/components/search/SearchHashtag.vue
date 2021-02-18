@@ -97,7 +97,6 @@ export default {
       if(this.search){
           let re = /^[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ0-9]*$/i;
           if(!re.test(this.search)){
-            console.log("딱걸렸어")
             this.flag = false;
             return;
           }
@@ -112,7 +111,6 @@ export default {
     },
     // 그리드로 page로 데이터 포함해 이동
     goGrid(hash) {
-      console.log(hash.contents)
       this.$router.push({name: 'SearchHashtagGrid', params: {clickedHash: hash.contents}})
       this.History = 
         {
@@ -158,7 +156,6 @@ export default {
     },
     search: function() {
       if(this.onTab===2){
-        console.log("해쉬a")
         this.getHashtags()       
       }
     },

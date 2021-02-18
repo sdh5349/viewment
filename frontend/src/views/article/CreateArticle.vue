@@ -258,26 +258,24 @@ export default {
       this.getHashtags()
     },
     getHashtags() {
-      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/
+      const validPattern = /^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/;
+
       if (this.search){
         this.search.replace(" ","")
       
-      if(special_pattern.test(this.search) == true) { 
-        this.search = ''
-      } 
-      else {
-        console.log(this.search) 
-        axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
-          .then((res) => {
-            
+        if (validPattern.test(this.search)) { 
+          axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+          .then(res => {
             for (var i = 0; i < res.data.length; i++){
               this.items.push(res.data[i].contents)
-              }  
-            
-            })
-          .catch((err)=> {
+            }  
+          })
+          .catch(err => {
             alert('error'+err.message)
           })
+        } 
+        else {
+          this.search = ''
         }
       }
     },

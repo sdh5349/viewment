@@ -186,10 +186,11 @@ export default {
             })
             .then((currentToken) => {
               if (currentToken) {
-                axios
-                  .post(`${SERVER_URL}/notis`, { regiToken: currentToken, userId: createdUser.uid })
-                  .then(() => console.log('알람 등록'))
-                  .catch(() => console.log('알람실패'));
+                axios.post(`${SERVER_URL}/notis`, { regiToken: currentToken, userId: createdUser.uid })
+                .then(() => {
+                })
+                .catch(() =>{
+                });
               }
             })
             .catch((err) => {
