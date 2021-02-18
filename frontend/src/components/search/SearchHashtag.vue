@@ -7,7 +7,7 @@
         class="mx-auto mt-5"
         flat
       >
-        <v-list>
+        <v-list v-if="flag">
           <v-list-item
             v-for="hash in hashtags.slice(0,9)"
             :key="hash.contents"
@@ -25,6 +25,11 @@
 
           </v-list-item>
         </v-list>
+        <p
+          v-else
+          style="padding-top: 10px; padding-left: 30px"
+        >
+        </p>
       </v-card>
     </v-col>
   </v-row>
@@ -32,12 +37,30 @@
 
 <script>
 import axios from 'axios'
+import { extend, ValidationObserver, ValidationProvider } from 'vee-validate' 
 
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
 
+// extend('search', {
+//   validate: value => {
+//     var flag = false
+
+//     let re = /^[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ0-9]*$/i;
+//     if(re.test(value))
+//       flag = true;
+
+//     return flag;
+//   }
+// })
+
 export default {
+  components: {
+      // ValidationProvider,
+      // ValidationObserver,
+  },
   data() {
     return {
+      flag: true,
       hashtags: [],
       Historys: [],
       page: 0,
@@ -72,16 +95,19 @@ export default {
     // Hashtag 가져오기
     getHashtags() {
       if(this.search){
-        axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
-          .then((res) => {
-          console.log(res) 
-          console.log(res.data)
-          console.log(res.data.last)
-          this.hashtags = res.data
-          })
-          .catch((err)=> {
-            alert('error'+err.message)
-          })
+          let re = /^[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ0-9]*$/i;
+          if(!re.test(this.search)){
+            console.log("딱걸렸어")
+            this.flag = false;
+            return;
+          }
+          axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+            .then((res) => {
+            this.hashtags = res.data
+            })
+            .catch((err)=> {
+              alert('error'+err.message)
+            })
       }
     },
     // 그리드로 page로 데이터 포함해 이동

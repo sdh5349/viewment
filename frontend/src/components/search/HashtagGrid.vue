@@ -6,7 +6,8 @@
     <v-col
       v-for="hashArticle in hashArticles"
       :key="hashArticle.articleId"
-      class="d-flex child-flex grid-item-padding"
+      class=" grid-item-padding"
+      height="auto"
       cols="4"
     >
      
@@ -53,7 +54,7 @@ export default {
       hashArticles: [],
       imageServerPrefix: `${SERVER_URL}/images/`,
       page: 0,
-      size: 15,
+      size: 18,
       flag: false
     }
   },
@@ -86,12 +87,10 @@ export default {
       this.flag = true
       axios.get(`${SERVER_URL}/articles/searchbyhashtag/${this.hash}/pg?page=${this.page}&size=${this.size}`,this.getToken)
       .then((res) => {
-        console.log(res.data)
         this.hashArticles.push(...res.data.content)
         this.page += 1
         this.last = res.data.last
-        console.log(this.hashArticles)
-        console.log(this.last)
+        // console.log(this.hashArticles)
       })
       .then((res) => {
         this.flag = false
@@ -102,18 +101,11 @@ export default {
       })
     },
     goDetail(articleId) {
-      console.log(articleId)
+
       this.$router.push({name: 'DetailArticle', params: {articleId,}})
     },
     handleScroll() {
-      console.log('스크롤')
       if (this.flag === false && Math.round(document.documentElement.scrollTop) + window.innerHeight === document.documentElement.offsetHeight && !this.last) {
-        console.log('스크롤')
-        console.log(document.documentElement.scrollTop)
-        console.log(window.innerHeight)
-        console.log(document.documentElement.offsetHeight)
-        console.log(document.documentElement.scrollTop + window.innerHeight,document.documentElement.offsetHeight)
-        console.log(this.hashArticles)
         this.fetchData()
       }
     }
@@ -130,8 +122,8 @@ export default {
 /* 스크롤 컨테이너 안의 아이템이 넘쳐도 스크롤 컨테이너의 크기는 고정 */
 .scroll-container {
   height: 100%;
-  overflow: hidden;
   margin-bottom: 50px;
+  overflow: hidden;
 }
 
 </style>
