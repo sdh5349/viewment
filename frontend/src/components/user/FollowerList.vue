@@ -42,7 +42,7 @@
                 width="55"
                 color="error" 
                 elevation="1" 
-                @click.stop="onFollowerDeleteButton()"
+                @click.stop="onFollowerDeleteButton(item)"
               >
                 삭제
               </v-btn>

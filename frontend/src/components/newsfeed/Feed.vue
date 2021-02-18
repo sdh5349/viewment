@@ -33,7 +33,7 @@
       :key=idx
       class="mx-0"
     >
-      <ArticleContents class="mb-3" :article="item" :is-not-detail="true"/>
+      <ArticleContents class="mb-7" :article="item" :is-not-detail="true"/>
     </div>
     <Alert
       v-if="alert.alerted"
@@ -42,19 +42,26 @@
       :is-bottom="true"
     />
   </div>
-  <v-virtual-scroll
+  <v-container
     v-else
-    class="mx-0"
-    style="padding-bottom: 56px;"
-    :items="feedItems"
-    :item-height="560"
-    max-height="80vh"
-    @scroll.native="scrolling"
+    id="scroll-target"
+    class="overflow-y-auto scroll-container pa-0"
   >
-    <template v-slot:default="{ item }">
-      <ArticleContents :article="item" />
-    </template>
-  </v-virtual-scroll>
+    <div
+      v-for="(item, idx) in feedItems"
+      :key=idx
+      v-scroll:#scroll-target="onScroll"
+      class="mx-0"
+    >
+      <ArticleContents class="mb-7" :article="item" :is-not-detail="true"/>
+    </div>
+    <Alert
+      v-if="alert.alerted"
+      :message="alert.message"
+      :color="alert.color ? alert.color : 'error'"
+      :is-bottom="true"
+    />
+  </v-container>
 </template>
 
 <script>
@@ -127,10 +134,15 @@ export default {
       .catch(err => {
       })
     },
-    scrolling (event) {
+    onScroll (event) {
       const scrollInfo = event.target
+      console.log(this.last)
       if (scrollInfo && Math.round(scrollInfo.scrollHeight - scrollInfo.scrollTop) === scrollInfo.clientHeight && !this.last) {
         this.readMore()
+      } else if (this.feedType === 'newsfeed' && Math.round(scrollInfo.scrollHeight - scrollInfo.scrollTop) === scrollInfo.clientHeight && this.last) {
+        this.alert.message = '더 이상 게시물이 없습니다.'
+        this.alert.color = 'primary'
+        this.alert.alerted = true
       }
     },
     handleScroll() {
@@ -146,5 +158,8 @@ export default {
 }
 </script>
 
-<style >
+<style scoped>
+.scroll-container {
+  height: calc(100vh - 160px);
+}
 </style>

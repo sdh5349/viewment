@@ -75,8 +75,7 @@
       </v-btn-toggle>
       <!-- 내 위치로 이동, 기억하기 마커 그리고 기억하기로 이동 버튼들 (끝) -->
   
-      <div id="map" class="map"></div>
-  
+      <div id="map" class="map" ></div>
   
       <!-- 기억하기핀 버튼을 누르고 map을 누르면 기억하기를 저장할때 이름과 반경을 정할수 있는 카드 (시작) -->
 
@@ -635,18 +634,18 @@ export default {
 <style scoped>
 .map-container {
   position: relative;
-  height: 100vh;
+  height: calc(100vh - 158px);
 }
 
 .map {
   position: absolute;
   width: 100%;
-  height: 81vh;
+  height: calc(100vh - 158px);
   z-index: 0;
   top: 0;
-  margin: 0;
-  
+  margin: 12px 0 0 0;
 }
+
 .memory-location-modar {
   position: absolute;
   top: 0;
