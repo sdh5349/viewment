@@ -43,12 +43,13 @@
           v-for="(articleImage, idx) in articleInfo.images"
           :key="idx" 
           :src="imageServerPrefix +  articleImage.path">
+          <span class="digital-font">{{articleInfo.date}}</span>
         </v-carousel-item>
       </v-carousel>      
       <!-- 사진을 조회하는 캐러셀 끝 -->
     <!-- 게시물 헤더 부분 시작 -->
     <div class="text-right" @click="goDetail(articleInfo.articleId)">...더보기</div>
-
+    
     <v-list-item
       class="pa-0"
     >
@@ -302,5 +303,16 @@ export default {
   /* height: 70vh;
   padding: 12px 0 12px 0 !important; */
   height: 300px;
+}
+
+.digital-font { 
+  font-family: "Digital", Helvetica, Arial;
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  text-shadow:1px 1px 10px #d4bd55;
+  bottom: 0.2rem; 
+  right: 0.5rem;
+  color: #d4bd55;
 }
 </style>
