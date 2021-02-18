@@ -2,25 +2,31 @@
   <v-row 
     class="map-container"
   >
-    <v-col class="py-0">
+    <v-col class="py-0 text-center">
       <!-- 내 위치로 이동, 기억하기 핀 그리고 기억하기로 이동 버튼들 (시작) -->
-      <v-btn-toggle>
-
+      
+        
         <!-- 내 위치로 이동 버튼 (시작) -->
-        <v-btn icon color="black" @click="moveMyLocation" position: absolute style="z-index: 1; top:7px;">
+        <v-btn fab absolute small @click="moveMyLocation"
+          v-bind:color="moveMyLocationState== false ? '' : 'primary'"
+          style="z-index: 1; left:82vw; top:20px;">
           <v-icon>
             mdi-apple-safari
           </v-icon>
         </v-btn>
+        
         <!-- 내 위치로 이동 버튼 (끝) -->
   
         <!-- 기억하기 핀 버튼 (시작) -->
-        <v-btn icon color="black" @click="checkMemory" class="d-flex" position: absolute
-          style="z-index: 1; top:54px;">
-          <v-icon>
+        
+        <v-btn fab absolute small @click="checkMemory" 
+          v-bind:color="checkMemoryState== false ? '' : 'primary'"
+          style="z-index: 1; left:82vw; top:70px;">
+          <v-icon >
             mdi-pin
           </v-icon>
         </v-btn>
+        
         <!-- 기억하기 핀 버튼 (끝) -->  
   
 
@@ -29,9 +35,10 @@
           <template v-slot:activator="{ on, attrs }">
 
             <!-- 기억하기로 이동 버튼 (시작) -->
-            <v-btn icon color="black" class="d-flex" v-bind="attrs" v-on="on" position: absolute
-              style="z-index: 1; top:100px;">
-              <v-icon>
+            <v-btn fab absolute small class="text-center" v-bind="attrs" v-on="on" 
+              @click="goMemory"
+              style="z-index: 1; left:82vw; top:120px;">
+              <v-icon dark>
                 mdi-book
               </v-icon>
             </v-btn>
@@ -68,7 +75,7 @@
         </v-dialog>
         <!-- 기억하기로 이동 관련 (끝) -->
 
-      </v-btn-toggle>
+      
       <!-- 내 위치로 이동, 기억하기 마커 그리고 기억하기로 이동 버튼들 (끝) -->
   
       <div id="map" class="map"></div>
@@ -217,6 +224,8 @@ export default {
       position: '', // 위치 정보를 담을 변수로 사용한다. 
       pins: [], // 게시물 핀들을 담을 배열
       checkMemoryState: false, // 기억하기 핀 버튼을 눌렀는지 안눌렀는지를 판단하는 변수
+      moveMyLocationState: false,
+      goMemoryState: false,
       is_customOverlay: false, // 커스텀오버레이가 보일지 말지를 판단하는 것  클릭할때마다 보이거나 안보이거나 
       articles: '', // 게시물들을 담을 변수
       memoryName: '기억장소', // 기억하기를 저장할때 장소 이름을 담을 변수
@@ -238,7 +247,7 @@ export default {
         lng: '',
       },
       imageServerPrefix: `${SERVER_URL}/images/`, // 이미지를 쉽게 불러오기 위한 변수
-
+      // loading : this.checkMemoryState
     }
   },
   mounted() {
@@ -247,6 +256,10 @@ export default {
       : this.addKakaoMapScript(); // 거짓
   },
   methods: {
+    goMemory() {
+      
+      this.checkMemoryState = false      
+    },
     // 미리 선언한 kakao가 없을떄 실행하는 method
     addKakaoMapScript() {
       const script = document.createElement("script");
@@ -329,7 +342,7 @@ export default {
     mapClick(mouseEvent) {
         const self = this
         if (self.checkMemoryState){  
-          
+          self.checkMemoryState = false
           var latlng = mouseEvent.latLng;   
           self.position = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng())
           var pin = new kakao.maps.Marker({
@@ -358,17 +371,26 @@ export default {
     },
     // 내 위치로 이동
     moveMyLocation() {
+      this.checkMemoryState = false
+      this.moveMyLocationState = !this.moveMyLocationState;
       const self = this
       self.$getLocation()
       .then(coordinates => {
+
         self.myLocation = coordinates
+        setTimeout(function() {
+          self.moveMyLocationState = !self.moveMyLocationState;
+        }, 1000);
       })
       .then(() => {
         self.map.setCenter(new kakao.maps.LatLng(self.myLocation.lat, self.myLocation.lng))
         kakao.maps.event.addListener(self.map, 'click', function(mouseEvent) {
           self.mapClick(mouseEvent)
+          
         })
       })
+
+      
     },
     // 기억하기를 위해서 핀을 찍을때 마커를 눌러야 핀을 찍을 수있는데 
     // 핀을 누른 상태인지 아닌지를 판단하는것
