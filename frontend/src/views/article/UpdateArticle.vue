@@ -12,7 +12,7 @@
         </v-col>
 
         <v-col cols="12">
-          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search"  :delimiters="[' ']" hint="해시태그는 최대 5개 입니다.">
+          <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup" :search-input.sync="search"  :delimiters="[' ']" hint="해시태그는 최대 5개 입니다. 특수문자는 불가능 합니다.">
             <template v-slot:selection="data">
               <v-chip :key="JSON.stringify(data.item)" v-bind="data.attrs" :input-value="data.selected"
                 :disabled="data.disabled" @click:close="data.parent.selectItem(data.item)">
@@ -190,18 +190,27 @@ export default {
       this.getHashtags()
     },
     getHashtags() {
+      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/
       if (this.search){
-      axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
-        .then((res) => {
-          
-          for (var i = 0; i < res.data.length; i++){
-            this.items.push(res.data[i].contents)
-            }  
-          
+        this.search.replace(" ","")
+      
+      if(special_pattern.test(this.search) == true) { 
+        this.search = ''
+      } 
+      else {
+        console.log(this.search) 
+        axios.get(`${SERVER_URL}/hashtags/${this.search}`, this.getToken)
+          .then((res) => {
+            
+            for (var i = 0; i < res.data.length; i++){
+              this.items.push(res.data[i].contents)
+              }  
+            
+            })
+          .catch((err)=> {
+            alert('error'+err.message)
           })
-        .catch((err)=> {
-          alert('error'+err.message)
-        })
+        }
       }
     },
   },
@@ -218,6 +227,14 @@ export default {
   },
   watch: {
     hashtags (val) {
+      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/;
+      if(special_pattern.test(val[val.length-1]) == true) { 
+        this.hashtags.pop()
+      } 
+      else { 
+        0
+      }
+
       var index = this.hashtags.indexOf('')
       if (index!=-1){
         this.hashtags.splice(index, 1)

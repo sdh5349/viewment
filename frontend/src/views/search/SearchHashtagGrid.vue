@@ -11,9 +11,9 @@
     <!-- 프로필 카드 시작 -->
     <v-card
       flat
-      class="py-6"
     >
       <v-list-item three-line>
+        <!-- <div class="relative-container">  -->
         <v-card
           elevation="0"
         >
@@ -29,12 +29,16 @@
             # {{hash}}
           </v-list-item-title>
         </v-list-item-content>
+        <!-- </div> -->
       </v-list-item>
     </v-card>    
     <!-- 프로필 카드 끝 -->
-    <HashtagGrid
-      :hash="hash"
-    />
+    <div class="relative-container">
+      <HashtagGrid
+        :hash="hash"
+        class="mt-1 mx-0"
+      />
+    </div>
     </v-col>
   </v-row>
 </template>
@@ -51,7 +55,6 @@ export default {
   },
   data() {
     return {
-      loading: true,
       hash: "",
     }
   },
@@ -69,6 +72,9 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+/* 컨테이너를 relative position으로 바꾼다. */
+.relative-container {
+  position: relative
+}
 </style>
