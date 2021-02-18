@@ -4,7 +4,7 @@
       <!-- <v-card class="overflow-hidden"> -->
       <v-app-bar v-if="$route.meta.title != 'Viewment - 로그인'" fixed color="white" elevate-on-scroll>
         <div>
-          <v-img src="@/assets/images/viewment.png" height="auto" width="30vw">
+          <v-img src="@/assets/images/viewment.png" height="auto" max-width="150px" width="80%">
           </v-img>
         </div>
         <v-spacer></v-spacer>

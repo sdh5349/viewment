@@ -9,7 +9,7 @@
         <!-- 내 위치로 이동 버튼 (시작) -->
         <v-btn fab absolute small @click="moveMyLocation"
           v-bind:color="moveMyLocationState== false ? '' : 'primary'"
-          style="z-index: 1; left:82vw; top:20px;">
+          style="z-index: 1; right: 20px; top:20px;">
           <v-icon>
             mdi-apple-safari
           </v-icon>
@@ -21,7 +21,7 @@
         
         <v-btn fab absolute small @click="checkMemory" 
           v-bind:color="checkMemoryState== false ? '' : 'primary'"
-          style="z-index: 1; left:82vw; top:70px;">
+          style="z-index: 1; right: 20px; top:70px;">
           <v-icon >
             mdi-pin
           </v-icon>
@@ -37,7 +37,7 @@
             <!-- 기억하기로 이동 버튼 (시작) -->
             <v-btn fab absolute small class="text-center" v-bind="attrs" v-on="on" 
               @click="goMemory"
-              style="z-index: 1; left:82vw; top:120px;">
+              style="z-index: 1; right: 20px; top:120px;">
               <v-icon dark>
                 mdi-book
               </v-icon>

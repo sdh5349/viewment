@@ -146,7 +146,7 @@
         >
           <v-chip
             v-for="(hashtag, i) in articleInfo.hashtags" :key="i"
-            class="mx-1 my-0 px-2  text-body-1"
+            class="mx-1 my-1 px-2  text-body-1"
             label
             small
             color="primary"
