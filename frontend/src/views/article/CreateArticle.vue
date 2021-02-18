@@ -1,5 +1,21 @@
 <template>
-  <v-row justify="center" position: relative>
+  <v-row
+    v-if="loading"
+    style="height: 50vh;"
+    class="fill-height ma-0"
+    align="center"
+    justify="center"
+  >
+    <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+  </v-row>
+  <v-row 
+    v-else
+    justify="center" 
+    position: relative
+  >
     <v-col lg="4" md="4" sm="6" class="pa-0">
       <Alert
         v-if="alert.alerted"
@@ -7,20 +23,13 @@
         :color="alert.color ? alert.color : 'error'"
       />
       <v-stepper class="stepper-container" v-model="e6" vertical>
-    
+        
         <v-stepper-step :complete="e6 > 1" step="1" class="pl-2 py-1">
           사진
         </v-stepper-step>
-  
-  
+        
         <v-stepper-content step="1" class="ml-5">
-  
-          
           <v-card class="img-card-container" elevation='0'>
-
-  
-  
-  
             <v-file-input 
               v-if="this.preview.length == 0" 
               accept="image/*"
@@ -30,13 +39,12 @@
               hide-input 
               prepend-icon=mdi-camera 
               class="file-input"></v-file-input>
-  
-  
+            
             <v-carousel  v-if="this.preview.length != 0" style=""  width="100%" height="100%" :show-arrows="false" hide-delimiter-background
               delimiter-icon="mdi-checkbox-blank-circle-outline">
-  
               <v-carousel-item v-for="(file, index) in preview" :key="index" :src="file.url" style="max-width: 100%; height: 100%;">
                 <v-row class="d-flex justify-space-between" >
+                
                 <v-col cols="3" >
                   <v-btn fab small class="close-button"  @click='imageDelete(index)' >
                     <v-icon dark>
@@ -56,10 +64,10 @@
               </v-row>
               </v-carousel-item>
             </v-carousel>
-          
-  
           </v-card>
+          
           <v-row class="button-container">
+           
             <v-col cols="6">
               <v-btn block @click="goHome">
                 취소
@@ -67,13 +75,12 @@
             </v-col>
   
             <v-col cols="6">
-  
               <v-btn :disabled="this.preview.length == 0" block color="primary" @click="e6 = 2">
                 다음
               </v-btn>
             </v-col>
+          
           </v-row>
-
   
         </v-stepper-content>
   
@@ -84,14 +91,11 @@
   
         <v-stepper-step :complete="e6 > 2" step="2" class="pl-2 py-1">
           정보
-  
         </v-stepper-step>
   
         <v-stepper-content step="2" class="ml-5">
           <v-card color="lighten-1" class="" height="50vh" elevation='0'>
-  
             <v-textarea  placeholder="추억을 적어주세요!" type="text" label="게시 글 입력" v-model="contents" outlined class="mt-0 pt-5" ></v-textarea>
-  
   
             <v-combobox v-model="hashtags" :items="items" label="해시태그" multiple chips @keyup="hashKeyup"
               :search-input.sync="search" :delimiters="[' ']" hint="해시태그는 최대 5개 입니다. 특수문자는 불가능 합니다.">
@@ -123,8 +127,6 @@
             </v-menu>
   
           </v-card>
-          
-  
   
           <v-row class="button-container">
             <v-col cols="6">
@@ -143,7 +145,6 @@
   
         <v-stepper-step :complete="e6 > 3" step="3" class="pl-2 py-1">
           위치
-  
         </v-stepper-step>
   
         <v-stepper-content step="3" class="ma-0 pa-2">
@@ -167,12 +168,7 @@
 
         </v-stepper-content>
   
-  
-  
-  
       </v-stepper>
-  
-  
   
     </v-col>
   </v-row>
@@ -181,31 +177,18 @@
 <script>
 import axios from 'axios'
 import SetLocation from "@/components/article/SetLocation.vue" 
-import { required, min, max } from 'vee-validate/dist/rules'
-import { extend, ValidationObserver, ValidationProvider } from 'vee-validate'
-import { mdiCloseCircleOutline } from '@mdi/js'
 import Alert from '@/components/common/Alert'
+
 const SERVER_URL = process.env.VUE_APP_SERVER_URL
-
-const request = axios.CancelToken.source()
-
-
-
-// https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes
-// setInteractionMode('eager') // 유효성 검사의 시기
-
-extend('required', {
-  ...required,
-  message: '필수 입력 항목입니다.'
-})
 
 export default {
   components: {
     SetLocation,
     Alert
   },
-  data: () => {
+  data() {
     return {
+      loading: true,
       e6: 1,
       preview: [],
       articleImages: null,
@@ -233,6 +216,39 @@ export default {
         color: '',
       },
     }
+  },
+  computed: {
+    getToken(){
+      const token = sessionStorage.getItem('jwt')
+      const config = {
+        headers: {
+          'X-Authorization-Firebase': token
+        }
+      }
+      return config
+    },
+  },
+  watch: {
+    hashtags (val) {
+      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/;
+      if(special_pattern.test(val[val.length-1]) == true) { 
+        this.hashtags.pop()
+      } 
+      else { 
+        0
+      }
+
+      var index = this.hashtags.indexOf('')
+      if (index!=-1){
+        this.hashtags.splice(index, 1)
+      }
+      if (val.length > 5) {
+        this.$nextTick(() => this.hashtags.pop())
+      }
+    },
+  },
+  created() {
+    this.loading = false
   },
   methods: {
     spaceEvent() {
@@ -306,7 +322,10 @@ export default {
       
     },
     onSubmit() {
+      this.loading = true
+
       var index = this.hashtags.indexOf('')
+
       if (index!=-1){
         this.hashtags.splice(index, 1)
       }
@@ -320,7 +339,6 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         this.articleImages.append('articleImages', this.files[i]);
       }
-      
 
       var headers = {
         headers: {
@@ -343,11 +361,14 @@ export default {
         .then((res) => {
           this.articleId = res.data
           axios.post(`${SERVER_URL}/images/article/` + this.articleId, this.articleImages, headers)
-          .then((res) => {
+          .then(res => {
             
             this.$router.push({name: 'DetailArticle', params: {
               articleId: this.articleId,
             }})
+          })
+          .then(() => {
+            this.loading = false
           })
           .catch((err) => {
             alert(err)
@@ -359,36 +380,6 @@ export default {
     },
     goHome() {
       this.$router.go(-1)
-    },
-  },
-  computed: {
-    getToken(){
-      const token = sessionStorage.getItem('jwt')
-      const config = {
-        headers: {
-          'X-Authorization-Firebase': token
-        }
-      }
-      return config
-    },
-  },
-  watch: {
-    hashtags (val) {
-      var special_pattern = /[~!@#$%^&*()_+|<>?:{}]/;
-      if(special_pattern.test(val[val.length-1]) == true) { 
-        this.hashtags.pop()
-      } 
-      else { 
-        0
-      }
-
-      var index = this.hashtags.indexOf('')
-      if (index!=-1){
-        this.hashtags.splice(index, 1)
-      }
-      if (val.length > 5) {
-        this.$nextTick(() => this.hashtags.pop())
-      }
     },
   },
 }
