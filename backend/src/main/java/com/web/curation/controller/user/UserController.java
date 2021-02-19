@@ -65,8 +65,13 @@ public class UserController {
 
     @ApiOperation(value = "회원 팔로잉")
     @PostMapping("/{userId}/follow")
-    public ResponseEntity<?> follow(@PathVariable("userId") String userId, @RequestBody Map<String, String> map) throws FirebaseMessagingException {
-        followService.follow(userId, map.get("targetUserId"));
+    public ResponseEntity<?> follow(@PathVariable("userId") String userId, @RequestBody Map<String, String> map) {
+
+        try {
+            followService.follow(userId, map.get("targetUserId"));
+        } catch (FirebaseMessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
         return ResponseEntity.ok().build();
     }
 
