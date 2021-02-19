@@ -63,7 +63,7 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <div v-else>
+            <div v-else-if="articleInfo.recommended">
               <v-img
                 max-width="2rem"
                 height="auto"

@@ -23,12 +23,10 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.name === 'Login') { 
-      next()
-    } 
-
     firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
+      if (to.name === 'Login' || to.name === 'ConfirmEmail' || to.name === 'Join'|| to.name === 'ActionUrlHandler') { 
+        next()
+      } else if (user) {
         if (to.meta.title) {
           document.title = to.meta.title;
         } 
