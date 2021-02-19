@@ -1,6 +1,6 @@
 # Viewment
 
-SSAFY 4기 2학기 공통 프로젝트 Sub Project2 
+SSAFY 4기 2학기 공통 프로젝트 Sub Project3 
 
  <br/>
 
@@ -20,7 +20,11 @@ SSAFY 4기 2학기 공통 프로젝트 Sub Project2
 
 ## Intro
 
-수정중입니다
+- 진행 기간: 2020.01.04 ~ 2020.02.19
+- 목표
+  - 장소를 통한 추억 공유
+- 웹사이트 이름: Viewment
+  - 장소를 통한 추억공유 SNS 커뮤니티
 
 
 <br/><br/>
@@ -29,7 +33,7 @@ SSAFY 4기 2학기 공통 프로젝트 Sub Project2
 
 ## Architecture
 
-![architecture](./img/diagram.png)
+![architecture](./img/arch.PNG)
 
 <br/><br/>
 
@@ -149,4 +153,10 @@ java -jar {생성된jar파일이름}
 - 근방 몇 미터까지 알람을 받아볼 것인지 설정 가능
 - 기억하기 장소에 이름을 부여할 수 있음
 - 다른 회원들의 프로필에서 기억하기 장소들을 조회 가능 
+
+<br/> <br/>
+## 팀원
+
+![member](./img/team.jpg)
+
 
