@@ -114,21 +114,6 @@
 
         this.handleResetPassword(auth, actionCode, continueUrl, lang)
       },
-      onLogout() {
-        const self = this
-
-        firebase.auth().signOut()
-        .then(() => {
-          sessionStorage.removeItem('jwt')
-          sessionStorage.removeItem('uid')
-          self.$emit('logout')
-          self.$router.push({ name: 'Login' })
-        })
-        .catch(err => {
-          this.alert.message = err.message
-          this.alert.alerted = true
-        })
-      },
       handleResetPassword(auth, actionCode, continueUrl, lang) { // 계정을 찾는 사용자가 이메일 인증 후 유효한 비밀번호를 제출하면 firebase에 적용하는 함수
         const self = this
 
@@ -139,7 +124,7 @@
             this.alert.message = '비밀번호 변경이 완료되었습니다.'
             this.alert.color = 'primary'
             this.alert.alerted = true
-            setTimeout(() => this.onLogout, 2000)
+            setTimeout(() => self.$router.replace({ name: 'Login' }), 2000)
           }).catch(err => {
             this.alert.message = err.message
             this.alert.alerted = true
