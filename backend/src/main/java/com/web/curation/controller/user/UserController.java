@@ -1,5 +1,6 @@
 package com.web.curation.controller.user;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.web.curation.commons.ErrorResponse;
 import com.web.curation.commons.PageRequest;
 import com.web.curation.dto.user.SimpleUserInfoDto;
@@ -64,7 +65,7 @@ public class UserController {
 
     @ApiOperation(value = "회원 팔로잉")
     @PostMapping("/{userId}/follow")
-    public ResponseEntity<?> follow(@PathVariable("userId") String userId, @RequestBody Map<String, String> map){
+    public ResponseEntity<?> follow(@PathVariable("userId") String userId, @RequestBody Map<String, String> map) throws FirebaseMessagingException {
         followService.follow(userId, map.get("targetUserId"));
         return ResponseEntity.ok().build();
     }

@@ -1,5 +1,6 @@
 package com.web.curation.controller.article;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.article.Article;
 import com.web.curation.dto.article.ArticleDto;
@@ -147,7 +148,7 @@ public class ArticleController {
      */
     @ApiOperation(value = "게시글 좋아요")
     @PostMapping("/{articleId}/like")
-    public ResponseEntity<String> likeArticle(@PathVariable("articleId") Long articleId, Authentication authentication){
+    public ResponseEntity<String> likeArticle(@PathVariable("articleId") Long articleId, Authentication authentication) throws FirebaseMessagingException {
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
 
         articleService.like(currentUserId, articleId);

@@ -1,7 +1,14 @@
 package com.web.curation.service.article;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.web.curation.commons.PageRequest;
 import com.web.curation.domain.Image;
+import com.web.curation.domain.Memory;
 import com.web.curation.domain.Pin;
 import com.web.curation.domain.User;
 import com.web.curation.domain.article.Article;
@@ -12,9 +19,8 @@ import com.web.curation.dto.article.ArticleDto;
 import com.web.curation.dto.article.ArticleFeedDto;
 import com.web.curation.dto.article.ArticleInfoDto;
 import com.web.curation.dto.article.ArticleSimpleDto;
+import com.web.curation.dto.notification.FirebaseNotiDto;
 import com.web.curation.dto.user.SimpleUserInfoDto;
-import com.web.curation.event.NewArticleEvent;
-import com.web.curation.event.NewLikeEvent;
 import com.web.curation.exceptions.ElementNotFoundException;
 import com.web.curation.exceptions.UserNotFoundException;
 import com.web.curation.repository.article.ArticleRepository;
@@ -31,7 +37,6 @@ import com.web.curation.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -39,8 +44,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -76,9 +79,7 @@ public class ArticleService {
     private final FollowRepository followRepository;
     private final ImageRepository imageRepository;
 
-    private final ApplicationEventPublisher eventPublisher;
-
-    public Article write(ArticleDto articleDto) {
+    public Article write(ArticleDto articleDto) throws FirebaseMessagingException {
         Article article = new Article();
 
         User user = getUser(articleDto.getUserId());
@@ -102,9 +103,31 @@ public class ArticleService {
         Article savedArticle = articleRepository.save(article);
         List<MemoryPin> memoryPins = memoryPinRepository.findByPin(savedArticle.getPin());
 
-        eventPublisher.publishEvent(new NewArticleEvent(savedArticle, memoryPins));
+        List<Message> messages = new ArrayList<>();
+        memoryPins.stream()
+                .forEach(memoryPin -> {
+                    Memory memory = memoryPin.getMemory();
+                    if (memory.getUser().isMemoryNoti() && !memory.getUser().getId().equals(savedArticle.getUser().getId())) {
+                        Message message = Message.builder()
+                                .setNotification(Notification.builder()
+                                        .setTitle("Viewment")
+                                        .setBody(memory.getName() + "에 새로운 사진이 등록되었습니다")
+                                        .build())
+                                .setTopic("memory-" + memory.getUser().getId())
+                                .build();
+                        messages.add(message);
+                        saveNoti(memory, savedArticle);
+                    }
+                });
+        if (messages.size() > 0)
+            FirebaseMessaging.getInstance().sendAll(messages);
 
         return savedArticle;
+    }
+
+    private void saveNoti(Memory memory, Article article) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("noti/" + memory.getUser().getId());
+        ref.push().setValueAsync(new FirebaseNotiDto(memory.getUser(), article, memory));
     }
 
     @Transactional(readOnly = true)
@@ -220,18 +243,18 @@ public class ArticleService {
                 })
                 .collect(Collectors.toList());
 
-        Collections.sort(result, (a, b)-> Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
+        Collections.sort(result, (a, b) -> Timestamp.valueOf(b.getWdate()).compareTo(Timestamp.valueOf(a.getWdate())));
 
         int s = pageable.getPageNumber();
         int e = pageable.getPageSize();
 
-        int fromIdx = s*e<result.size() ? (s*e) : result.size();
-        int toIdx = (s*e + e)<result.size() ? (s*e+e) : result.size();
+        int fromIdx = s * e < result.size() ? (s * e) : result.size();
+        int toIdx = (s * e + e) < result.size() ? (s * e + e) : result.size();
         int total = result.size();
 
         result = result.subList(fromIdx, toIdx);
 
-        return new PageImpl<ArticleFeedDto>(result, pageable, total) ;
+        return new PageImpl<ArticleFeedDto>(result, pageable, total);
     }
 
     @Transactional(readOnly = true)
@@ -291,7 +314,7 @@ public class ArticleService {
         findArticle.resetPin();
         articleRepository.delete(findArticle);
 
-        if(pin.getArticles().size() == 0) {
+        if (pin.getArticles().size() == 0) {
             List<MemoryPin> memoryPins = memoryPinRepository.findByPin(pin);
             memoryPins.stream().forEach(memoryPin -> {
                 memoryPin.resetMemoryPin();
@@ -301,7 +324,7 @@ public class ArticleService {
         }
 
         hashtags.stream().forEach(hashtag -> {
-            if(hashtag.getArticles().size() == 0)
+            if (hashtag.getArticles().size() == 0)
                 hashtagRepository.delete(hashtag);
         });
 
@@ -335,8 +358,8 @@ public class ArticleService {
     private void addMemoryPin(Pin pin) {
         memoryRepository.findAll().stream()
                 .forEach(memory -> {
-                    if(memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
-                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory,pin));
+                    if (memory.getRadius() >= DistanceUtil.calcDistance(memory.getLocation().getY(), memory.getLocation().getX(), pin.getLocation().getY(), pin.getLocation().getX()))
+                        memory.addNearbyPins(MemoryPin.createMemoryPin(memory, pin));
                 });
     }
 
@@ -346,12 +369,14 @@ public class ArticleService {
      */
 
     @Transactional
-    public void like(String userId, Long articleId) {
+    public void like(String userId, Long articleId) throws FirebaseMessagingException {
         User user = getUser(userId);
         Article article = getArticle(articleId);
 
         likeRepository.findByUserAndArticle(user, article).ifPresent(
-                likes->{throw new IllegalStateException("이미 좋아요를 누른 게시글입니다.");}
+                likes -> {
+                    throw new IllegalStateException("이미 좋아요를 누른 게시글입니다.");
+                }
         );
 
         Likes like = new Likes();
@@ -363,8 +388,25 @@ public class ArticleService {
         user.addLike(like);
         article.addLike(like);
 
-        if(article.getUser().isLikeNoti() && article.getUser().getId() != user.getId())
-            eventPublisher.publishEvent(new NewLikeEvent(user, article.getUser(), article));
+        if (article.getUser().isLikeNoti() && !article.getUser().getId().equals(user.getId())) {
+            Message message = Message.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle("Viewment")
+                            .setBody(user.getNickname() + " 님이 회원님의 글을 좋아합니다")
+                            .build())
+                    .setTopic("like-" + article.getUser().getId())
+                    .build();
+//        System.out.println("이벤트 발생: " + "like-" + newLikeEvent.getTo().getId());
+            FirebaseMessaging.getInstance().send(message);
+            saveNoti(article.getUser(), user, article);
+
+        }
+
+    }
+
+    private void saveNoti(User to, User from, Article article) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("noti/" + to.getId());
+        ref.push().setValueAsync(new FirebaseNotiDto(to, from, article));
     }
 
     @Transactional
@@ -388,7 +430,9 @@ public class ArticleService {
         User currentUser = getUser(currentUserId);
         Article article = getArticle(articleId);
         List<User> follows = followRepository.findByFrom(currentUser).stream()
-                .map(follow->{return follow.getTo();})
+                .map(follow -> {
+                    return follow.getTo();
+                })
                 .collect(Collectors.toList());
 
         Page<SimpleUserInfoDto> result = likeRepository.findByArticle(article, pageable).map(
