@@ -17,6 +17,12 @@
           <v-icon>mdi-bell</v-icon>
         </v-btn>
       </v-app-bar>
+      <v-app-bar v-else-if="$route.meta.title === 'Viewment - 로그인'" fixed color="white" elevate-on-scroll>
+        <div>
+          <v-img src="@/assets/images/viewment.png" height="auto" max-width="150px" width="80%">
+          </v-img>
+        </div>
+      </v-app-bar>
       <!-- <v-sheet
           id="scrolling-techniques-7"
           class="overflow-y-auto"
