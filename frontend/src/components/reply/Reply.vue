@@ -225,7 +225,7 @@ export default {
       axios.put(`${SERVER_URL}/replies${postFix}`, params, this.getToken)
       .then(() => {
         var date = new Date();
-        date = date.getFullYear() + "년" + (date.getMonth() + 1) + "월" + date.getDate() + "일"
+        date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
         this.replyInfo.wdate = date
         this.replyInfo.contents = this.updateContent
       })
