@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,16 +48,29 @@ public class ArticleController {
 
     @ApiOperation(value = "게시글 작성, 핀X", notes = "adressName, contents, hashtags, lat, lng, userId 필수 \n 해시태그가 없을 경우 비어있는 배열이라도 보내주세요")
     @PostMapping({""})
-    public ResponseEntity<Long> writeArticleNoPin(@RequestBody ArticleDto articleDto) throws Exception {
+    public ResponseEntity<Long> writeArticleNoPin(@RequestBody ArticleDto articleDto) {
 
-        Article savedArticle = articleService.write(articleDto);
+        Article savedArticle = null;
+        try {
+            savedArticle = articleService.write(articleDto);
+        } catch (FirebaseMessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        }
         return ResponseEntity.ok().body(savedArticle.getArticleId());
     }
 
     @ApiOperation(value = "게시글 작성, 핀O", notes = "adressName, contents, hashtags, pinId, userId 필수 \n 해시태그가 없을 경우 비어있는 배열이라도 보내주세요")
     @PostMapping({"/pin"})
-    public ResponseEntity<Long> writeArticlewithPin(@RequestBody ArticleDto articleDto) throws Exception {
-        Article savedArticle = articleService.write(articleDto);
+    public ResponseEntity<Long> writeArticlewithPin(@RequestBody ArticleDto articleDto) {
+
+        Article savedArticle = null;
+        try {
+            savedArticle = articleService.write(articleDto);
+        } catch (FirebaseMessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        }
         return ResponseEntity.ok().body(savedArticle.getArticleId());
     }
 
@@ -148,10 +162,14 @@ public class ArticleController {
      */
     @ApiOperation(value = "게시글 좋아요")
     @PostMapping("/{articleId}/like")
-    public ResponseEntity<String> likeArticle(@PathVariable("articleId") Long articleId, Authentication authentication) throws FirebaseMessagingException {
+    public ResponseEntity<String> likeArticle(@PathVariable("articleId") Long articleId, Authentication authentication) {
         final String currentUserId = ((UserDetails)authentication.getPrincipal()).getUsername();
 
-        articleService.like(currentUserId, articleId);
+        try {
+            articleService.like(currentUserId, articleId);
+        } catch (FirebaseMessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok().body("like");
     }
